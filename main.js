@@ -262,7 +262,7 @@ class Resource {
         this.speed = 0.1;
         this.maxSpeed = 2;
         this.rot = getRandomInt(360);
-        this.radius = getRandomInt(2) + 1;
+        this.radius = getRandomInt(5) + 1;
         let loc = mapLocations[constellation][curMapLoc];
         let s = getRandomInt(loc.resources.length);
         let t = loc.resources[s];
@@ -454,14 +454,18 @@ function step(timeStamp) {
         resources.forEach(r => {
             moveEntity(r);
             if (collision(r, ship)) {
-                if (ship.storageTotal + r.radius <= ship.maxStorage) {
+                if (ship.storageTotal < ship.maxStorage) {
                     deadResources.push(r);
-                    ship.storageTotal += r.radius;
-                    //console.log('ship.storage[r.resource]: ' + ship.storage[r.resource]);
-                    ship.storage[r.resource] += r.radius;
+                    if (ship.storageTotal + r.radius > ship.maxStorage) {
+                        // discard part of resources that don't fit the maxStorage
+                        ship.storage[r.resource] += ship.maxStorage - ship.storageTotal;
+                        ship.storageTotal += ship.maxStorage - ship.storageTotal;
+                    } else {
+                        ship.storage[r.resource] += r.radius;
+                        ship.storageTotal += r.radius;
+                    }
                     resources = resources.filter(n => !deadResources.includes(n));
                     deadResources = [];
-                    //console.log(ship.storage);
                 }
             } else if (distance2D(r, ship) < ship.collectDistance && ship.storageTotal < ship.maxStorage ) {
                 let a = ship.hbOffset1+(ship.hbOffset2/2);
@@ -686,17 +690,17 @@ function drawTitle() {
     drawBG();
     drawAsteroids();
 
-    ctx.font = "70px Hyperspace";
+    ctx.font = scaleFont(0.1, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ASTEROIDS 2025", 190, 300);
+    ctx.fillText("ASTEROIDS 2025", c.width/20*1.5, c.height/20*10);
 
-    ctx.font = "25px Hyperspace";
+    ctx.font = scaleFont(0.03, "Hyperspace"); //"25px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", 260, 400);
+    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", c.width/20*4, c.height/20*13);
 
-    ctx.font = "40px Hyperspace";
+    ctx.font = scaleFont(0.05, "Hyperspace"); //"40px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("PRESS ANY KEY", 340, 500);
+    ctx.fillText("PRESS ANY KEY", c.width/20*6, c.height/20*16);
 }
 
 function drawStage1() {
@@ -768,15 +772,15 @@ function drawStage1() {
     drawGauges();
 
     if (lives <= 0) {
-        ctx.font = "80px Hyperspace";
+        ctx.font = scaleFont(0.05, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("GAME OVER", 300, 400);
+        ctx.fillText("GAME OVER", (c.width/20)*8, (c.height/20)*10);
     }
 
     if (mapReminder || ship.storageTotal == ship.maxStorage) {
-        ctx.font = "20px Hyperspace";
+        ctx.font = scaleFont(0.03, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("PRESS 'M' FOR SPACE MAP", 300, (c.height/8)*6);
+        ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
     }
 }
 
@@ -891,6 +895,7 @@ function drawMap() {
             warper = null;
             warping = false;
             mapLocations[constellation][curMapSel].visited = true;
+            resources = [];
             curMapLoc = curMapSel;
             let ty = mapLocations[constellation][curMapSel].type;
             if (ty == 'trade') {
@@ -963,7 +968,7 @@ function drawTradingPost() {
         if (station.buySell == 0) {
             // sell
             ctx.fillStyle = '#FF0000';
-            ctx.fillText(Math.floor(station.priceList[i]*0.60), (c.width/10)*2+290, (c.height/10)*2+140+(i*40));
+            ctx.fillText(Math.floor(station.priceList[i]*0.85), (c.width/10)*2+290, (c.height/10)*2+140+(i*40));
         } else {
             // buy
             ctx.fillStyle = '#00FF00';
@@ -1225,7 +1230,7 @@ function kDown(e) {
                 if (ship.storage[loc.menuNum] > 0) {
                     ship.storage[loc.menuNum] --;
                     ship.storageTotal --;
-                    ship.money += Math.floor(loc.priceList[loc.menuNum]*0.60);
+                    ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85);
                 }
             } else {
                 // buy
@@ -1511,41 +1516,40 @@ function drawHitbox(e) {
 }
 
 function drawGauges() {
-
     // UI
-    ctx.font = "30px Hyperspace";
+    ctx.font = scaleFont(0.03, "Hyperspace"); //"30px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("$" + ship.money, 20, 40);
-    ctx.fillText("LIVES: "+lives, c.width - 170, 40);
+    ctx.fillText("$" + ship.money, (c.width/20)*0.5, (c.height/20)*1.5);
+    ctx.fillText("LIVES: "+lives, (c.width/20)*16.5, (c.height/20)*1.5);
 
     let x = c.width/4;
     let y = 20;
 
     // storage gague
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x, y, ship.storageTotal*(100/ship.maxStorage), 20);
+    ctx.fillRect(c.width/20*3, c.height/20*0.8, (c.width/20*2.5/100)*ship.storageTotal*(100/ship.maxStorage), c.height/20*0.8);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x, y, 100, 20);
+    ctx.rect(c.width/20*3, c.height/20*0.8, c.width/20*2.5, c.height/20*0.8);
     ctx.stroke();
 
-    ctx.font = "12px Hyperspace";
+    ctx.font = scaleFont(0.02, "Hyperspace"); //"12px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("storage", x + 30, y + 15);
+    ctx.fillText("storage", c.width/20*3.4, c.height/20*1.45);
 
     // fuel gauge
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x*2.5, y, ship.fuelTotal*(100/ship.maxFuel), 20);
+    ctx.fillRect(c.width/20*13, c.height/20*0.8, (c.width/20*2.5/100)*ship.fuelTotal*(100/ship.maxFuel), c.height/20*0.8);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x*2.5, y, 100, 20);
+    ctx.rect(c.width/20*13, c.height/20*0.8, c.width/20*2.5, c.height/20*0.8);
     ctx.stroke();
 
-    ctx.font = "12px Hyperspace";
+    ctx.font = scaleFont(0.02, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("Fuel", (x*2.5) + 30, y + 15);
+    ctx.fillText("Fuel", c.width/20*13.9, c.height/20*1.45);
 
 }
 
@@ -1673,5 +1677,10 @@ function getWidth() {
 
   function doResize() {
     c.width = getWidth() - 50;
-    c.height = getHeight() - 20;
+    c.height = getHeight() - 30;
   }
+
+  function scaleFont(s, f) {
+    return (c.width * s) + "px " + f;                     
+  }
+
