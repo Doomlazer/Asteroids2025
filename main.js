@@ -14,7 +14,7 @@ const actx = a.getContext("2d");
 actx.translate(40,40);
 // black background
 ctx.fillStyle = '#000000';
-ctx.fillRect(0, 0, 400, 400);
+ctx.fillRect(0, 0, c.width, c.height);
 // enemies array
 let enemies = [];
 let deadEnemies = [];
@@ -89,7 +89,9 @@ let deadStarField = [];
 let starFieldDelay = 20;
 let starFieldMax = 100;
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
-                        "MAX STORAGE", "COLLECTION DISTANCE"]
+                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
+let debug = false;
+
 
 class Ship {
     constructor(x = c.width/2, y = c.height/2) {
@@ -103,7 +105,7 @@ class Ship {
         this.maxStorage = 20;
         this.storageTotal = 0;
         this.storage = [0,0,0,0,0,0,0,0];
-        this.upgrades = [0,0,0,0,0,0,0]; // upgrade levels
+        this.upgrades = [0,0,0,0,0,0,0,0,0,0]; // upgrade levels
         this.collectDistance = 100;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;
@@ -113,6 +115,7 @@ class Ship {
         this.comboDamage = 0;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 0; // cool down remaining before firing next bullet
+        this.bulletLife = 100;
         this.color = 'rgb(255, 255, 255)'
         this.path = new Path2D();
         this.path.moveTo(0, -10);
@@ -156,6 +159,7 @@ class mobile {
         this.baseDamage = 4;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 100; // cool down remaining before firing next bullet
+        this.bulletLife = 100; // how far bullets travel before disapearing
         this.color = '#FFFFFF'
         // star shaped
         this.path = new Path2D();
@@ -300,13 +304,13 @@ class StarFieldStar {
 }
 
 class Bullet {
-    constructor(angle, x, y, speed = 5, fromShip = true) {
-        this.damage = getRandomInt(ship.baseDamage/2) + ship.baseDamage;
+    constructor(e, angle, x, y, speed = 5, fromShip = true) {
+        this.fromShip = fromShip;
         this.angle = angle;
         this.x = x;
         this.y = y;
-        this.fromShip = fromShip;
-        this.life = 100;
+        this.life = e.bulletLife;
+        this.damage = getRandomInt(e.baseDamage/2) + e.baseDamage;
         if (bulletColorsEnabled) {
             this.color = bulletColors[colorCycle];
             // rainbow bullets
@@ -315,8 +319,8 @@ class Bullet {
             this.color = '#FFFFFF';
         }
         this.speed = speed;
-        this.hbOffset1 = 10;
-        this.hbOffset2 = 20;
+        this.hbOffset1 = (e.baseDamage/4);
+        this.hbOffset2 = (e.baseDamage/4)*2;
     }
 }
 
@@ -410,6 +414,19 @@ function step(timeStamp) {
         lives = 3;
         start = timeStamp;
         ship = new Ship();
+        // random inital upgrades
+        for (let i = 0; i < ship.upgrades.length; i++) {
+            if (getRandomInt(3) == 1) {
+                let l = getRandomInt(10);
+                let j = 0;
+                while (j < l) {
+                    ship.upgrades[i] ++;
+                    doUpgrade(i, ship.upgrades[i]);
+                    j ++;
+                }
+            }
+            console.log(possibleUpgrades[i] + ": " + ship.upgrades[i]);
+        }
         genMapLocations();
         mapLocations[constellation][0].visited = true;
         newAstroidField();
@@ -681,6 +698,13 @@ function draw() {
             break;
         default:
     }
+    /*/ center guide lines
+    ctx.strokeStyle = "#00FF00";
+    ctx.beginPath();
+    ctx.rect(0, c.height/2, c.width, 1);
+    ctx.rect(c.width/2, 0, 1, c.height);
+    ctx.stroke();
+    */
 }
 
 
@@ -692,15 +716,33 @@ function drawTitle() {
 
     ctx.font = scaleFont(0.1, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ASTEROIDS 2025", c.width/20*1.5, c.height/20*10);
+    ctx.fillText("ASTEROIDS 2025", c.width/20*1.5, c.height/20*6);
+
+    let ox = 0, oy = 10;
+    ctx.font = scaleFont(0.025, "Hyperspace");
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText("STARTING UPGRADE LEVELS:", (c.width/20*(10*ox)+(c.width/20*2.1)), c.height/20*8.5);
+    for (let i = 0; i < ship.upgrades.length; i ++) {
+        if (ship.upgrades[i] > 0) {
+            ctx.fillStyle = '#FFFFFF';
+        } else {
+            ctx.fillStyle = '#888888';
+        }
+        ctx.fillText(possibleUpgrades[i]+": "+ship.upgrades[i], (c.width/20*(10*ox)+(c.width/20*2.1)), (c.height/20*(1*oy)));
+        ox ++;
+        if (ox > 1) {
+            ox = 0;
+            oy ++;
+        }
+    }
 
     ctx.font = scaleFont(0.03, "Hyperspace"); //"25px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", c.width/20*4, c.height/20*13);
+    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", c.width/20*4, c.height/20*16.5);
 
     ctx.font = scaleFont(0.05, "Hyperspace"); //"40px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("PRESS ANY KEY", c.width/20*6, c.height/20*16);
+    ctx.fillText("PRESS ANY KEY", c.width/20*6, c.height/20*18.5);
 }
 
 function drawStage1() {
@@ -728,8 +770,8 @@ function drawStage1() {
                 ship.y = c.height/2;
             } else {
                 // move ship offscreen
-                ship.x = 2000;
-                ship.y = 2000;
+                ship.x = c.width*2;
+                ship.y = c.height*2;
             }
         }
         ship.dead --;
@@ -738,10 +780,13 @@ function drawStage1() {
     // draw bullets
     bullets.forEach(b => {
         ctx.beginPath();
-        ctx.arc(b.x, b.y, 2, 0, (2+(ship.baseDamage/4)) * Math.PI);
+        ctx.arc(b.x, b.y, 2+(b.damage/4), 0, 360);  
         ctx.strokeStyle = b.color;
         ctx.stroke();
         ctx.closePath();
+        if (showHitbox) {
+            drawHitbox(b);
+        }
     });
 
     // draw debris
@@ -954,7 +999,7 @@ function drawTradingPost() {
     ctx.fillText("PRICE", (c.width/10)*2+275, (c.height/10)*2+100);
     ctx.fillText("OWNED", (c.width/10)*2+430, (c.height/10)*2+100);
 
-    for (let i = 0; i<resourceNames.length-1; i++) {
+    for (let i = 0; i<resourceNames.length; i++) {
         if (mapLocations[constellation][curMapLoc].menuNum == i) {
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect((c.width/10)*2+55, (c.height/10)*2+115+(i*40), 90, 30);
@@ -1136,20 +1181,6 @@ function drawBG() {
 // player input functions
 // **********************
 
-/*c.oncontextmenu = function(event) {
-    var x = Math.floor((event.pageX - cLeft) / scale),
-        y = Math.floor((event.pageY - cTop) / scale);
-    
-    click(x, y, event.button);
-    event.preventDefault();
-}
-c.addEventListener('click', function(event) {
-    var x = Math.floor((event.pageX - cLeft)),
-        y = Math.floor((event.pageY - cTop));
-    
-    click(x, y, event.button);
-}, false);*/
-
 function click(x, y, button) {
     //console.log("click x: " + x + ", y: " + y)
     //sctx.rotate(20 * Math.PI / 180);
@@ -1218,8 +1249,8 @@ function kDown(e) {
         }
         if (e.key == 'ArrowDown') {
             mapLocations[constellation][curMapLoc].menuNum ++;
-            if (mapLocations[constellation][curMapLoc].menuNum >= resourceNames.length-2) {
-                mapLocations[constellation][curMapLoc].menuNum = resourceNames.length-2;
+            if (mapLocations[constellation][curMapLoc].menuNum >= resourceNames.length-1) {
+                mapLocations[constellation][curMapLoc].menuNum = resourceNames.length-1;
             }
         }
 
@@ -1285,39 +1316,8 @@ function kDown(e) {
                 ship.money -= cost;
                 ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] += 1;
                 let lvl = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]]
-                switch (depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]) {
-                    case 0:
-                        // fuel tank
-                        ship.maxFuel += 50 * lvl;
-                        break;
-                    case 1:
-                        // max ship speed
-                        ship.maxSpeed += 1;
-                        break;
-                    case 2:
-                        // ship acceleration
-                        ship.acceleration += 1;
-                        break;
-                    case 3:
-                        // max bullets
-                        ship.maxBullets += 1;
-                        break;
-                    case 4:
-                        // bullet rate
-                        ship.bulletRate -= 5;
-                        if (ship.bulletRate < 1) {
-                            ship.bulletRate = 1;
-                        }
-                        break;
-                    case 5:
-                        // max storage
-                        ship.maxStorage += 20 * lvl;
-                        break;
-                    case 6:
-                        // collection distance
-                        ship.collectDistance += 50 * lvl;
-                        break;
-                }
+                let sel = depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum];
+                doUpgrade(sel, lvl);
             }
         }
 
@@ -1352,22 +1352,15 @@ function kDown(e) {
         } else {
             // do nothing, count down timer in drawWarp
         }
-
     } else {
         if (!ship.dead) {
             // default controls 
-            if (e.key == '9') {
-                ship.money += 1000;
-            }
-            if (e.key == '1') {
-                lives ++;
-            }
             if (e.key == ' ') {
                 spaceBar = true;
-                // always add a bullet if one doesn't exist
-                if (bullets.length <= 0 && ship.dead == 0) {
+                // TODO bullet firing feels unresponsive 
+                if (bullets.length < ship.maxBullets) {
                     ship.bulletTimer = ship.bulletRate;
-                    bullets.push(new Bullet(ship.rot, ship.x + 20, ship.y + 20));
+                    bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                 }
             }
             if (e.key == 'ArrowLeft') {left = true;}
@@ -1377,8 +1370,64 @@ function kDown(e) {
             // go to map
             if (e.key == 'm') {stage = 2; mapReminder = false;}
         }
-        if (e.key == '0') {
-            window.location.reload();
+    }
+    if (e.key == '+') {
+        if (debug) {
+            debug = false;
+        } else {
+            debug = true;
+        }
+        console.log("debug: " + debug);
+    }
+    if (e.key == '0') {
+        window.location.reload();
+    }
+    if (debug) {
+        if (e.key == '1') {
+            lives ++;
+        }
+        if (e.key == '2') {
+            asteroids.forEach(roid => {
+                roid.health = -1;
+                if (roid.health < 0) {
+                    deadAsteroids.push(roid);
+                    // small little if large
+                    if (roid.large) {
+                        score += 250;
+                        let r = getRandomInt(2) + 2;
+                        for (let i=0; i<r; i++) {
+                            asteroids.push(new Asteroid(false, roid.x, roid.y));
+                        }
+                    } else {
+                        // small score
+                        score += 100;
+                        let r = getRandomInt(2) + 1;
+                        for (let i=0; i<r; i++) {
+                            resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
+                                roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+                        }
+                    }
+                }
+                damageNumbers.push(new DamageNumber(999999, roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+                asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+                deadAsteroids = [];
+            });
+        }
+        if (e.key == '3') {
+            if (showHitbox) {
+                showHitbox = false;
+            } else {
+                showHitbox = true;
+            }
+        }
+        if (e.key == '7') {
+            ship.bulletRate -= 10;
+        }
+        if (e.key == '8') {
+            ship.baseDamage += 2;
+        }
+        if (e.key == '9') {
+            ship.money += 1000;
         }
     }
 }
@@ -1389,6 +1438,54 @@ function kUp(e) {
 	if (e.key == 'ArrowRight') {right = false;}
     if (e.key == 'ArrowUp') {up = false;}
 	if (e.key == 'ArrowDown') {down = false;}
+}
+
+function doUpgrade(sel, lvl) {
+    switch (sel) {
+        case 0:
+            // fuel tank
+            ship.maxFuel += 50 * lvl;
+            break;
+        case 1:
+            // max ship speed
+            ship.maxSpeed += 0.25;
+            break;
+        case 2:
+            // ship acceleration
+            ship.acceleration += 0.25;
+            break;
+        case 3:
+            // max bullets
+            ship.maxBullets += 1;
+            break;
+        case 4:
+            // bullet rate
+            ship.bulletRate -= 5;
+            if (ship.bulletRate < 1) {
+                ship.bulletRate = 1;
+            }
+            break;
+        case 5:
+            // max storage
+            ship.maxStorage += 20 * lvl;
+            break;
+        case 6:
+            // collection distance
+            ship.collectDistance += 50 * lvl;
+            break;
+        case 7:
+            // ship deceleration
+            ship.breakSpeed += 0.25;
+            break;
+        case 8:
+            // bullet damage
+            ship.baseDamage += 2;
+            break;
+        case 9:
+            // bullet distance
+            ship.bulletLife += 20;
+            break;
+    }
 }
 
 // *****************
@@ -1403,7 +1500,7 @@ function moveShip() {
             if (bullets.length < ship.maxBullets) {
                 if (ship.bulletTimer < 0) {
                     ship.bulletTimer = ship.bulletRate;
-                    bullets.push(new Bullet(ship.rot, ship.x + 20, ship.y + 20));
+                    bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                     // rainbow bullets
                     colorCycle = (colorCycle += 1) % 8;
                 } else {
@@ -1490,9 +1587,9 @@ function drawMobiles() {
         moveEntity(e);
         e.bulletTimer --;
         if (e.bulletTimer <= 0) {
-            e.bulletTimer = getRandomInt(150) + 100;
+            e.bulletTimer = getRandomInt(250) + 50;
             if (!ship.dead) {
-                bullets.push(new Bullet(angle(e.x,e.y,ship.x,ship.y), e.x + 40, e.y + 40, 5, false));
+                bullets.push(new Bullet(e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false));
             }
         }
         if (getRandomInt(20) == 1) {
@@ -1567,16 +1664,19 @@ function changePrices(loc) {
 }
 
 function collision(e, t) {
-    let p = [e.x + e.hbOffset1, e.y + e.hbOffset1, 
-            e.x + e.hbOffset1, e.y + e.hbOffset1 + e.hbOffset2,
-            e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1,
-            e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1 + e.hbOffset2];
-    for (let i = 0; i < 8; i+=2) {
-        if (p[i] > t.x + t.hbOffset1 && 
-            p[i+1] > t.y + t.hbOffset1 &&
-            p[i] < t.x + t.hbOffset1 + t.hbOffset2 &&
-            p[i+1] < t.y + t.hbOffset1 + t.hbOffset2) {
-                return true;
+    // only calculate if close enough to hit
+    if (distance2D(e, t) <= e.hbOffset2 + t.hbOffset2 * 2) {
+        let p = [e.x + e.hbOffset1, e.y + e.hbOffset1, 
+                e.x + e.hbOffset1, e.y + e.hbOffset1 + e.hbOffset2,
+                e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1,
+                e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1 + e.hbOffset2];
+        for (let i = 0; i < 8; i+=2) {
+            if (p[i] > t.x + t.hbOffset1 && 
+                p[i+1] > t.y + t.hbOffset1 &&
+                p[i] < t.x + t.hbOffset1 + t.hbOffset2 &&
+                p[i+1] < t.y + t.hbOffset1 + t.hbOffset2) {
+                    return true;
+            }
         }
     }
 }
