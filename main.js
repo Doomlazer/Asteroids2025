@@ -32,18 +32,19 @@ let constellationNames = ['AQUARIUS', 'ARIES', 'CANCER', 'CAPRICORNUS', 'GEMINI'
 // RD: name, color
 let resourceNames = ['Gold', 'Silver', 'Copper', 'Diamond', 'Platnum', 'Uranium', 'Lithium', 'Ytterbium'];
 let resourceColor = ['#E8B923', '#7d3c98', '#3498db', '#27ae60', '#d35400', '#5d6d7e', '#cd6155', '#48c9b0'];
-let constellationStarsArrays = [[166,423,261,250,358,251,373,386,350,420,401,201,495,174,582,155,525,288,546,360,685,227,851,308],
-                                [761,314,665,316,406,378,251,381,183,411,170,382,142,379,806,380,810,418,420,193,344,181],
-                                [409,120,509,304,516,378,481,505,722,463,674,291],
-                                [725,189,708,244,536,497,516,518,304,367,273,310,252,302,226,268,279,273,467,282,473,342],
-                                [655,488,544,388,687,401,407,354,292,287,189,222,220,330,341,251,389,183,242,168,437,115,499,271,642,327,647,252,730,244,830,176],
-                                [168,339,311,267,314,336,272,393,287,488,427,436,557,328,547,394,691,431,524,268,534,227,661,176,817,167,801,262,710,240],
-                                [298,200,176,257,242,341,342,320,390,290,503,124,646,277,562,462,342,498,299,503,285,537,607,114],
-                                [759,469,687,485,656,434,599,455,520,430,346,423,271,415,117,476,193,324,269,223,334,183,343,145,321,121,377,93],
-                                [330,526,363,490,196,482,334,418,153,355,145,324,108,226,167,201,275,151,411,238,424,308,556,250,470,211,441,159,476,148,418,122,386,97,348,84,665,248,766,158,722,322,794,342,863,303,625,424,677,475],
-                                [639,101,585,223,636,223,680,300,665,369,691,411,553,332,494,350,454,382,432,461,435,503,434,544,355,543,221,523,118,451,148,405,181,333,261,341],
-                                [583,250,204,132,364,251,431,319,474,372,516,412,400,418,333,396,78,274,597,436,481,482,589,520,743,403,796,466,841,501],
-                                [142,282,324,279,405,304,555,289,736,249,855,315,804,411,689,450,569,442,460,463,360,522,192,503,185,434,493,141]];
+// x is 1.724% y is 3.06
+let constellationStarsArrays = [[2.9, 12.9, 4.5, 7.6, 6.2, 7.7, 6.4, 11.8, 6.0, 12.9, 6.9, 6.2, 8.5, 5.3, 10.0, 4.7, 9.1, 8.8, 9.4, 11.0, 11.8, 6.9, 14.7, 9.4],
+                                [13.1, 9.6, 11.5, 9.7, 7.0, 11.6, 4.3, 11.7, 3.2, 12.6, 2.9, 11.7, 2.4, 11.6, 13.9, 11.6, 14.0, 12.8, 7.2, 5.9, 5.9, 5.5],
+                                [7.1, 3.7, 8.8, 9.3, 8.9, 11.6, 8.3, 15.5, 12.4, 14.2, 11.6, 8.9],
+                                [12.5, 5.8, 12.2, 7.5, 9.2, 15.2, 8.9, 15.9, 5.2, 11.2, 4.7, 9.5, 4.3, 9.2, 3.9, 8.2, 4.8, 8.4, 8.1, 8.6, 8.2, 10.5],
+                                [11.3, 14.9, 9.4, 11.9, 11.8, 12.3, 7.0, 10.8, 5.0, 8.8, 3.3, 6.8, 3.8, 10.1, 5.9, 7.7, 6.7, 5.6, 4.2, 5.1, 7.5, 3.5, 8.6, 8.3, 11.1, 10.0, 11.2, 7.7, 12.6, 7.5, 14.3, 5.4],
+                                [2.9, 10.4, 5.4, 8.2, 5.4, 10.3, 4.7, 12.0, 4.9, 14.9, 7.4, 13.3, 9.6, 10.0, 9.4, 12.1, 11.9, 13.2, 9.0, 8.2, 9.2, 6.9, 11.4, 5.4, 14.1, 5.1, 13.8, 8.0, 12.2, 7.3],
+                                [5.1, 6.1, 3.0, 7.9, 4.2, 10.4, 5.9, 9.8, 6.7, 8.9, 8.7, 3.8, 11.1, 8.5, 9.7, 14.1, 5.9, 15.2, 5.2, 15.4, 4.9, 16.4, 10.5, 3.5],
+                                [13.1, 14.4, 11.8, 14.8, 11.3, 13.3, 10.3, 13.9, 9.0, 13.2, 6.0, 12.9, 4.7, 12.7, 2.0, 14.6, 3.3, 9.9, 4.6, 6.8, 5.8, 5.6, 5.9, 4.4, 5.5, 3.7, 6.5, 2.8],
+                                [5.7, 16.1, 6.3, 15.0, 3.4, 14.7, 5.8, 12.8, 2.6, 10.9, 2.5, 9.9, 1.9, 6.9, 2.9, 6.2, 4.7, 4.6, 7.1, 7.3, 7.3, 9.4, 9.6, 7.6, 8.1, 6.5, 7.6, 4.9, 8.2, 4.5, 7.2, 3.7, 6.7, 3.0, 6.0, 2.6, 11.5, 7.6, 13.2, 4.8, 12.4, 9.9, 13.7, 10.5, 14.9, 9.3, 10.8, 13.0, 11.7, 14.5],
+                                [11.0, 3.1, 10.1, 6.8, 11.0, 6.8, 11.7, 9.2, 11.5, 11.3, 11.9, 12.6, 9.5, 10.2, 8.5, 10.7, 7.8, 11.7, 7.4, 14.1, 7.5, 15.4, 7.5, 16.6, 6.1, 16.6, 3.8, 16.0, 2.0, 13.8, 2.6, 12.4, 3.1, 10.2, 4.5, 10.4],
+                                [10.1, 7.6, 3.5, 4.0, 6.3, 7.7, 7.4, 9.8, 8.2, 11.4, 8.9, 12.6, 6.9, 12.8, 5.7, 12.1, 1.3, 8.4, 10.3, 13.3, 8.3, 14.7, 10.2, 15.9, 12.8, 12.3, 13.7, 14.3, 14.5, 15.3],
+                                [2.4, 6.6, 5.6, 6.5, 7, 8.3, 9.6, 6.8, 12.7, 5.6, 14.7, 8.6, 14.9, 12.6, 11.9, 12.8, 9.8, 13.5, 7.9, 13.2, 5.8, 13, 3.3, 12.4, 3.2, 10.3, 8.5, 3.3]];
 let resources = [];
 let deadResources = [];
 let bullets = [];
@@ -183,8 +184,8 @@ class Warper {
     constructor(x, y, tx, ty) {
         this.x = x;
         this.y = y;
-        this.speed = 3;
-        this.maxSpeed = 3;
+        this.speed = 0.1;
+        this.maxSpeed = 0.6;
         this.tx = tx;
         this.ty = ty;
         this.color = '#FF00FF';
@@ -836,83 +837,82 @@ function drawMap() {
     drawGauges();
 
     // map boarders
-    ctx.fillStyle = '#090909';
-    ctx.fillRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
+    ctx.fillStyle = '#0F0F0F';
+    ctx.fillRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
     ctx.fillStyle = '#000000';
-    ctx.fillRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
+    ctx.fillRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
     
     ctx.strokeStyle = '#FFFFFF';
-    ctx.strokeRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
-    ctx.strokeRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
-    
+    ctx.strokeRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
+    ctx.strokeRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
     
     // draw locations
     mapLocations[constellation].forEach(l => {
         let ind = mapLocations[constellation].indexOf(l);
         ctx.beginPath();
-        ctx.arc(l.x, l.y, 5, 0, 2 * Math.PI);
+        ctx.arc(c.width/20*l.x, c.height/20*l.y, c.width/20*0.1, 0, 360);
         ctx.strokeStyle = l.color;
         ctx.stroke();
         ctx.closePath();
 
-        ctx.font = "15px Hyperspace";
+        ctx.font = scaleFont(0.018, "Hyperspace");
         ctx.fillStyle = l.color;
-        ctx.fillText(l.name, l.x, l.y + 30);
+        ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*1));
 
         // draw more stuff if selected
         if (curMapSel == ind) {
 
-            ctx.fillText("CONSTILATION: ", 180, 610)
-            ctx.fillText(constellationNames[constellation], 320, 610);
+            ctx.fillText("CONSTILATION: ", c.width/20*3, c.height/20*16)
+            ctx.fillText(constellationNames[constellation], c.width/20*6, c.height/20*16);
 
-            ctx.fillText("SECTOR NAME: ", 180, 650)
-            ctx.fillText(l.name, 320, 650);
+            ctx.fillText("SECTOR NAME: ", c.width/20*3, c.height/20*17)
+            ctx.fillText(l.name, c.width/20*6, c.height/20*17);
 
-            ctx.fillText("TYPE: ", 180, 690)
-            ctx.fillText(l.type, 320, 690);
+            ctx.fillText("TYPE: ", c.width/20*3, c.height/20*18)
+            ctx.fillText(l.type, c.width/20*6, c.height/20*18);
 
             if (l.type == 'sector') {
-                ctx.fillText("RESOURCES: ", 600, 660)
-                ctx.fillText("HOSTILE: ", 180, 730);
+                ctx.fillText("HOSTILE: ", c.width/20*3, c.height/20*19);
                 if (l.visited) {
-                    ctx.fillText(l.isHostile, 320, 730);
+                    ctx.fillText(l.isHostile, c.width/20*6, c.height/20*19);
                 } else {
-                    ctx.fillText("???", 320, 730);
+                    ctx.fillText("???", c.width/20*6, c.height/20*19);
                 }
+                ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'trade') {
-                ctx.fillText("RESOURCES: ", 600, 660)
+                ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'upgrade') {
-                ctx.fillText("AVAILABLE UPGRADES: ", 550, 660)
+                ctx.fillText("UPGRADES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'fuel') {
-                ctx.fillText("FUEL PRICE: ", 600, 660)
+                ctx.fillText("FUEL PRICE: ", c.width/20*11, c.height/20*16)
             }
             let r;
             if (l.visited) {
                 if (l.type == 'sector') {
                     for (let i = 0; i < l.resources.length; i++) {
-                        ctx.fillText(resourceNames[l.resources[i]], 720, 660 + (30 * i));
+                        ctx.fillText(resourceNames[l.resources[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'trade') {
                     ctx.fillText("BUY AND SELL", 520, 660);
                 } else if (l.type == 'upgrade') {
                     for (let i = 0; i < l.locationUpgrades.length; i++) {
-                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], 730, 660 + (30 * i));
+                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'fuel') {
-                    ctx.fillText("FUEL PRICE: " + l.fuelPrice, 600, 660)
+                    ctx.fillText("FUEL PRICE: " + l.fuelPrice, c.width/20*11, c.height/20*16);
                 }
             } else {
-                ctx.fillText("???", 720, 660);
+                ctx.fillText("???", c.width/20*13.5, c.height/20*16);
             };
 
             // selection rect
             ctx.strokeStyle = '#FF0000';
-            ctx.strokeRect(l.x-10, l.y-10, 20, 20);
+            ctx.strokeRect((c.width/20*l.x)-(c.width/20*0.2), (c.height/20*l.y)-(c.height/20*0.3), (c.width/20*0.4),  (c.height/20*0.6));
         }
         if (curMapLoc == ind) {
             // you are here marker
             ctx.fillStyle = '#00FFFF';
-            ctx.fillText("You are here", l.x-40, l.y - 20);
+            ctx.fillText("You are here", (c.width/20*l.x)-(c.width/20*1), (c.height/20*l.y)-(c.height/20*0.5));
         }
     });
 
@@ -929,7 +929,10 @@ function drawMap() {
             ctx.fillText("OUT OF FUEL - GAME OVER", 230, 400);
         }
         ctx.beginPath();
-        ctx.arc(warper.x, warper.y, 3, 0, 2 * Math.PI);
+        //ctx.arc(warper.x, warper.y, 3, 0, 360);
+        ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
+        console.log(c.width/20*warper.x);
+        
         ctx.strokeStyle = warper.color;
         ctx.stroke();
         ctx.closePath();
@@ -1281,11 +1284,13 @@ function kDown(e) {
         // fuel depot controls
         let loc = mapLocations[constellation][curMapLoc];
         if (e.key == ' ') {
-            if (ship.fuelTotal < ship.maxFuel && ship.money > loc.fuelPrice) {
-                ship.money -= loc.fuelPrice;
-                ship.fuelTotal += 1;
-                if (ship.fuelTotal > ship.maxFuel) {
-                    ship.fuelTotal = ship.maxFuel
+            for (let i = 0; i < (ship.upgrades[0]+1)*3; i++) { // speed up pumping on larger tanks
+                if (ship.fuelTotal < ship.maxFuel && ship.money > loc.fuelPrice) {
+                    ship.money -= loc.fuelPrice;
+                    ship.fuelTotal += 1;
+                    if (ship.fuelTotal > ship.maxFuel) {
+                        ship.fuelTotal = ship.maxFuel
+                    }
                 }
             }
         }
@@ -1383,6 +1388,28 @@ function kDown(e) {
         window.location.reload();
     }
     if (debug) {
+        if (stage == 2) {
+            if (e.key == 'a') {
+                mapLocations[constellation][curMapSel].x -= 1;
+            }
+            if (e.key == 'd') {
+                mapLocations[constellation][curMapSel].x += 1;
+            }
+            if (e.key == 'w') {
+                mapLocations[constellation][curMapSel].y -= 1;
+            }
+            if (e.key == 's') {
+                mapLocations[constellation][curMapSel].y += 1;
+            }
+            if (e.key == 'e') {
+                let str = "[";
+                mapLocations[constellation].forEach(l => {
+                    str += l.x + ", " + l.y + ", ";
+                });
+                console.log(str);
+            }
+        }
+
         if (e.key == '1') {
             lives ++;
         }
