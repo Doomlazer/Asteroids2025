@@ -1079,36 +1079,36 @@ function drawUpgrade() {
     drawBG();
     drawGauges();
     let depot = mapLocations[constellation][curMapLoc];
+    ctx.font = scaleFont(0.025, "Hyperspace");
     ctx.fillStyle = 'rgb(20, 20, 20)';
-    ctx.fillRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
-    ctx.font = "20px Hyperspace";
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("SHIP UPGRADES", (c.width/10)*2.5, (c.height/10)*2.5);
-    ctx.fillText("Curr. level", (c.width/10)*4.5, (c.height/10)*3);
-    ctx.fillText("COST", (c.width/10)*7, (c.height/10)*3);
+    ctx.fillText("SHIP UPGRADES", c.width/20*3, c.height/20*3);
+    ctx.fillText("LEVEL", c.width/20*10, c.height/20*5.5);
+    ctx.fillText("COST", c.width/20*14, c.height/20*5.5);
     ctx.fillStyle = '#888888';
-    ctx.fillText("ARROW KEYS SELECT - SPACE TO BUY", (c.width/10)*3, (c.height/10)*8.5);
-    ctx.fillText("PRESS M TO EXIT", (c.width/10)*2+200, (c.height/10)*9);
+    ctx.fillText("ARROW KEYS SELECT - SPACE TO BUY", c.width/20*5, c.height/20*17.5);
+    ctx.fillText("PRESS M TO EXIT", c.width/20*7.8, c.height/20*19.5);
 
     // list upgrades
 
     for (let i = 0; i<depot.locationUpgrades.length; i++) {
         if (mapLocations[constellation][curMapLoc].menuNum == i) {
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect((c.width/10)*2.2, (c.height/10)*4+(i*c.height/10)-25, 220, 30);
+            ctx.fillRect(c.width/20*3.3, c.height/20*6.15+(c.height/20*1.2*i), c.width/20*6, c.height/20*1);
             ctx.fillStyle = '#000000'
         } else {
             ctx.fillStyle = '#FFFFFF';
         }
         // upgrade name
-        ctx.fillText(possibleUpgrades[depot.locationUpgrades[i]], (c.width/10)*2.25, (c.height/10)*4+(i*c.height/10));
+        ctx.fillText(possibleUpgrades[depot.locationUpgrades[i]], c.width/20*3.5, c.height/20*7+(c.height/20*1.2*i));
         // curr upgrade level
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], (c.width/10)*5, (c.height/10)*4+(i*c.height/10));
+        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
         // upgrade price 
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]] * 100+200, (c.width/10)*7, (c.height/10)*4+(i*c.height/10));
+        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]] * 100+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
     }
 }
 
@@ -1313,8 +1313,8 @@ function kDown(e) {
         }
         if (e.key == 'ArrowDown') {
             mapLocations[constellation][curMapLoc].menuNum ++;
-            if (mapLocations[constellation][curMapLoc].menuNum >= mapLocations[curMapLoc].locationUpgrades.length-1) {
-                mapLocations[constellation][curMapLoc].menuNum = mapLocations[curMapLoc].locationUpgrades.length-1;
+            if (mapLocations[constellation][curMapLoc].menuNum >= mapLocations[constellation][curMapLoc].locationUpgrades.length-1) {
+                mapLocations[constellation][curMapLoc].menuNum = mapLocations[constellation][curMapLoc].locationUpgrades.length-1;
             }
         }
 
