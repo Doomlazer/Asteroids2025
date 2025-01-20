@@ -103,7 +103,10 @@ class Ship {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.money = 390;
+        this.money = getRandomInt(512);
+        if (this.money == 256) {
+            this.money = getRandomInt(9999);
+        }
         this.maxFuel = 50;
         this.fuelTotal = 50;
         this.maxStorage = 20;
