@@ -14,7 +14,7 @@ const actx = a.getContext("2d");
 actx.translate(40,40);
 // black background
 ctx.fillStyle = '#000000';
-ctx.fillRect(0, 0, 400, 400);
+ctx.fillRect(0, 0, c.width, c.height);
 // enemies array
 let enemies = [];
 let deadEnemies = [];
@@ -26,24 +26,28 @@ let stage = 0; // stage 0 = title, stage 1 = default game, stage 2 = space map
 let locationNames = ['Aelia', 'Adhara', 'Amalthea', 'Andromeda', 'Ascella', 'Astra', 'Aurora', 'Bianca',
                     'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Diana', 'Elara', 'Halley', 'Helia',
                     'Hilal', 'Larissa', 'Leda', 'Libra', 'Lyra', 'Miranda', 'Nashira', 'Ophelia',
-                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras'];
+                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras',
+                    'Calar 25', 'Laffer', '5Bonds-12', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
+                    'Vohaul', 'Mosely', 'Nakimura 4', 'Shema', 'Shameen', 'Erana', 'Kalalau','Cassima', 'Delaney',
+                    'Zara', 'SPR-3', 'Anansi', 'RAVE-II', 'Beatrice', 'LIAM', 'Boogle'];
 let constellationNames = ['AQUARIUS', 'ARIES', 'CANCER', 'CAPRICORNUS', 'GEMINI', 'LEO', 'LIBRA', 
                         'PISCES', 'SAGITTARIUS', 'SCORPIUS', 'TAURUS', 'VIRGO'];
 // RD: name, color
 let resourceNames = ['Gold', 'Silver', 'Copper', 'Diamond', 'Platnum', 'Uranium', 'Lithium', 'Ytterbium'];
 let resourceColor = ['#E8B923', '#7d3c98', '#3498db', '#27ae60', '#d35400', '#5d6d7e', '#cd6155', '#48c9b0'];
-let constellationStarsArrays = [[166,423,261,250,358,251,373,386,350,420,401,201,495,174,582,155,525,288,546,360,685,227,851,308],
-                                [761,314,665,316,406,378,251,381,183,411,170,382,142,379,806,380,810,418,420,193,344,181],
-                                [409,120,509,304,516,378,481,505,722,463,674,291],
-                                [725,189,708,244,536,497,516,518,304,367,273,310,252,302,226,268,279,273,467,282,473,342],
-                                [655,488,544,388,687,401,407,354,292,287,189,222,220,330,341,251,389,183,242,168,437,115,499,271,642,327,647,252,730,244,830,176],
-                                [168,339,311,267,314,336,272,393,287,488,427,436,557,328,547,394,691,431,524,268,534,227,661,176,817,167,801,262,710,240],
-                                [298,200,176,257,242,341,342,320,390,290,503,124,646,277,562,462,342,498,299,503,285,537,607,114],
-                                [759,469,687,485,656,434,599,455,520,430,346,423,271,415,117,476,193,324,269,223,334,183,343,145,321,121,377,93],
-                                [330,526,363,490,196,482,334,418,153,355,145,324,108,226,167,201,275,151,411,238,424,308,556,250,470,211,441,159,476,148,418,122,386,97,348,84,665,248,766,158,722,322,794,342,863,303,625,424,677,475],
-                                [639,101,585,223,636,223,680,300,665,369,691,411,553,332,494,350,454,382,432,461,435,503,434,544,355,543,221,523,118,451,148,405,181,333,261,341],
-                                [583,250,204,132,364,251,431,319,474,372,516,412,400,418,333,396,78,274,597,436,481,482,589,520,743,403,796,466,841,501],
-                                [142,282,324,279,405,304,555,289,736,249,855,315,804,411,689,450,569,442,460,463,360,522,192,503,185,434,493,141]];
+// x is 1.724% y is 3.06
+let constellationStarsArrays = [[2.9, 12.9, 4.5, 7.6, 6.2, 7.7, 6.4, 11.8, 6.0, 12.9, 6.9, 6.2, 8.5, 5.3, 10.0, 4.7, 9.1, 8.8, 9.4, 11.0, 11.8, 6.9, 14.7, 9.4],
+                                [13.1, 9.6, 11.5, 9.7, 7, 10.6, 4.3, 9.7, 5.2, 13.6, 1.9, 11.7, 2.4, 9.6, 13.9, 11.6, 17, 12.8, 8.2, 5.9, 5.9, 4.5],
+                                [7.1, 3.7, 8.8, 7.3, 8.9, 10.6, 6.3, 13.5, 13.4, 13.2, 11.6, 8.9],
+                                [15.5, 5.8, 13.2, 7.5, 10.2, 13.2, 7.9, 13.9, 5.2, 12.2, 4.7, 9.5, 2.3, 8.2, 1.9, 4.2, 4.8, 6.4, 9.1, 7.6, 9.2, 10.5], // cap
+                                [11.3, 12.9, 9.4, 10.9, 13.8, 12.3, 6, 11.8, 4, 9.8, 1.3, 6.8, 2.8, 11.1, 5.9, 7.7, 6.7, 5.6, 3.2, 5.1, 7.5, 3.5, 8.6, 8.3, 12.1, 10, 12.2, 7.7, 13.6, 6.5, 15.3, 4.4], // gemini
+                                [2.9, 9.4, 5.4, 6.2, 5.4, 9.3, 4.7, 11, 3.9, 13.9, 7.4, 12.3, 9.6, 10, 10.4, 12.1, 13.9, 13.2, 9, 7.2, 9.2, 5.9, 11.4, 4.4, 14.1, 4.1, 13.8, 8, 12.2, 7.3], // leo
+                                [5.1, 3.1, 2, 5.9, 4.2, 9.4, 7.9, 7.8, 6.7, 5.9, 12.7, 4.8, 12.1, 8.5, 9.7, 13.1, 5.9, 11.2, 5.2, 12.4, 3.9, 13.4, 14.5, 3.], // Libra
+                                [13.1, 13.4, 16.8, 13.8, 14.3, 12.3, 11.3, 12.9, 10, 10.2, 7, 12.9, 4.7, 11.7, 2, 13.6, 3.3, 8.9, 4.6, 6.8, 8.8, 6.6, 5.9, 4.4, 7.5, 3.7, 8.5, 2.8], // pisces
+                                [3.7, 13.1, 8.3, 13, 1.4, 13.7, 5.8, 12.8, 2.6, 10.9, 2.5, 8.9, 1.9, 6.9, 2.9, 6.2, 3.7, 4.6, 7.1, 8.3, 7.3, 10.4, 9.6, 9.6, 8.1, 7.5, 7.6, 5.9, 10.2, 6.5, 7.2, 4.7, 6.7, 3, 5, 3.6, 12.5, 7.6, 15.2, 4.8, 14.4, 8.9, 15.7, 10.5, 16.9, 9.3, 12.8, 12, 14.7, 13.5], // sag
+                                [11, 3.1, 10.1, 5.8, 13, 5.8, 11.7, 8.2, 11.5, 10.3, 11.9, 12.6, 7.5, 6.2, 6.5, 7.7, 7.8, 9.7, 6.4, 11.1, 8.5, 11.4, 8.5, 13.6, 6.1, 13.6, 3.8, 13, 2, 13.8, 2.6, 11.4, 2.1, 8.2, 4.5, 8.4], // scorp
+                                [11.1, 5.6, 2.5, 3, 6.3, 4.7, 7.4, 7.8, 10.2, 8.4, 8.9, 10.6, 6.9, 10.8, 3.7, 9.1, 1.3, 7.4, 10.3, 12.3, 8.3, 12.7, 10.2, 13.9, 12.8, 10.3, 14.7, 12.3, 16.5, 13.3], // taurus
+                                [2.4, 6.6, 5.6, 6.5, 7, 8.3, 9.6, 6.8, 12.7, 5.6, 14.7, 8.6, 14.9, 12.6, 11.9, 12.8, 9.8, 13.5, 7.9, 13.2, 5.8, 13, 3.3, 12.4, 3.2, 10.3, 8.5, 3.3]]; // virgo
 let resources = [];
 let deadResources = [];
 let bullets = [];
@@ -89,7 +93,9 @@ let deadStarField = [];
 let starFieldDelay = 20;
 let starFieldMax = 100;
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
-                        "MAX STORAGE", "COLLECTION DISTANCE"]
+                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
+let debug = false;
+
 
 class Ship {
     constructor(x = c.width/2, y = c.height/2) {
@@ -97,13 +103,16 @@ class Ship {
         this.x = x;
         this.y = y;
         this.speed = 0;
-        this.money = 390;
+        this.money = getRandomInt(512);
+        if (this.money == 256) {
+            this.money = getRandomInt(9999);
+        }
         this.maxFuel = 50;
         this.fuelTotal = 50;
         this.maxStorage = 20;
         this.storageTotal = 0;
         this.storage = [0,0,0,0,0,0,0,0];
-        this.upgrades = [0,0,0,0,0,0,0]; // upgrade levels
+        this.upgrades = [0,0,0,0,0,0,0,0,0,0]; // upgrade levels
         this.collectDistance = 100;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;
@@ -113,6 +122,7 @@ class Ship {
         this.comboDamage = 0;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 0; // cool down remaining before firing next bullet
+        this.bulletLife = 100;
         this.color = 'rgb(255, 255, 255)'
         this.path = new Path2D();
         this.path.moveTo(0, -10);
@@ -156,6 +166,7 @@ class mobile {
         this.baseDamage = 4;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 100; // cool down remaining before firing next bullet
+        this.bulletLife = 100; // how far bullets travel before disapearing
         this.color = '#FFFFFF'
         // star shaped
         this.path = new Path2D();
@@ -179,8 +190,8 @@ class Warper {
     constructor(x, y, tx, ty) {
         this.x = x;
         this.y = y;
-        this.speed = 3;
-        this.maxSpeed = 3;
+        this.speed = 0.1;
+        this.maxSpeed = 0.6;
         this.tx = tx;
         this.ty = ty;
         this.color = '#FF00FF';
@@ -233,7 +244,7 @@ class MapLocation {
             this.name = 'UPGRADE SHOP';
             let r = getRandomInt(3) + 2;
             while (this.locationUpgrades.length < r) {
-                let u = getRandomInt(possibleUpgrades.length - 1);
+                let u = getRandomInt(possibleUpgrades.length);
                 this.locationUpgrades.push(u);
             }
             this.uniqueNumbers = [...new Set(this.locationUpgrades)];
@@ -262,7 +273,7 @@ class Resource {
         this.speed = 0.1;
         this.maxSpeed = 2;
         this.rot = getRandomInt(360);
-        this.radius = getRandomInt(2) + 1;
+        this.radius = getRandomInt(5) + 1;
         let loc = mapLocations[constellation][curMapLoc];
         let s = getRandomInt(loc.resources.length);
         let t = loc.resources[s];
@@ -300,13 +311,13 @@ class StarFieldStar {
 }
 
 class Bullet {
-    constructor(angle, x, y, speed = 5, fromShip = true) {
-        this.damage = getRandomInt(ship.baseDamage/2) + ship.baseDamage;
+    constructor(e, angle, x, y, speed = 5, fromShip = true) {
+        this.fromShip = fromShip;
         this.angle = angle;
         this.x = x;
         this.y = y;
-        this.fromShip = fromShip;
-        this.life = 100;
+        this.life = e.bulletLife;
+        this.damage = getRandomInt(e.baseDamage/2) + e.baseDamage;
         if (bulletColorsEnabled) {
             this.color = bulletColors[colorCycle];
             // rainbow bullets
@@ -315,8 +326,8 @@ class Bullet {
             this.color = '#FFFFFF';
         }
         this.speed = speed;
-        this.hbOffset1 = 10;
-        this.hbOffset2 = 20;
+        this.hbOffset1 = -this.damage/3;
+        this.hbOffset2 = this.damage/1.5;
     }
 }
 
@@ -401,14 +412,26 @@ class Asteroid {
 // animation & movement
 // ********************
 
-requestAnimationFrame(step);
-
 function step(timeStamp) {
     if (start === undefined) {
+        doResize();
         score = 0;
         lives = 3;
         start = timeStamp;
         ship = new Ship();
+        // random inital upgrades
+        for (let i = 0; i < ship.upgrades.length; i++) {
+            if (getRandomInt(3) == 1) {
+                let l = getRandomInt(5);
+                let j = 0;
+                while (j < l) {
+                    ship.upgrades[i] ++;
+                    doUpgrade(i, ship.upgrades[i]);
+                    j ++;
+                }
+            }
+            console.log(possibleUpgrades[i] + ": " + ship.upgrades[i]);
+        }
         genMapLocations();
         mapLocations[constellation][0].visited = true;
         newAstroidField();
@@ -453,14 +476,18 @@ function step(timeStamp) {
         resources.forEach(r => {
             moveEntity(r);
             if (collision(r, ship)) {
-                if (ship.storageTotal + r.radius <= ship.maxStorage) {
+                if (ship.storageTotal < ship.maxStorage) {
                     deadResources.push(r);
-                    ship.storageTotal += r.radius;
-                    //console.log('ship.storage[r.resource]: ' + ship.storage[r.resource]);
-                    ship.storage[r.resource] += r.radius;
+                    if (ship.storageTotal + r.radius > ship.maxStorage) {
+                        // discard part of resources that don't fit the maxStorage
+                        ship.storage[r.resource] += ship.maxStorage - ship.storageTotal;
+                        ship.storageTotal += ship.maxStorage - ship.storageTotal;
+                    } else {
+                        ship.storage[r.resource] += r.radius;
+                        ship.storageTotal += r.radius;
+                    }
                     resources = resources.filter(n => !deadResources.includes(n));
                     deadResources = [];
-                    //console.log(ship.storage);
                 }
             } else if (distance2D(r, ship) < ship.collectDistance && ship.storageTotal < ship.maxStorage ) {
                 let a = ship.hbOffset1+(ship.hbOffset2/2);
@@ -676,6 +703,13 @@ function draw() {
             break;
         default:
     }
+    /*/ center guide lines
+    ctx.strokeStyle = "#00FF00";
+    ctx.beginPath();
+    ctx.rect(0, c.height/2, c.width, 1);
+    ctx.rect(c.width/2, 0, 1, c.height);
+    ctx.stroke();
+    */
 }
 
 
@@ -685,17 +719,35 @@ function drawTitle() {
     drawBG();
     drawAsteroids();
 
-    ctx.font = "70px Hyperspace";
+    ctx.font = scaleFont(0.1, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ASTEROIDS 2025", 190, 300);
+    ctx.fillText("ASTEROIDS 2025", c.width/20*1.5, c.height/20*6);
 
-    ctx.font = "25px Hyperspace";
+    let ox = 0, oy = 10;
+    ctx.font = scaleFont(0.025, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", 260, 400);
+    ctx.fillText("STARTING UPGRADE LEVELS:", (c.width/20*(10*ox)+(c.width/20*2.1)), c.height/20*8.5);
+    for (let i = 0; i < ship.upgrades.length; i ++) {
+        if (ship.upgrades[i] > 0) {
+            ctx.fillStyle = '#FFFFFF';
+        } else {
+            ctx.fillStyle = '#888888';
+        }
+        ctx.fillText(possibleUpgrades[i]+": "+ship.upgrades[i], (c.width/20*(10*ox)+(c.width/20*2.1)), (c.height/20*(1*oy)));
+        ox ++;
+        if (ox > 1) {
+            ox = 0;
+            oy ++;
+        }
+    }
 
-    ctx.font = "40px Hyperspace";
+    ctx.font = scaleFont(0.03, "Hyperspace"); //"25px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("PRESS ANY KEY", 340, 500);
+    ctx.fillText("ARROW KEYS MOVE, SPACE KEY FIRE", c.width/20*4, c.height/20*16.5);
+
+    ctx.font = scaleFont(0.05, "Hyperspace"); //"40px Hyperspace";
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText("PRESS ANY KEY", c.width/20*6, c.height/20*18.5);
 }
 
 function drawStage1() {
@@ -723,8 +775,8 @@ function drawStage1() {
                 ship.y = c.height/2;
             } else {
                 // move ship offscreen
-                ship.x = 2000;
-                ship.y = 2000;
+                ship.x = c.width*2;
+                ship.y = c.height*2;
             }
         }
         ship.dead --;
@@ -733,10 +785,13 @@ function drawStage1() {
     // draw bullets
     bullets.forEach(b => {
         ctx.beginPath();
-        ctx.arc(b.x, b.y, 2, 0, (2+(ship.baseDamage/4)) * Math.PI);
+        ctx.arc(b.x, b.y, 2+(b.damage/4), 0, 360);  
         ctx.strokeStyle = b.color;
         ctx.stroke();
         ctx.closePath();
+        if (showHitbox) {
+            drawHitbox(b);
+        }
     });
 
     // draw debris
@@ -767,15 +822,15 @@ function drawStage1() {
     drawGauges();
 
     if (lives <= 0) {
-        ctx.font = "80px Hyperspace";
+        ctx.font = scaleFont(0.05, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("GAME OVER", 300, 400);
+        ctx.fillText("GAME OVER", (c.width/20)*8, (c.height/20)*10);
     }
 
     if (mapReminder || ship.storageTotal == ship.maxStorage) {
-        ctx.font = "20px Hyperspace";
+        ctx.font = scaleFont(0.03, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("PRESS 'M' FOR SPACE MAP", 300, (c.height/8)*6);
+        ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
     }
 }
 
@@ -785,88 +840,83 @@ function drawMap() {
     drawBG();
     drawGauges();
 
-    // map boarders width="1000" height="800"
-    ctx.fillStyle = '#090909';
-    ctx.fillRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
+    // map boarders
+    ctx.fillStyle = '#0F0F0F';
+    ctx.fillRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
     ctx.fillStyle = '#000000';
-    ctx.fillRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
+    ctx.fillRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
     
     ctx.strokeStyle = '#FFFFFF';
-    ctx.strokeRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
-    ctx.strokeRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
-    
+    ctx.strokeRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
+    ctx.strokeRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
     
     // draw locations
     mapLocations[constellation].forEach(l => {
         let ind = mapLocations[constellation].indexOf(l);
         ctx.beginPath();
-        ctx.arc(l.x, l.y, 5, 0, 2 * Math.PI);
+        ctx.arc(c.width/20*l.x, c.height/20*l.y, c.width/20*0.1, 0, 360);
         ctx.strokeStyle = l.color;
         ctx.stroke();
         ctx.closePath();
 
-        ctx.font = "15px Hyperspace";
+        ctx.font = scaleFont(0.018, "Hyperspace");
         ctx.fillStyle = l.color;
-        ctx.fillText(l.name, l.x, l.y + 30);
+        ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*1));
 
         // draw more stuff if selected
         if (curMapSel == ind) {
 
-            // print constilation
-            ctx.fillText("CONSTILATION: ", 180, 610)
-            ctx.fillText(constellationNames[constellation], 320, 610);
+            ctx.fillText("CONSTILATION: ", c.width/20*3, c.height/20*16)
+            ctx.fillText(constellationNames[constellation], c.width/20*6, c.height/20*16);
 
-            // print location name
-            ctx.fillText("SECTOR NAME: ", 180, 650)
-            ctx.fillText(l.name, 320, 650);
+            ctx.fillText("SECTOR NAME: ", c.width/20*3, c.height/20*17)
+            ctx.fillText(l.name, c.width/20*6, c.height/20*17);
 
-            // print location type
-            ctx.fillText("TYPE: ", 180, 690)
-            ctx.fillText(l.type, 320, 690);
+            ctx.fillText("TYPE: ", c.width/20*3, c.height/20*18)
+            ctx.fillText(l.type, c.width/20*6, c.height/20*18);
 
             if (l.type == 'sector') {
-                ctx.fillText("RESOURCES: ", 600, 660)
-                // print location type
-                ctx.fillText("HOSTILE: ", 180, 730);
+                ctx.fillText("HOSTILE: ", c.width/20*3, c.height/20*19);
                 if (l.visited) {
-                    ctx.fillText(l.isHostile, 320, 730);
+                    ctx.fillText(l.isHostile, c.width/20*6, c.height/20*19);
                 } else {
-                    ctx.fillText("???", 320, 730);
+                    ctx.fillText("???", c.width/20*6, c.height/20*19);
                 }
+                ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'trade') {
-                ctx.fillText("RESOURCES: ", 600, 660)
+                ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'upgrade') {
-                ctx.fillText("AVAILABLE UPGRADES: ", 550, 660)
+                ctx.fillText("UPGRADES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'fuel') {
-                ctx.fillText("FUEL PRICE: ", 600, 660)
+                ctx.fillText("FUEL PRICE: ", c.width/20*11, c.height/20*16)
             }
             let r;
             if (l.visited) {
                 if (l.type == 'sector') {
                     for (let i = 0; i < l.resources.length; i++) {
-                        ctx.fillText(resourceNames[l.resources[i]], 720, 660 + (30 * i));
+                        ctx.fillText(resourceNames[l.resources[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'trade') {
                     ctx.fillText("BUY AND SELL", 520, 660);
                 } else if (l.type == 'upgrade') {
                     for (let i = 0; i < l.locationUpgrades.length; i++) {
-                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], 730, 660 + (30 * i));
+                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'fuel') {
-                    ctx.fillText("FUEL PRICE: " + l.fuelPrice, 600, 660)
+                    ctx.fillText("FUEL PRICE: " + l.fuelPrice, c.width/20*11, c.height/20*16);
                 }
             } else {
-                ctx.fillText("???", 720, 660);
+                ctx.fillText("???", c.width/20*13.5, c.height/20*16);
             };
 
             // selection rect
             ctx.strokeStyle = '#FF0000';
-            ctx.strokeRect(l.x-10, l.y-10, 20, 20);
+            ctx.strokeRect((c.width/20*l.x)-(c.width/20*0.2), (c.height/20*l.y)-(c.height/20*0.3), (c.width/20*0.4),  (c.height/20*0.6));
         }
         if (curMapLoc == ind) {
             // you are here marker
             ctx.fillStyle = '#00FFFF';
-            ctx.fillText("You are here", l.x-40, l.y - 20);
+            ctx.fillText("You are here", (c.width/20*l.x)-(c.width/20*1), (c.height/20*l.y)-(c.height/20*0.5));
         }
     });
 
@@ -883,7 +933,10 @@ function drawMap() {
             ctx.fillText("OUT OF FUEL - GAME OVER", 230, 400);
         }
         ctx.beginPath();
-        ctx.arc(warper.x, warper.y, 3, 0, 2 * Math.PI);
+        //ctx.arc(warper.x, warper.y, 3, 0, 360);
+        ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
+        console.log(c.width/20*warper.x);
+        
         ctx.strokeStyle = warper.color;
         ctx.stroke();
         ctx.closePath();
@@ -894,6 +947,7 @@ function drawMap() {
             warper = null;
             warping = false;
             mapLocations[constellation][curMapSel].visited = true;
+            resources = [];
             curMapLoc = curMapSel;
             let ty = mapLocations[constellation][curMapSel].type;
             if (ty == 'trade') {
@@ -926,60 +980,61 @@ function drawTradingPost() {
     let station = mapLocations[constellation][curMapLoc];
 
     ctx.fillStyle = 'rgb(20, 20, 20)';
-    ctx.fillRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
-    ctx.font = "20px Hyperspace";
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
+    ctx.font = scaleFont(0.025, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("TRADING POST: ", (c.width/10)*2+20, (c.height/10)*2+40);
+    ctx.fillText("TRADING POST :", c.width/20*3, c.height/20*3);
     if (station.buySell == 0) {
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect((c.width/10)*2+290, (c.height/10)*2+20, 70, 30);
+        ctx.fillRect(c.width/20*9.8, c.height/20*2.2, c.width/20*1.5, c.height/20*1);
         ctx.fillStyle = '#000000';
-        ctx.fillText("SELL", (c.width/10)*2+305, (c.height/10)*2+40);
+        ctx.fillText("SELL", c.width/20*10, c.height/20*3);
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("BUY", (c.width/10)*2+410, (c.height/10)*2+40);
+        ctx.fillText("BUY", c.width/20*14, c.height/20*3);
     } else {
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect((c.width/10)*2+390, (c.height/10)*2+20, 70, 30);
+        ctx.fillRect(c.width/20*13.65, c.height/20*2.2, c.width/20*1.5, c.height/20*1);
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("SELL", (c.width/10)*2+305, (c.height/10)*2+40);
+        ctx.fillText("SELL", c.width/20*10, c.height/20*3);
         ctx.fillStyle = '#000000';
-        ctx.fillText("BUY", (c.width/10)*2+410, (c.height/10)*2+40);
+        ctx.fillText("BUY", c.width/20*14, c.height/20*3);
     }
 
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("PRICE", (c.width/10)*2+275, (c.height/10)*2+100);
-    ctx.fillText("OWNED", (c.width/10)*2+430, (c.height/10)*2+100);
+    ctx.fillText("PRICE", c.width/20*10, c.height/20*5.5);
+    ctx.fillText("OWNED", c.width/20*14, c.height/20*5.5);
 
-    for (let i = 0; i<resourceNames.length-1; i++) {
+    for (let i = 0; i<resourceNames.length; i++) {
         if (mapLocations[constellation][curMapLoc].menuNum == i) {
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect((c.width/10)*2+55, (c.height/10)*2+115+(i*40), 90, 30);
+            ctx.fillRect(c.width/20*3.8, c.height/20*6.15+(c.height/20*1.2*i), c.width/20*3.2, c.height/20*1);
             ctx.fillStyle = '#000000'
         } else {
             ctx.fillStyle = '#FFFFFF';
         }
-        ctx.fillText(resourceNames[i], (c.width/10)*2+60, (c.height/10)*2+140+(i*40));
+        ctx.fillText(resourceNames[i], c.width/20*4, c.height/20*7+(c.height/20*1.2*i));
 
         // price
         if (station.buySell == 0) {
             // sell
             ctx.fillStyle = '#FF0000';
-            ctx.fillText(Math.floor(station.priceList[i]*0.60), (c.width/10)*2+290, (c.height/10)*2+140+(i*40));
+            ctx.fillText(Math.floor(station.priceList[i]*0.85), c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
         } else {
             // buy
             ctx.fillStyle = '#00FF00';
-            ctx.fillText(station.priceList[i], (c.width/10)*2+290, (c.height/10)*2+140+(i*40));
+            ctx.fillText(station.priceList[i], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
         }
 
         // owned
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(ship.storage[i], (c.width/10)*2+450, (c.height/10)*2+140+(i*40));
+        ctx.fillText(ship.storage[i], c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
 
         ctx.fillStyle = '#888888';
-        ctx.fillText("ARROW KEYS SELECT - SPACE TO TRADE", (c.width/10)*2+90, (c.height/10)*2+430);
-        ctx.fillText("PRESS M TO EXIT", (c.width/10)*2+200, (c.height/10)*2+460);
+        //ctx.font = scaleFont(0.018, "Hyperspace");
+        ctx.fillText("ARROW KEYS SELECT - SPACE TO TRADE", c.width/20*5, c.height/20*17.5);
+        ctx.fillText("PRESS M TO EXIT", c.width/20*7.8, c.height/20*19.5);
 
     }
 }
@@ -990,31 +1045,33 @@ function drawFuelDepot() {
     drawGauges();
     let depot = mapLocations[constellation][curMapLoc];
     ctx.fillStyle = 'rgb(20, 20, 20)';
-    ctx.fillRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
+    ctx.font = scaleFont(0.025, "Hyperspace");
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
-    ctx.font = "20px Hyperspace";
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("FUEL DEPOT: ", (c.width/10)*2+160, (c.height/10)*2+80);
-    ctx.fillText("FUEL PRICE: " + depot.fuelPrice, (c.width/10)*2+200, (c.height/10)*2+140);
+    ctx.font = scaleFont(0.04, "Hyperspace");
+    ctx.fillText("FUEL DEPOT", c.width/20*3, c.height/20*3.5);
+    ctx.fillText("FUEL PRICE: $" + depot.fuelPrice, c.width/20*6.5, c.height/20*7);
+    ctx.fillText("TANK: " + ship.fuelTotal.toFixed(0) + " OF " + ship.maxFuel, c.width/20*6.5, c.height/20*9);
     ctx.fillStyle = '#888888';
-    ctx.fillText("PRESS SPACE TO PURCHASE", (c.width/10)*2+150, (c.height/10)*2+420);
-    ctx.fillText("PRESS M TO EXIT", (c.width/10)*2+200, (c.height/10)*2+460);
+    ctx.fillText("PRESS SPACE TO PURCHASE", c.width/20*4.5, c.height/20*16);
+    ctx.fillText("PRESS M TO EXIT", c.width/20*7, c.height/20*19.5);
 
     // big fuel gauge
-    let x = 400
-    let y = 400
+    let x = c.width/20*4;
+    let y = c.height/20*12; 
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x, y, ship.fuelTotal*(200/ship.maxFuel), 40);
+    ctx.fillRect(c.width/20*5, c.height/20*10, ((c.width/20)*10/ship.maxFuel)*ship.fuelTotal, c.height/20*2.5);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x, y, 200, 40);
+    ctx.rect(c.width/20*5, c.height/20*10, c.width/20*10, c.height/20*2.5);
     ctx.stroke();
 
-    ctx.font = "30px Hyperspace";
+    ctx.font = scaleFont(0.06, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("Fuel", x + 60, y + 30);
+    ctx.fillText("Fuel", c.width/20*9, c.height/20*12);
 }
 
 function drawUpgrade() {
@@ -1022,36 +1079,36 @@ function drawUpgrade() {
     drawBG();
     drawGauges();
     let depot = mapLocations[constellation][curMapLoc];
+    ctx.font = scaleFont(0.025, "Hyperspace");
     ctx.fillStyle = 'rgb(20, 20, 20)';
-    ctx.fillRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
-    ctx.font = "20px Hyperspace";
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("SHIP UPGRADES", (c.width/10)*2+60, (c.height/10)*2+80);
-    ctx.fillText("Curr. level", (c.width/10)*2+300, (c.height/10)*2+80);
-    ctx.fillText("COST", (c.width/10)*2+480, (c.height/10)*2+80);
+    ctx.fillText("SHIP UPGRADES", c.width/20*3, c.height/20*3);
+    ctx.fillText("LEVEL", c.width/20*10, c.height/20*5.5);
+    ctx.fillText("COST", c.width/20*14, c.height/20*5.5);
     ctx.fillStyle = '#888888';
-    ctx.fillText("ARROW KEYS SELECT - SPACE TO BUY", (c.width/10)*2+90, (c.height/10)*2+430);
-    ctx.fillText("PRESS M TO EXIT", (c.width/10)*2+200, (c.height/10)*2+460);
+    ctx.fillText("ARROW KEYS SELECT - SPACE TO BUY", c.width/20*5, c.height/20*17.5);
+    ctx.fillText("PRESS M TO EXIT", c.width/20*7.8, c.height/20*19.5);
 
     // list upgrades
 
     for (let i = 0; i<depot.locationUpgrades.length; i++) {
         if (mapLocations[constellation][curMapLoc].menuNum == i) {
             ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect((c.width/10)*2+55, (c.height/10)*2+115+(i*40), 220, 30);
+            ctx.fillRect(c.width/20*3.3, c.height/20*6.15+(c.height/20*1.2*i), c.width/20*6, c.height/20*1);
             ctx.fillStyle = '#000000'
         } else {
             ctx.fillStyle = '#FFFFFF';
         }
         // upgrade name
-        ctx.fillText(possibleUpgrades[depot.locationUpgrades[i]], (c.width/10)*2+60, (c.height/10)*2+140+(i*40));
+        ctx.fillText(possibleUpgrades[depot.locationUpgrades[i]], c.width/20*3.5, c.height/20*7+(c.height/20*1.2*i));
         // curr upgrade level
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], (c.width/10)*2+340, (c.height/10)*2+140+(i*40));
+        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
         // upgrade price 
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]] * 500+200, (c.width/10)*2+480, (c.height/10)*2+140+(i*40));
+        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]] * 100+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
     }
 }
 
@@ -1062,32 +1119,32 @@ function drawWarp() {
     if (!warping) {
         // map boarders width="1000" height="800"
         ctx.fillStyle = '#090909';
-        ctx.fillRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
+        ctx.fillRect(c.width/20*1, c.height/20*2, (c.width/20)*18, (c.height/20)*16);
         //ctx.fillStyle = '#000000';
         //ctx.fillRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
 
         ctx.strokeStyle = '#FFFFFF';
         //ctx.strokeRect(c.width/20, c.height/12, (c.width/20)*18, (c.width/10)*5);
-        ctx.strokeRect(c.width/20-10, c.height/12-10, (c.width/20)*18+20, (c.width/10)*7);
+        ctx.strokeRect(c.width/20*1, c.height/20*2, (c.width/20)*18, (c.height/20)*16);
 
         // print current constilation
         ctx.fillStyle = '#FFFFFF';
         ctx.font = "30px Hyperspace";
-        ctx.fillText("CURR. CONSTILATION: ", 330, 200)
-        ctx.fillText(constellationNames[constellation], 380, 250);
+        ctx.fillText("CURR. CONSTILATION: ", c.width/20*6, c.height/10*2)
+        ctx.fillText(constellationNames[constellation], c.width/20*8, c.height/10*3);
 
-        ctx.fillText("JUMP TO SYSTEM:", 330, 350)
+        ctx.fillText("JUMP TO SYSTEM:", c.width/20*6, c.height/10*5)
 
         let l = mapLocations[constellation][curMapLoc];
         for (let i = 0; i < l.warpDestinations.length; i++) {
             if (l.menuNum == i) {
                 ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect((c.width/10)*2+195, (c.height/10)*2+215+(i*40), 180, 30);
+                ctx.fillRect((c.width/20)*7.6, (c.height/10)*6+(i*40)-25, 180, 30);
                 ctx.fillStyle = '#000000'
             } else {
                 ctx.fillStyle = '#FFFFFF';
             }
-            ctx.fillText(constellationNames[l.warpDestinations[i]], (c.width/10)*2+200, (c.height/10)*2+240+(i*40));
+            ctx.fillText(constellationNames[l.warpDestinations[i]], (c.width/20)*8, (c.height/10)*6+(i*40));
         }
     } else {
         jumpTimer --;
@@ -1134,20 +1191,6 @@ function drawBG() {
 // player input functions
 // **********************
 
-/*c.oncontextmenu = function(event) {
-    var x = Math.floor((event.pageX - cLeft) / scale),
-        y = Math.floor((event.pageY - cTop) / scale);
-    
-    click(x, y, event.button);
-    event.preventDefault();
-}
-c.addEventListener('click', function(event) {
-    var x = Math.floor((event.pageX - cLeft)),
-        y = Math.floor((event.pageY - cTop));
-    
-    click(x, y, event.button);
-}, false);*/
-
 function click(x, y, button) {
     //console.log("click x: " + x + ", y: " + y)
     //sctx.rotate(20 * Math.PI / 180);
@@ -1156,6 +1199,7 @@ function click(x, y, button) {
 
 window.addEventListener("keydown", kDown);
 window.addEventListener("keyup", kUp);
+window.addEventListener('resize', doResize);
 
 function kDown(e) {
     if (stage == 0) {
@@ -1215,8 +1259,8 @@ function kDown(e) {
         }
         if (e.key == 'ArrowDown') {
             mapLocations[constellation][curMapLoc].menuNum ++;
-            if (mapLocations[constellation][curMapLoc].menuNum >= resourceNames.length-2) {
-                mapLocations[constellation][curMapLoc].menuNum = resourceNames.length-2;
+            if (mapLocations[constellation][curMapLoc].menuNum >= resourceNames.length-1) {
+                mapLocations[constellation][curMapLoc].menuNum = resourceNames.length-1;
             }
         }
 
@@ -1227,7 +1271,7 @@ function kDown(e) {
                 if (ship.storage[loc.menuNum] > 0) {
                     ship.storage[loc.menuNum] --;
                     ship.storageTotal --;
-                    ship.money += Math.floor(loc.priceList[loc.menuNum]*0.60);
+                    ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85);
                 }
             } else {
                 // buy
@@ -1247,11 +1291,13 @@ function kDown(e) {
         // fuel depot controls
         let loc = mapLocations[constellation][curMapLoc];
         if (e.key == ' ') {
-            if (ship.fuelTotal < ship.maxFuel && ship.money > loc.fuelPrice) {
-                ship.money -= loc.fuelPrice;
-                ship.fuelTotal += 1;
-                if (ship.fuelTotal > ship.maxFuel) {
-                    ship.fuelTotal = ship.maxFuel
+            for (let i = 0; i < (ship.upgrades[0]+1)*3; i++) { // speed up pumping on larger tanks
+                if (ship.fuelTotal < ship.maxFuel && ship.money > loc.fuelPrice) {
+                    ship.money -= loc.fuelPrice;
+                    ship.fuelTotal += 1;
+                    if (ship.fuelTotal > ship.maxFuel) {
+                        ship.fuelTotal = ship.maxFuel
+                    }
                 }
             }
         }
@@ -1267,8 +1313,8 @@ function kDown(e) {
         }
         if (e.key == 'ArrowDown') {
             mapLocations[constellation][curMapLoc].menuNum ++;
-            if (mapLocations[constellation][curMapLoc].menuNum >= mapLocations[curMapLoc].locationUpgrades.length-1) {
-                mapLocations[constellation][curMapLoc].menuNum = mapLocations[curMapLoc].locationUpgrades.length-1;
+            if (mapLocations[constellation][curMapLoc].menuNum >= mapLocations[constellation][curMapLoc].locationUpgrades.length-1) {
+                mapLocations[constellation][curMapLoc].menuNum = mapLocations[constellation][curMapLoc].locationUpgrades.length-1;
             }
         }
 
@@ -1277,44 +1323,13 @@ function kDown(e) {
             
             // buy
             let depot = mapLocations[constellation][curMapLoc];
-            let cost = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] * 500 + 200;
+            let cost = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] * 100 + 200;
             if (ship.money >= cost) {
                 ship.money -= cost;
                 ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] += 1;
                 let lvl = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]]
-                switch (depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]) {
-                    case 0:
-                        // fuel tank
-                        ship.maxFuel += 50 * lvl;
-                        break;
-                    case 1:
-                        // max ship speed
-                        ship.maxSpeed += 1;
-                        break;
-                    case 2:
-                        // ship acceleration
-                        ship.acceleration += 1;
-                        break;
-                    case 3:
-                        // max bullets
-                        ship.maxBullets += 1;
-                        break;
-                    case 4:
-                        // bullet rate
-                        ship.bulletRate -= 5;
-                        if (ship.bulletRate < 1) {
-                            ship.bulletRate = 1;
-                        }
-                        break;
-                    case 5:
-                        // max storage
-                        ship.maxStorage += 20 * lvl;
-                        break;
-                    case 6:
-                        // collection distance
-                        ship.collectDistance += 50 * lvl;
-                        break;
-                }
+                let sel = depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum];
+                doUpgrade(sel, lvl);
             }
         }
 
@@ -1349,16 +1364,15 @@ function kDown(e) {
         } else {
             // do nothing, count down timer in drawWarp
         }
-
     } else {
         if (!ship.dead) {
             // default controls 
             if (e.key == ' ') {
                 spaceBar = true;
-                // always add a bullet if one doesn't exist
-                if (bullets.length <= 0 && ship.dead == 0) {
+                // TODO bullet firing feels unresponsive 
+                if (bullets.length < ship.maxBullets) {
                     ship.bulletTimer = ship.bulletRate;
-                    bullets.push(new Bullet(ship.rot, ship.x + 20, ship.y + 20));
+                    bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                 }
             }
             if (e.key == 'ArrowLeft') {left = true;}
@@ -1369,6 +1383,87 @@ function kDown(e) {
             if (e.key == 'm') {stage = 2; mapReminder = false;}
         }
     }
+    if (e.key == '+') {
+        if (debug) {
+            debug = false;
+        } else {
+            debug = true;
+        }
+        console.log("debug: " + debug);
+    }
+    if (e.key == '0') {
+        window.location.reload();
+    }
+    if (debug) {
+        if (stage == 2) {
+            if (e.key == 'a') {
+                mapLocations[constellation][curMapSel].x -= 1;
+            }
+            if (e.key == 'd') {
+                mapLocations[constellation][curMapSel].x += 1;
+            }
+            if (e.key == 'w') {
+                mapLocations[constellation][curMapSel].y -= 1;
+            }
+            if (e.key == 's') {
+                mapLocations[constellation][curMapSel].y += 1;
+            }
+            if (e.key == 'e') {
+                let str = "[";
+                mapLocations[constellation].forEach(l => {
+                    str += l.x + ", " + l.y + ", ";
+                });
+                console.log(str);
+            }
+        }
+
+        if (e.key == '1') {
+            lives ++;
+        }
+        if (e.key == '2') {
+            asteroids.forEach(roid => {
+                roid.health = -1;
+                if (roid.health < 0) {
+                    deadAsteroids.push(roid);
+                    // small little if large
+                    if (roid.large) {
+                        score += 250;
+                        let r = getRandomInt(2) + 2;
+                        for (let i=0; i<r; i++) {
+                            asteroids.push(new Asteroid(false, roid.x, roid.y));
+                        }
+                    } else {
+                        // small score
+                        score += 100;
+                        let r = getRandomInt(2) + 1;
+                        for (let i=0; i<r; i++) {
+                            resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
+                                roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+                        }
+                    }
+                }
+                damageNumbers.push(new DamageNumber(999999, roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+                asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+                deadAsteroids = [];
+            });
+        }
+        if (e.key == '3') {
+            if (showHitbox) {
+                showHitbox = false;
+            } else {
+                showHitbox = true;
+            }
+        }
+        if (e.key == '7') {
+            ship.bulletRate -= 10;
+        }
+        if (e.key == '8') {
+            ship.baseDamage += 2;
+        }
+        if (e.key == '9') {
+            ship.money += 1000;
+        }
+    }
 }
 
 function kUp(e) {
@@ -1377,6 +1472,54 @@ function kUp(e) {
 	if (e.key == 'ArrowRight') {right = false;}
     if (e.key == 'ArrowUp') {up = false;}
 	if (e.key == 'ArrowDown') {down = false;}
+}
+
+function doUpgrade(sel, lvl) {
+    switch (sel) {
+        case 0:
+            // fuel tank
+            ship.maxFuel += 50 * lvl;
+            break;
+        case 1:
+            // max ship speed
+            ship.maxSpeed += 0.25;
+            break;
+        case 2:
+            // ship acceleration
+            ship.acceleration += 0.25;
+            break;
+        case 3:
+            // max bullets
+            ship.maxBullets += 1;
+            break;
+        case 4:
+            // bullet rate
+            ship.bulletRate -= 5;
+            if (ship.bulletRate < 1) {
+                ship.bulletRate = 1;
+            }
+            break;
+        case 5:
+            // max storage
+            ship.maxStorage += 20 * lvl;
+            break;
+        case 6:
+            // collection distance
+            ship.collectDistance += 50 * lvl;
+            break;
+        case 7:
+            // ship deceleration
+            ship.breakSpeed += 0.25;
+            break;
+        case 8:
+            // bullet damage
+            ship.baseDamage += 2;
+            break;
+        case 9:
+            // bullet distance
+            ship.bulletLife += 20;
+            break;
+    }
 }
 
 // *****************
@@ -1391,7 +1534,7 @@ function moveShip() {
             if (bullets.length < ship.maxBullets) {
                 if (ship.bulletTimer < 0) {
                     ship.bulletTimer = ship.bulletRate;
-                    bullets.push(new Bullet(ship.rot, ship.x + 20, ship.y + 20));
+                    bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                     // rainbow bullets
                     colorCycle = (colorCycle += 1) % 8;
                 } else {
@@ -1478,9 +1621,9 @@ function drawMobiles() {
         moveEntity(e);
         e.bulletTimer --;
         if (e.bulletTimer <= 0) {
-            e.bulletTimer = getRandomInt(150) + 100;
+            e.bulletTimer = getRandomInt(250) + 50;
             if (!ship.dead) {
-                bullets.push(new Bullet(angle(e.x,e.y,ship.x,ship.y), e.x + 40, e.y + 40, 5, false));
+                bullets.push(new Bullet(e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false));
             }
         }
         if (getRandomInt(20) == 1) {
@@ -1504,41 +1647,40 @@ function drawHitbox(e) {
 }
 
 function drawGauges() {
-
     // UI
-    ctx.font = "30px Hyperspace";
+    ctx.font = scaleFont(0.03, "Hyperspace"); //"30px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("$" + ship.money, 20, 40);
-    ctx.fillText("LIVES: "+lives, c.width - 170, 40);
+    ctx.fillText("$" + ship.money, (c.width/20)*0.5, (c.height/20)*1.5);
+    ctx.fillText("LIVES: "+lives, (c.width/20)*16.5, (c.height/20)*1.5);
 
     let x = c.width/4;
     let y = 20;
 
     // storage gague
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x, y, ship.storageTotal*(100/ship.maxStorage), 20);
+    ctx.fillRect(c.width/20*3, c.height/20*0.8, (c.width/20*2.5/100)*ship.storageTotal*(100/ship.maxStorage), c.height/20*0.8);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x, y, 100, 20);
+    ctx.rect(c.width/20*3, c.height/20*0.8, c.width/20*2.5, c.height/20*0.8);
     ctx.stroke();
 
-    ctx.font = "12px Hyperspace";
+    ctx.font = scaleFont(0.02, "Hyperspace"); //"12px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("storage", x + 30, y + 15);
+    ctx.fillText("storage", c.width/20*3.4, c.height/20*1.45);
 
     // fuel gauge
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x*2.5, y, ship.fuelTotal*(100/ship.maxFuel), 20);
+    ctx.fillRect(c.width/20*13, c.height/20*0.8, (c.width/20*2.5/100)*ship.fuelTotal*(100/ship.maxFuel), c.height/20*0.8);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x*2.5, y, 100, 20);
+    ctx.rect(c.width/20*13, c.height/20*0.8, c.width/20*2.5, c.height/20*0.8);
     ctx.stroke();
 
-    ctx.font = "12px Hyperspace";
+    ctx.font = scaleFont(0.02, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("Fuel", (x*2.5) + 30, y + 15);
+    ctx.fillText("Fuel", c.width/20*13.9, c.height/20*1.45);
 
 }
 
@@ -1556,16 +1698,19 @@ function changePrices(loc) {
 }
 
 function collision(e, t) {
-    let p = [e.x + e.hbOffset1, e.y + e.hbOffset1, 
-            e.x + e.hbOffset1, e.y + e.hbOffset1 + e.hbOffset2,
-            e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1,
-            e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1 + e.hbOffset2];
-    for (let i = 0; i < 8; i+=2) {
-        if (p[i] > t.x + t.hbOffset1 && 
-            p[i+1] > t.y + t.hbOffset1 &&
-            p[i] < t.x + t.hbOffset1 + t.hbOffset2 &&
-            p[i+1] < t.y + t.hbOffset1 + t.hbOffset2) {
-                return true;
+    // only calculate if close enough to hit
+    if (distance2D(e, t) <= e.hbOffset2 + t.hbOffset2 * 2) {
+        let p = [e.x + e.hbOffset1, e.y + e.hbOffset1, 
+                e.x + e.hbOffset1, e.y + e.hbOffset1 + e.hbOffset2,
+                e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1,
+                e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1 + e.hbOffset2];
+        for (let i = 0; i < 8; i+=2) {
+            if (p[i] > t.x + t.hbOffset1 && 
+                p[i+1] > t.y + t.hbOffset1 &&
+                p[i] < t.x + t.hbOffset1 + t.hbOffset2 &&
+                p[i+1] < t.y + t.hbOffset1 + t.hbOffset2) {
+                    return true;
+            }
         }
     }
 }
@@ -1591,7 +1736,7 @@ function genMapLocations() {
 function newAstroidField() {
     asteroids = [];
     enemies = [];
-    resources = []; // needed? 
+    //resources = []; // needed? 
     let r = getRandomInt(6) + 4;
     for (let i=0; i<r; i++) {
         asteroids.push(new Asteroid());
@@ -1638,3 +1783,38 @@ function distance2D(e1, e2) {
     let y2 = e2.y;
     return Math.hypot(x2 - x1, y2 - y1);
 }
+
+function getWidth() {
+    // multi-browser support
+    if (self.innerWidth) {
+      return self.innerWidth;
+    }
+    if (document.documentElement && document.documentElement.clientWidth) {
+      return document.documentElement.clientWidth;
+    }
+    if (document.body) {
+      return document.body.clientWidth;
+    }
+  }
+
+  function getHeight() {
+    if (self.innerHeight) {
+      return self.innerHeight;
+    }
+    if (document.documentElement && document.documentElement.clientHeight) {
+      return document.documentElement.clientHeight;
+    }
+    if (document.body) {
+      return document.body.clientHeight;
+    }
+  }
+
+  function doResize() {
+    c.width = getWidth() - 50;
+    c.height = getHeight() - 30;
+  }
+
+  function scaleFont(s, f) {
+    return (c.width * s) + "px " + f;                     
+  }
+
