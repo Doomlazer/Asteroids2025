@@ -26,7 +26,10 @@ let stage = 0; // stage 0 = title, stage 1 = default game, stage 2 = space map
 let locationNames = ['Aelia', 'Adhara', 'Amalthea', 'Andromeda', 'Ascella', 'Astra', 'Aurora', 'Bianca',
                     'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Diana', 'Elara', 'Halley', 'Helia',
                     'Hilal', 'Larissa', 'Leda', 'Libra', 'Lyra', 'Miranda', 'Nashira', 'Ophelia',
-                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras'];
+                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras',
+                    'Calar 25', 'Laffer', '5Bonds-12', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
+                    'Vohaul', 'Mosely', 'Nakimura 4', 'Shema', 'Shameen', 'Erana', 'Kalalau','Cassima', 'Delaney',
+                    'Zara', 'SPR-3', 'Anansi', 'RAVE-II', 'Beatrice', 'LIAM', 'Boogle'];
 let constellationNames = ['AQUARIUS', 'ARIES', 'CANCER', 'CAPRICORNUS', 'GEMINI', 'LEO', 'LIBRA', 
                         'PISCES', 'SAGITTARIUS', 'SCORPIUS', 'TAURUS', 'VIRGO'];
 // RD: name, color
@@ -416,7 +419,7 @@ function step(timeStamp) {
         // random inital upgrades
         for (let i = 0; i < ship.upgrades.length; i++) {
             if (getRandomInt(3) == 1) {
-                let l = getRandomInt(10);
+                let l = getRandomInt(5);
                 let j = 0;
                 while (j < l) {
                     ship.upgrades[i] ++;
@@ -1039,31 +1042,33 @@ function drawFuelDepot() {
     drawGauges();
     let depot = mapLocations[constellation][curMapLoc];
     ctx.fillStyle = 'rgb(20, 20, 20)';
-    ctx.fillRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
+    ctx.font = scaleFont(0.025, "Hyperspace");
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect((c.width/10)*2, (c.height/10)*2, (c.width/10)*6, (c.height/10)*6);
-    ctx.font = "20px Hyperspace";
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("FUEL DEPOT: ", (c.width/10)*3, (c.height/10)*3);
-    ctx.fillText("FUEL PRICE: " + depot.fuelPrice, (c.width/10)*4.25, (c.height/10)*5);
+    ctx.font = scaleFont(0.04, "Hyperspace");
+    ctx.fillText("FUEL DEPOT", c.width/20*3, c.height/20*3.5);
+    ctx.fillText("FUEL PRICE: $" + depot.fuelPrice, c.width/20*6.5, c.height/20*7);
+    ctx.fillText("TANK: " + ship.fuelTotal.toFixed(0) + " OF " + ship.maxFuel, c.width/20*6.5, c.height/20*9);
     ctx.fillStyle = '#888888';
-    ctx.fillText("PRESS SPACE TO PURCHASE", (c.width/10)*3.75, (c.height/10)*8.5);
-    ctx.fillText("PRESS M TO EXIT", (c.width/10)*4.25, (c.height/10)*9);
+    ctx.fillText("PRESS SPACE TO PURCHASE", c.width/20*4.5, c.height/20*16);
+    ctx.fillText("PRESS M TO EXIT", c.width/20*7, c.height/20*19.5);
 
     // big fuel gauge
-    let x = (c.width / 2) - 100; //400
-    let y = (c.height/10)*6; //400
+    let x = c.width/20*4;
+    let y = c.height/20*12; 
     ctx.fillStyle = "#888888";
-    ctx.fillRect(x, y, ship.fuelTotal*(200/ship.maxFuel), 40);
+    ctx.fillRect(c.width/20*5, c.height/20*10, ((c.width/20)*10/ship.maxFuel)*ship.fuelTotal, c.height/20*2.5);
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.rect(x, y, 200, 40);
+    ctx.rect(c.width/20*5, c.height/20*10, c.width/20*10, c.height/20*2.5);
     ctx.stroke();
 
-    ctx.font = "30px Hyperspace";
+    ctx.font = scaleFont(0.06, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("Fuel", x + 60, y + 30);
+    ctx.fillText("Fuel", c.width/20*9, c.height/20*12);
 }
 
 function drawUpgrade() {
