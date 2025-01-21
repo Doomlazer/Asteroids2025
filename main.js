@@ -579,10 +579,12 @@ function step(timeStamp) {
                         let damage = b.damage + ship.comboDamage
                         roid.health -= damage;
                         // c-c-c-combo damage 
-                        ship.comboDamage += 1;
-                        if (ship.comboDamage > 10) {ship.comboDamage = 10}
-                        console.log("combo: " + ship.comboDamage);
-                        score += 5;
+                        if (b.fromShip) {
+                            ship.comboDamage += 1;
+                            if (ship.comboDamage > 10) {ship.comboDamage = 10}
+                            console.log("combo: " + ship.comboDamage);
+                            score += 5;
+                        }
                         if (roid.health < 0) {
                             deadAsteroids.push(roid);
                             // small little if large
@@ -935,15 +937,12 @@ function drawMap() {
         ctx.beginPath();
         //ctx.arc(warper.x, warper.y, 3, 0, 360);
         ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
-        console.log(c.width/20*warper.x);
         
         ctx.strokeStyle = warper.color;
         ctx.stroke();
         ctx.closePath();
-        if (warper.x < warper.tx+2 &&
-            warper.x > warper.tx-2 &&
-            warper.y < warper.ty+2 &&
-            warper.y > warper.ty-2) {
+        
+        if (distanceWarper(warper) < c.width/20*0.005) {
             warper = null;
             warping = false;
             mapLocations[constellation][curMapSel].visited = true;
@@ -1781,6 +1780,14 @@ function distance2D(e1, e2) {
     let y1 = e1.y;
     let x2 = e2.x;
     let y2 = e2.y;
+    return Math.hypot(x2 - x1, y2 - y1);
+}
+
+function distanceWarper(e) {
+    let x1 = e.x;
+    let y1 = e.y;
+    let x2 = e.tx;
+    let y2 = e.ty;
     return Math.hypot(x2 - x1, y2 - y1);
 }
 
