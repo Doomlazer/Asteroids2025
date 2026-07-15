@@ -132,6 +132,12 @@ class Ship {
         this.hbOffset1 = 10;
         this.hbOffset2 = 20;
         this.dead = 0;
+        // asteroids flight model
+        this.flightModel = 1;
+        this.velX = 0;
+        this.velY = 0;
+        this.drag = 0.995; // 1 = frictionless
+
     }
 }
 
@@ -653,9 +659,15 @@ function step(timeStamp) {
 
 function moveEntity(e, screenWrap = true) {
     // move ship
-    let angleRad = e.rot * Math.PI / 180;
-    e.x += (e.speed * Math.cos(angleRad));
-    e.y += (e.speed * Math.sin(angleRad));
+    if (ship.flightModel == 1 && e.acceleration > 0) {
+        // Move ship asteroids style
+        e.x += e.velX;
+        e.y += e.velY;
+    } else {
+        let angleRad = e.rot * Math.PI / 180;
+        e.x += (e.speed * Math.cos(angleRad));
+        e.y += (e.speed * Math.sin(angleRad));
+    }
     // keep in bounds 
     if (screenWrap) {
         if (e.x > c.width + e.hbOffset1 + 5) {
@@ -1554,30 +1566,77 @@ function moveShip() {
             sctx.rotate(5 * Math.PI / 180);
             ship.rot = (ship.rot += 5) % 360;
         }
-        // ship breaking
-        if (down) {
-            ship.speed -= ship.breakSpeed;
-            if (ship.speed < 0) {
-                ship.speed = 0;
-            }   
-        }
-        // ship speed up
-        if (up && ship.fuelTotal > 0) {
-            if (ship.speed < ship.maxSpeed) {
-                ship.speed += ship.acceleration;
+        if (ship.flightModel == 0) { // car style flight
+            // ship breaking
+            if (down) {
+                ship.speed -= ship.breakSpeed;
+                if (ship.speed < 0) {
+                    ship.speed = 0;
+                }   
             }
-            ship.fuelTotal -= 0.003;
-            if (ship.fuelTotal < 0) {
-                ship.fuelTotal = 0;
+            // ship speed up
+            if (up && ship.fuelTotal > 0) {
+                if (ship.speed < ship.maxSpeed) {
+                    ship.speed += ship.acceleration;
+                }
+                ship.fuelTotal -= 0.003;
+                if (ship.fuelTotal < 0) {
+                    ship.fuelTotal = 0;
+                }
+            } else {
+                if (ship.speed > 0) {
+                    ship.speed -= 0.01;
+                } else {
+                    ship.speed = 0;
+                }
             }
         } else {
-            if (ship.speed > 0) {
-                ship.speed -= 0.01;
-            } else {
-                ship.speed = 0;
+            // classic asteroids flight
+            if (left) {
+                ship.rot = (ship.rot - 5 + 360) % 360;
+                sctx.rotate(-5 * Math.PI / 180);
             }
+
+            if (right) {
+                ship.rot = (ship.rot + 5) % 360;
+                sctx.rotate(5 * Math.PI / 180);
+            }
+
+            // thrust
+            if (up && ship.fuelTotal > 0) {
+
+                const angle = ship.rot * Math.PI / 180;
+
+                ship.velX += Math.cos(angle) * ship.acceleration;
+                ship.velY += Math.sin(angle) * ship.acceleration;
+
+                // Optional speed cap
+                const speed = Math.hypot(ship.velX, ship.velY);
+                if (speed > ship.maxSpeed) {
+                    ship.velX = (ship.velX / speed) * ship.maxSpeed;
+                    ship.velY = (ship.velY / speed) * ship.maxSpeed;
+                }
+
+                ship.fuelTotal -= 0.003;
+                if (ship.fuelTotal < 0) {
+                    ship.fuelTotal = 0;
+                }
+            }
+            /* reverse thrust (not in original Asteroids)
+            if (down) {
+                const angle = ship.rot * Math.PI / 180;
+
+                ship.velX -= Math.cos(angle) * ship.acceleration * 0.5;
+                ship.velY -= Math.sin(angle) * ship.acceleration * 0.5;
+            }*/
+
+            // Apply drag
+            ship.velX *= ship.drag;
+            ship.velY *= ship.drag;
         }
+
         moveEntity(ship);
+
         // ship & asteroid collision
         asteroids.forEach(roid => {
             if (collision(ship, roid)) {
