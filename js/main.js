@@ -1000,7 +1000,7 @@ function getWidth() {
   }
 
   async function setAudioSource(sfxId) {
-    if (!audioEnabled) {
+    if (!audioEnabled || stage == 0) {
         return;
     }
     //if (audioArray.length < 1) {
