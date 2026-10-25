@@ -77,7 +77,7 @@ let start;
 let debrisArray = [];
 let deadDebris = [];
 // debug
-let showHitbox = false;
+let showHitbox = true;
 // map
 let mapLocations = [[],[],[],[],[],[],[],[],[],[],[],[]];
 let curMapLoc = 0; // sector where the player currently is
@@ -92,6 +92,9 @@ let starField = [];
 let deadStarField = [];
 let starFieldDelay = 20;
 let starFieldMax = 100;
+let audioEnabled = true;
+let karma = 2;
+let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
 let debug = false;
@@ -147,6 +150,7 @@ function step(timeStamp) {
             respawnTimer --;
             if (respawnTimer == 0) {
                 enemies.push(new mobile(0,0));
+                console.log("enemies ",enemies)
             }
         }
     }
@@ -280,6 +284,7 @@ function step(timeStamp) {
                             // small little if large
                             if (roid.large) {
                                 score += 250;
+                                setAudioSource(2);
                                 let r = getRandomInt(2) + 2;
                                 for (let i=0; i<r; i++) {
                                     asteroids.push(new Asteroid(false, roid.x, roid.y));
@@ -287,6 +292,7 @@ function step(timeStamp) {
                             } else {
                                 // small score
                                 score += 100;
+                                setAudioSource(3);
                                 let r = getRandomInt(2) + 1;
                                 for (let i=0; i<r; i++) {
                                     resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
@@ -342,6 +348,9 @@ function step(timeStamp) {
 }
 
 function moveEntity(e, screenWrap = true) {
+    if (!e) {
+        return;
+    }
     // move ship
     if (ship.flightModel == 1 && e.acceleration > 0) {
         // Move ship asteroids style
@@ -382,9 +391,16 @@ window.addEventListener("keyup", kUp);
 window.addEventListener('resize', doResize);
 
 function kDown(e) {
+    if (ship.fuelTotal < 0 && stage != 0) {
+        location.reload();
+    }
     if (stage == 0) {
         // title controls
-        stage ++;
+        if (e.key == 'r') {
+            location.reload();
+        } else {
+            stage ++;
+        }
     } else if (stage == 2) {
         if (!warping) {
             // map controls
@@ -517,7 +533,7 @@ function kDown(e) {
             stage = 2;
         }
     } else if (stage == 7) {
-        console.log(warping);
+        //console.log(warping);
         // warp to other constilation
         if (!warping) {
             jumpTimer = 200;
@@ -533,7 +549,7 @@ function kDown(e) {
                     mapLocations[constellation][curMapLoc].menuNum = mapLocations[constellation][curMapLoc].warpDestinations.length-1;
                 }
             }
-            console.log(mapLocations[constellation][curMapLoc].menuNum)
+            //console.log(mapLocations[constellation][curMapLoc].menuNum)
             if (e.key == ' ') {
                 constellation = mapLocations[constellation][curMapLoc].warpDestinations[mapLocations[constellation][curMapLoc].menuNum];
                 warping = true;
@@ -551,6 +567,7 @@ function kDown(e) {
                 spaceBar = true;
                 // TODO bullet firing feels unresponsive 
                 if (bullets.length < ship.maxBullets) {
+                    setAudioSource(0);
                     ship.bulletTimer = ship.bulletRate;
                     bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                 }
@@ -577,6 +594,13 @@ function kDown(e) {
     }
     if (e.key == '0') {
         window.location.reload();
+    }
+    if (e.key == 's') {
+        if (audioEnabled) {
+            audioEnabled = false
+        } else {
+            audioEnabled = true;
+        }
     }
     if (debug) {
         if (stage == 2) {
@@ -637,6 +661,10 @@ function kDown(e) {
             } else {
                 showHitbox = true;
             }
+        }
+        if (e.key == '4') {
+            ship.maxFuel += 100;
+            ship.fuelTotal = ship.maxFuel;
         }
         if (e.key == '7') {
             ship.bulletRate -= 10;
@@ -704,6 +732,7 @@ function doUpgrade(sel, lvl) {
             ship.bulletLife += 20;
             break;
     }
+    setAudioSource(6)
 }
 
 // *****************
@@ -717,6 +746,7 @@ function moveShip() {
         if (spaceBar) {
             if (bullets.length < ship.maxBullets) {
                 if (ship.bulletTimer < 0) {
+                    setAudioSource(0);
                     ship.bulletTimer = ship.bulletRate;
                     bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                     // rainbow bullets
@@ -805,6 +835,7 @@ function moveShip() {
         // ship & asteroid collision
         asteroids.forEach(roid => {
             if (collision(ship, roid)) {
+                setAudioSource(3);
                 ship.dead = 100;
                 ship.speed = 0;
                 let r = getRandomInt(5) + 5;
@@ -828,7 +859,10 @@ function changePrices(loc) {
         }
     } else {
         for (let i = 0; i < loc.priceList.length; i++) {
-            loc.priceList[i] = loc.priceList[i] + getRandomInt(20) - 10;
+            let r = getRandomInt(10);
+            if (r == 1) {
+                loc.priceList[i] = loc.priceList[i] + getRandomInt(20) - 10;
+            }
         }
     }
 }
@@ -873,12 +907,15 @@ function newAstroidField() {
     asteroids = [];
     enemies = [];
     //resources = []; // needed? 
-    let r = getRandomInt(6) + 4;
+    let r = getRandomInt(9) + 4;
     for (let i=0; i<r; i++) {
         asteroids.push(new Asteroid());
     }
+    //console.log("mapLocations[constellation][curMapLoc].isHostile",mapLocations[constellation][curMapLoc].isHostile)
     if (mapLocations[constellation][curMapLoc].isHostile) {
-        enemies.push(new mobile(0,0)); // 0,0 = radom x,y along width height
+        let e = new mobile(10,10);
+        enemies.push(e); // 0,0 = radom x,y along width height
+        //console.log(enemies)
     }
 }
 
@@ -961,4 +998,33 @@ function getWidth() {
   function scaleFont(s, f) {
     return (c.width * s) + "px " + f;                     
   }
+
+  async function setAudioSource(sfxId) {
+    if (!audioEnabled) {
+        return;
+    }
+    //if (audioArray.length < 1) {
+        // init
+        url = "./sounds/" + sfx[sfxId] + ".mp3";
+        //console.log(url);
+        const audio = new Audio();
+        audio.crossOrigin = "anonymous";
+        audio.src = url;
+        audio.load();
+        //audio.addEventListener('ended', function() {
+        //    audioEnded();
+        //});
+        //audioArray.push(audio);
+        audio.play();
+    /*} else {
+        // replace exisiting
+        array[0].audio.pause();
+        array[0].audio.src = url;
+        array[0].audio.load();
+        await array[0].audio.play();
+    }*/
+    //document.getElementById("canvas").style.cursor = "none";
+}
+
+
 

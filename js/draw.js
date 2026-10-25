@@ -30,6 +30,9 @@ function draw() {
             break;
         default:
     }
+    if (debug) {
+        ctx.fillText('debugging', 10, c.height - 10);
+    }
     /*/ center guide lines
     ctx.strokeStyle = "#00FF00";
     ctx.beginPath();
@@ -89,7 +92,7 @@ function drawStage1() {
         sctx.clearRect(-20,-20,40,40);
         sctx.stroke(ship.path);
         ctx.drawImage(s, 0,0,40,40, ship.x, ship.y,40,40);
-        if (showHitbox) {
+        if (showHitbox && debug) {
             drawHitbox(ship);
         }
     } else {
@@ -112,11 +115,12 @@ function drawStage1() {
     // draw bullets
     bullets.forEach(b => {
         ctx.beginPath();
+        //console.log(b, b.x, b.y)
         ctx.arc(b.x, b.y, 2+(b.damage/4), 0, 360);  
         ctx.strokeStyle = b.color;
         ctx.stroke();
         ctx.closePath();
-        if (showHitbox) {
+        if (showHitbox && debug) {
             drawHitbox(b);
         }
     });
@@ -140,7 +144,7 @@ function drawStage1() {
     // draw resrouces
     resources.forEach(r => {
         ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius, 0, 2 * Math.PI);
+        ctx.arc(r.x, r.y, r.radius/2, 0, 2 * Math.PI);
         ctx.strokeStyle = r.color;
         ctx.stroke();
         ctx.closePath();
@@ -152,6 +156,7 @@ function drawStage1() {
         ctx.font = scaleFont(0.05, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText("GAME OVER", (c.width/20)*8, (c.height/20)*10);
+        location.reload();
     }
 
     if (mapReminder || ship.storageTotal == ship.maxStorage) {
@@ -183,14 +188,20 @@ function drawMap() {
         ctx.beginPath();
         ctx.arc(c.width/20*l.x, c.height/20*l.y, c.width/20*0.1, 0, 360);
         ctx.strokeStyle = l.color;
+        archColor(l);
         ctx.stroke();
         ctx.closePath();
 
         ctx.font = scaleFont(0.018, "Hyperspace");
-        ctx.fillStyle = l.color;
+        if (l.visited) {
+            ctx.fillStyle = l.color;
+        } else {
+            ctx.fillStyle = "#999999";
+        }
         ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*1));
 
         // draw more stuff if selected
+        ctx.fillStyle = l.color;
         if (curMapSel == ind) {
 
             ctx.fillText("CONSTILATION: ", c.width/20*3, c.height/20*16)
@@ -238,7 +249,9 @@ function drawMap() {
 
             // selection rect
             ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 3;
             ctx.strokeRect((c.width/20*l.x)-(c.width/20*0.2), (c.height/20*l.y)-(c.height/20*0.3), (c.width/20*0.4),  (c.height/20*0.6));
+            ctx.lineWidth = 1;
         }
         if (curMapLoc == ind) {
             // you are here marker
@@ -247,18 +260,20 @@ function drawMap() {
         }
     });
 
+    if (ship.fuelTotal > 0) {
+        moveEntity(warper);
+    } else {
+        ctx.font = "40px Hyperspace";
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText("OUT OF FUEL - GAME OVER", 230, 400);
+    }
+    
     if (warper) {
         ship.fuelTotal -= 0.05;
         if (ship.fuelTotal < 0) {
             ship.fuelTotal = 0;
         }
-        if (ship.fuelTotal > 0) {
-            moveEntity(warper);
-        } else {
-            ctx.font = "40px Hyperspace";
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillText("OUT OF FUEL - GAME OVER", 230, 400);
-        }
+    
         ctx.beginPath();
         //ctx.arc(warper.x, warper.y, 3, 0, 360);
         ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
@@ -436,6 +451,39 @@ function drawUpgrade() {
     }
 }
 
+function archColor(l) {
+    ctx.lineWidth = 1;
+    if (l.visited) {
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#ffffff";
+    } else {
+        ctx.strokeStyle = "#646363";
+    }
+    if (l.name == "QUANTIUM JUMP STATION") {
+        if (l.visited) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#fc0303"//l.color;
+        }
+    }
+    if (l.name == "TRADING POST") {
+        if (l.visited) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#e7fb04"//l.color;
+        }
+    }
+    if (l.name == "UPGRADE SHOP") {
+        if (l.visited) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#2105ef"//l.color;
+        }
+    }
+    if (l.name == "FUEL DEPOT") {
+        if (l.visited) {
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#2105ef"//l.color;
+        }
+    }
+}
 
 function drawWarp() {
     drawStarField();
@@ -454,21 +502,104 @@ function drawWarp() {
         // print current constilation
         ctx.fillStyle = '#FFFFFF';
         ctx.font = "30px Hyperspace";
-        ctx.fillText("CURR. CONSTILATION: ", c.width/20*6, c.height/10*2)
-        ctx.fillText(constellationNames[constellation], c.width/20*8, c.height/10*3);
+        ctx.fillText("CURR. CONSTILATION: ", c.width/20*1.5, c.height/10*2);
+        ctx.fillStyle = '#ff0000';
+        ctx.fillText(constellationNames[constellation], c.width/20*7, c.height/10*2);
 
-        ctx.fillText("JUMP TO SYSTEM:", c.width/20*6, c.height/10*5)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText("JUMP TO SYSTEM:", c.width/20*1.5, c.height/10*4)
 
         let l = mapLocations[constellation][curMapLoc];
+        // draw ring
+        for (let i = 0; i < constellationNames.length; i++) {
+            if (i == constellation) {
+                ctx.strokeStyle = '#ff0000';
+            } else {
+                if (l.warpDestinations[l.menuNum] == i) {
+                    ctx.strokeStyle = '#15e731';
+                } else {
+                    ctx.strokeStyle = '#2d1dd8';
+                }
+            }
+            ctx.font = "18px Hyperspace";
+            let off = 14.5;
+            if (i % 2 == 0) {
+                off = 17;
+            }
+            ctx.fillText(constellationNames[i], c.width/15*i + (c.width/10), c.height/20*off);
+            ctx.font = "30px Hyperspace";
+            ctx.strokeRect(c.width/15*i + (c.width/10), c.height/20*15, (c.width/40)*1, (c.height/20)*1);
+        }
+        
+        // draw dest locations
+        mapLocations[l.warpDestinations[l.menuNum]].forEach(l => {
+            let ind = mapLocations[constellation].indexOf(l);
+            ctx.beginPath();
+            ctx.arc(
+                ((c.width/20*l.x)/2.5) + (c.width/1.8), 
+                (c.height/20*l.y)/2.5 + (c.height/6), 
+                c.width/30*0.1, 
+                0, 360);
+            /*if (l.visited) {
+                ctx.strokeStyle = "#ffffff";
+            } else {
+                ctx.strokeStyle = "#646363";
+            }*/
+            archColor(l);
+            ctx.lineWidth = 1;
+            ctx.fillStyle = "#646363"//l.color;
+            if (l.visited) {
+                ctx.lineWidth = 2;
+                ctx.fillStyle = "#f8faf8"
+            }
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.font = scaleFont(0.008, "Hyperspace");
+            ctx.fillText(l.name, (c.width/20*l.x)/2.5 + (c.width/1.8), (c.height/20*l.y+(c.height/20*1))/2.5 + (c.height/6));
+            ctx.font = scaleFont(0.014, "Hyperspace");
+
+            // draw known resource prices
+            if (l.name == "TRADING POST" && l.visited) {
+                ctx.fillStyle = '#FFFFFF';
+                for (let i = 0; i<resourceNames.length; i++) {
+                    ctx.fillText(resourceNames[i], c.width/20*7, c.height/20*6+(c.height/20*0.8*i));
+
+                    // buy price
+                    ctx.fillText(l.priceList[i], c.width/20*9, c.height/20*6+(c.height/20*0.8*i));
+    
+                    // owned
+                    ctx.fillText(ship.storage[i], c.width/20*10, c.height/20*6+(c.height/20*0.8*i));
+                }
+            }
+
+            // draw know upgrades
+            if (l.name == "UPGRADE SHOP" && l.visited) {
+                ctx.fillStyle = '#FFFFFF';
+                for (let i = 0; i< l.locationUpgrades.length; i++) {
+                    // upgrade name
+                    ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*12, c.height/20*11+(c.height/20*0.8*i));
+                    // curr upgrade level
+                    ctx.fillText(ship.upgrades[l.locationUpgrades[i]], c.width/20*16, c.height/20*11+(c.height/20*0.8*i));
+                    // upgrade price 
+                    ctx.fillText(ship.upgrades[l.locationUpgrades[i]] * 100+200, c.width/20*17, c.height/20*11+(c.height/20*0.8*i));
+                }
+            }
+
+            ctx.font = scaleFont(0.018, "Hyperspace");
+    
+        });
+        ctx.strokeStyle = "#ffffff";
+
         for (let i = 0; i < l.warpDestinations.length; i++) {
             if (l.menuNum == i) {
                 ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect((c.width/20)*7.6, (c.height/10)*6+(i*40)-25, 180, 30);
+                ctx.fillRect((c.width/20)*1.6, (c.height/10)*5+(i*40)-25, 180, 30);
                 ctx.fillStyle = '#000000'
             } else {
                 ctx.fillStyle = '#FFFFFF';
             }
-            ctx.fillText(constellationNames[l.warpDestinations[i]], (c.width/20)*8, (c.height/10)*6+(i*40));
+            ctx.fillText(constellationNames[l.warpDestinations[i]], (c.width/20)*2, (c.height/10)*5+(i*40));
         }
     } else {
         jumpTimer --;
@@ -476,11 +607,12 @@ function drawWarp() {
             ship.fuelTotal -= 0.1;
             if (ship.fuelTotal <= 0) {
                 // TODO Fix this 
-                lives = 0;
+                lives --; //= 0;
             }
         }
         if (jumpTimer < 1) {
             warping = false;
+            mapLocations[constellation][curMapSel].visited = true;
             stage = 2;
         }
     }
@@ -498,6 +630,9 @@ function drawStarField() {
         ctx.fill();
         ctx.closePath();
     });
+    if (ship.fuelTotal < 0) {
+        stage = 2;
+    }
 }
 
 function drawBG() {
@@ -524,7 +659,7 @@ function drawAsteroids() {
         actx.stroke(roid.path);
         ctx.drawImage(a, 0,0,80,80, roid.x, roid.y,80,80);
         actx.rotate(-roid.spin * Math.PI / 180);
-        if (showHitbox) {
+        if (showHitbox && debug) {
             drawHitbox(roid);
         }
     });
@@ -537,7 +672,9 @@ function drawMobiles() {
         if (e.bulletTimer <= 0) {
             e.bulletTimer = getRandomInt(250) + 50;
             if (!ship.dead) {
+                //console.log("e ",e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false)
                 bullets.push(new Bullet(e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false));
+                //console.log(bullets[bullets.length-1])
             }
         }
         if (getRandomInt(20) == 1) {
@@ -547,9 +684,14 @@ function drawMobiles() {
         actx.rotate(e.spin * Math.PI / 180);
         actx.strokeStyle = e.color;
         actx.stroke(e.path);
+        //console.log(e, e.x,e.y)
+        if (isNaN(e.x)) {
+            e.x = 100;
+            e.y = 100;
+        }
         ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
         actx.rotate(-e.spin * Math.PI / 180);
-        if (showHitbox) {
+        if (showHitbox && debug) {
             drawHitbox(e);
         }
     });

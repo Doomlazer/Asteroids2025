@@ -58,7 +58,7 @@ class mobile {
                 if (getRandomInt(2) == 1) {
                     this.y = -3;
                 } else {
-                    this.y = c.heigth + 3;
+                    this.y = c.height + 3;
                 }
             }
         } else {
@@ -135,8 +135,9 @@ class MapLocation {
         this.isHostile = false;
         if (type == 'sector') {
             this.name = locationNames[getRandomInt(locationNames.length-1)];
-            if (getRandomInt(10) > 4) {
+            if (getRandomInt(10) > 1) {
                 this.isHostile = true;
+                console.log(this.name, " is hostile")
             }
             let r = getRandomInt(2) + 1;
             for (let i = 0; i < r; i++) {
@@ -180,7 +181,7 @@ class Resource {
         this.speed = 0.1;
         this.maxSpeed = 2;
         this.rot = getRandomInt(360);
-        this.radius = getRandomInt(5) + 1;
+        this.radius = getRandomInt(5 * (karma/2)) + 1;
         let loc = mapLocations[constellation][curMapLoc];
         let s = getRandomInt(loc.resources.length);
         let t = loc.resources[s];
