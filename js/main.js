@@ -537,13 +537,13 @@ function kDown(e) {
         // warp to other constilation
         if (!warping) {
             jumpTimer = 200;
-            if (e.key == 'ArrowUp') {
+            if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
                 mapLocations[constellation][curMapLoc].menuNum --;
                 if (mapLocations[constellation][curMapLoc].menuNum < 0) {
                     mapLocations[constellation][curMapLoc].menuNum = 0;
                 }
             }
-            if (e.key == 'ArrowDown') {
+            if (e.key == 'ArrowDown' || e.key == 'ArrowRight') {
                 mapLocations[constellation][curMapLoc].menuNum ++;
                 if (mapLocations[constellation][curMapLoc].menuNum >= mapLocations[constellation][curMapLoc].warpDestinations.length-1) {
                     mapLocations[constellation][curMapLoc].menuNum = mapLocations[constellation][curMapLoc].warpDestinations.length-1;

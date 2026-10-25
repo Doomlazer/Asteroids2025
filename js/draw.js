@@ -172,12 +172,13 @@ function drawMap() {
     drawBG();
     drawGauges();
 
-    // map boarders
+    // map clear
     ctx.fillStyle = '#0F0F0F';
     ctx.fillRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
     ctx.fillStyle = '#000000';
     ctx.fillRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
     
+    // map boarders
     ctx.strokeStyle = '#FFFFFF';
     ctx.strokeRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
     ctx.strokeRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
@@ -279,8 +280,10 @@ function drawMap() {
         ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
         
         ctx.strokeStyle = warper.color;
+        ctx.lineWidth = 3;
         ctx.stroke();
         ctx.closePath();
+        ctx.lineWidth = 1;
         
         if (distanceWarper(warper) < c.width/20*0.005) {
             warper = null;
@@ -474,13 +477,13 @@ function archColor(l) {
     if (l.name == "UPGRADE SHOP") {
         if (l.visited) {
             ctx.lineWidth = 3;
-            ctx.strokeStyle = "#2105ef"//l.color;
+            ctx.strokeStyle = "#0088ff"//l.color;
         }
     }
     if (l.name == "FUEL DEPOT") {
         if (l.visited) {
             ctx.lineWidth = 3;
-            ctx.strokeStyle = "#2105ef"//l.color;
+            ctx.strokeStyle = "#efa505"//l.color;
         }
     }
 }
@@ -502,23 +505,29 @@ function drawWarp() {
         // print current constilation
         ctx.fillStyle = '#FFFFFF';
         ctx.font = "30px Hyperspace";
-        ctx.fillText("CURR. CONSTILATION: ", c.width/20*1.5, c.height/10*2);
+        ctx.fillText("CURR. CONSTILATION", c.width/20*1.5, c.height/10*2);
         ctx.fillStyle = '#ff0000';
-        ctx.fillText(constellationNames[constellation], c.width/20*7, c.height/10*2);
+        ctx.fillText(constellationNames[constellation], c.width/20*2.5, c.height/10*3);
 
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("JUMP TO SYSTEM:", c.width/20*1.5, c.height/10*4)
+        ctx.fillText("JUMP TO SYSTEM", c.width/20*1.5, c.height/10*4)
 
-        let l = mapLocations[constellation][curMapLoc];
+        let loc = mapLocations[constellation][curMapLoc];
         // draw ring
         for (let i = 0; i < constellationNames.length; i++) {
             if (i == constellation) {
                 ctx.strokeStyle = '#ff0000';
+                ctx.fillStyle = '#ff0000';
+                ctx.lineWidth = 6;
             } else {
-                if (l.warpDestinations[l.menuNum] == i) {
+                if (loc.warpDestinations[loc.menuNum] == i) {
                     ctx.strokeStyle = '#15e731';
+                    ctx.fillStyle = '#15e731';
+                    ctx.lineWidth = 3;
                 } else {
                     ctx.strokeStyle = '#2d1dd8';
+                    ctx.fillStyle = '#808180';
+                    ctx.lineWidth = 1;
                 }
             }
             ctx.font = "18px Hyperspace";
@@ -529,15 +538,24 @@ function drawWarp() {
             ctx.fillText(constellationNames[i], c.width/15*i + (c.width/10), c.height/20*off);
             ctx.font = "30px Hyperspace";
             ctx.strokeRect(c.width/15*i + (c.width/10), c.height/20*15, (c.width/40)*1, (c.height/20)*1);
+            ctx.lineWidth = 1;
         }
         
         // draw dest locations
-        mapLocations[l.warpDestinations[l.menuNum]].forEach(l => {
+        ctx.strokeStyle = "#ffffff";
+        // map boarder
+        ctx.strokeRect(
+            (c.width/20*1)/2.5 + (c.width/1.8),
+            (c.height/20*2.5)/2.5 + (c.height/8),
+            (c.width/20*18)/2.5,
+            (c.height/20*12.5)/2.5
+        );
+        mapLocations[loc.warpDestinations[loc.menuNum]].forEach(l => {
             let ind = mapLocations[constellation].indexOf(l);
             ctx.beginPath();
             ctx.arc(
                 ((c.width/20*l.x)/2.5) + (c.width/1.8), 
-                (c.height/20*l.y)/2.5 + (c.height/6), 
+                (c.height/20*l.y)/2.5 + (c.height/8), 
                 c.width/30*0.1, 
                 0, 360);
             /*if (l.visited) {
@@ -556,25 +574,34 @@ function drawWarp() {
             ctx.closePath();
 
             ctx.font = scaleFont(0.008, "Hyperspace");
-            ctx.fillText(l.name, (c.width/20*l.x)/2.5 + (c.width/1.8), (c.height/20*l.y+(c.height/20*1))/2.5 + (c.height/6));
+            ctx.fillText(l.name, (c.width/20*l.x)/2.5 + (c.width/1.8), (c.height/20*l.y+(c.height/20*1))/2.5 + (c.height/8));
             ctx.font = scaleFont(0.014, "Hyperspace");
 
             // draw known resource prices
             if (l.name == "TRADING POST" && l.visited) {
+                ctx.fillStyle = '#e5ff00';
+                ctx.fillText(`${constellationNames[loc.warpDestinations[loc.menuNum]]} Prices`, c.width/20*7, c.height/20*4+(c.height/20));
                 ctx.fillStyle = '#FFFFFF';
-                for (let i = 0; i<resourceNames.length; i++) {
+                for (let i = 0; i < resourceNames.length; i++) {
                     ctx.fillText(resourceNames[i], c.width/20*7, c.height/20*6+(c.height/20*0.8*i));
 
+                    // sell price
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fillText(Math.floor(l.priceList[i]*0.85), c.width/20*8.75, c.height/20*6+(c.height/20*0.8*i));
                     // buy price
-                    ctx.fillText(l.priceList[i], c.width/20*9, c.height/20*6+(c.height/20*0.8*i));
-    
+                    ctx.fillStyle = '#00FF00';
+                    ctx.fillText(l.priceList[i], c.width/20*9.25, c.height/20*6+(c.height/20*0.8*i));
+
                     // owned
+                    ctx.fillStyle = '#FFFFFF';
                     ctx.fillText(ship.storage[i], c.width/20*10, c.height/20*6+(c.height/20*0.8*i));
                 }
             }
 
             // draw know upgrades
             if (l.name == "UPGRADE SHOP" && l.visited) {
+                ctx.fillStyle = "#0088ff";
+                ctx.fillText(`${constellationNames[loc.warpDestinations[loc.menuNum]]} Upgrades`, c.width/20*12, c.height/20*10);
                 ctx.fillStyle = '#FFFFFF';
                 for (let i = 0; i< l.locationUpgrades.length; i++) {
                     // upgrade name
@@ -591,15 +618,15 @@ function drawWarp() {
         });
         ctx.strokeStyle = "#ffffff";
 
-        for (let i = 0; i < l.warpDestinations.length; i++) {
-            if (l.menuNum == i) {
+        for (let i = 0; i < loc.warpDestinations.length; i++) {
+            if (loc.menuNum == i) {
                 ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect((c.width/20)*1.6, (c.height/10)*5+(i*40)-25, 180, 30);
+                ctx.fillRect((c.width/20)*2.5, (c.height/10)*5+(i*40)-25, 180, 30);
                 ctx.fillStyle = '#000000'
             } else {
                 ctx.fillStyle = '#FFFFFF';
             }
-            ctx.fillText(constellationNames[l.warpDestinations[i]], (c.width/20)*2, (c.height/10)*5+(i*40));
+            ctx.fillText(constellationNames[loc.warpDestinations[i]], (c.width/20)*2.9, (c.height/10)*5+(i*40));
         }
     } else {
         jumpTimer --;
