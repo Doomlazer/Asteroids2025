@@ -33,6 +33,16 @@ function draw() {
     if (debug) {
         ctx.fillText('debugging', 10, c.height - 10);
     }
+    if (bgmTimer > 0) {
+        bgmTimer --;
+        if (bgmTimer < 256) {
+            ctx.fillStyle = `rgb(${bgmTimer},${bgmTimer},${bgmTimer})`;
+        } else {
+            ctx.fillStyle = "#FFFFFF";
+        }
+        ctx.font = scaleFont(0.015, "Hyperspace");
+        ctx.fillText(`streaming ${backgroudMusic.src}`, 10, c.height - 10);
+    }
     /*/ center guide lines
     ctx.strokeStyle = "#00FF00";
     ctx.beginPath();
@@ -510,7 +520,8 @@ function drawWarp() {
         ctx.fillText(constellationNames[constellation], c.width/20*2.5, c.height/10*3);
 
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("JUMP TO SYSTEM", c.width/20*1.5, c.height/10*4)
+        ctx.fillText("JUMP TO SYSTEM", c.width/20*1.5, c.height/10*4);
+        ctx.fillText("'M' TO EXIT", c.width/20*1.5, c.height/10*6.5);
 
         let loc = mapLocations[constellation][curMapLoc];
         // draw ring

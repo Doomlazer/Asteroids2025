@@ -93,7 +93,9 @@ let deadStarField = [];
 let starFieldDelay = 20;
 let starFieldMax = 100;
 let audioEnabled = true;
-let karma = 2;
+let backgroudMusic = null;
+let bgmTimer = 0;
+let karma = 3;
 let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
@@ -401,6 +403,7 @@ function kDown(e) {
         } else {
             stage ++;
         }
+        playMusic();
     } else if (stage == 2) {
         if (!warping) {
             // map controls
@@ -595,12 +598,36 @@ function kDown(e) {
     if (e.key == '0') {
         window.location.reload();
     }
+    // toggle sfx
     if (e.key == 's') {
+        if (audioEnabled) {
+            audioEnabled = false
+            backgroudMusic.pause();
+            backgrounMusic = null;
+        } else {
+            audioEnabled = true;
+            backgroudMusic.pause();
+            backgrounMusic = null;
+            playMusic();
+        }
+    }
+    if (e.key == 'S') {
         if (audioEnabled) {
             audioEnabled = false
         } else {
             audioEnabled = true;
         }
+    }
+    // toggle background music
+    if (e.key == 'A') {
+        backgroudMusic.pause();
+        backgrounMusic = null;
+    }
+    // change random background music
+    if (e.key == 'a') {
+        backgroudMusic.pause();
+        backgrounMusic = null;
+        playMusic();
     }
     if (debug) {
         if (stage == 2) {
@@ -1005,25 +1032,48 @@ function getWidth() {
     }
     //if (audioArray.length < 1) {
         // init
-        url = "./sounds/" + sfx[sfxId] + ".mp3";
-        //console.log(url);
-        const audio = new Audio();
-        audio.crossOrigin = "anonymous";
-        audio.src = url;
-        audio.load();
-        //audio.addEventListener('ended', function() {
-        //    audioEnded();
-        //});
-        //audioArray.push(audio);
-        audio.play();
-    /*} else {
-        // replace exisiting
-        array[0].audio.pause();
-        array[0].audio.src = url;
-        array[0].audio.load();
-        await array[0].audio.play();
-    }*/
-    //document.getElementById("canvas").style.cursor = "none";
+    url = "./sounds/" + sfx[sfxId] + ".mp3";
+    //console.log(url);
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = url;
+    audio.load();
+    //audio.addEventListener('ended', function() {
+    //    audioEnded();
+    //});
+    //audioArray.push(audio);
+    audio.play();
+}
+
+function playMusic() {
+    const urls = ["https://archive.org/download/raveforce1-jungle-breakcore/Dmachine%20-%20Condiments%20of%20the%20Darkside.%20Jungle%20%26%20Breakcore%20Mix%20Heavy%20Amen%20subwoofer%20excurison-yVLXI-m70lQ.mp3",
+    "https://archive.org/download/selected-dnb-1/Inner-Vation%20-%20Movements%20%281999%29-DU3Rezgt-TE.mp3",
+    "https://archive.org/download/selected-dnb-1/Intelligent%20Drum%20%26%20Bass%20-%20Selected%20Works%20%281994-2000%29-1zGaTE2AmsU.mp3",
+    "https://archive.org/download/selected-dnb-1/Jungle%20Mix%20-%20psiX%20-%20Room%2099-lfcehfutGBM.mp3",
+    "https://archive.org/download/selected-dnb-1/Peshay%20Studio%20Set%20%281996%29-JK8ilaPZbKE.mp3",
+    "https://archive.org/download/NinjaGaijinStaringIntoTheEyesOfDeathBREAKCORE15Feb2014/Ninja_Gaijin_-_Staring_Into_The_Eyes_Of_Death_%28BREAKCORE-15Feb2014%29.mp3",
+    "https://archive.org/download/NinjaGaijinGuardiansOfSunshineJUNGLE27May2014/Ninja_Gaijin_-_Guardians_of_Sunshine_%28JUNGLE-27May2014%29.mp3",
+    "https://archive.org/download/NinjaGaijinTheLegacyofthe47RoninJUNGLE/Ninja%20Gaijin%20-%20The%20Legacy%20of%20the%2047%20Ronin%20%28JUNGLE-10Nov2014%29.mp3",
+    "https://archive.org/download/NinjaGaijin-TheChokeholddarkstepMix10july11/Ninja_Gaijin_-_The_Chokehold_10July2011-DARKSTEP-320.mp3",
+    "https://archive.org/download/NinjaGaijinBlackBokorJUNGLE25Apr2015/Ninja%20Gaijin%20-%20Black%20Bokor%20%28JUNGLE-25Apr2015%29.mp3",
+    "https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
+    "https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",
+    "https://archive.org/download/Sinapz-liquidLightMix3/LiquidLight3.mp3",
+    "https://archive.org/download/1757030366_windowlicker/Windowlicker/01%20Aphex%20Twin%20-%20Windowlicker.mp3",
+    "https://archive.org/download/Squarepusher19970724JapanTokyo/Squarepusher%20-%201997-07-24%20Japan-Tokyo.mp3"
+    ];
+    const r = getRandomInt(urls.length);
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
+    audio.src = urls[r];
+    audio.load();
+    audio.addEventListener('ended', function() {
+        backgroudMusic = null;
+        playMusic();
+    });
+    bgmTimer = 500;
+    backgroudMusic = audio;
+    audio.play();
 }
 
 
