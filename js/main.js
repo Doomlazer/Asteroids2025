@@ -391,7 +391,7 @@ window.addEventListener("keyup", kUp);
 window.addEventListener('resize', doResize);
 
 function kDown(e) {
-    if (ship.fuelTotal < 0 && stage != 0) {
+    if (ship.fuelTotal <= 0 && stage != 0) {
         location.reload();
     }
     if (stage == 0) {
