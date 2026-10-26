@@ -1116,7 +1116,8 @@ function playMusic() {
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%203%29%20%5Belectro%2C%20idm%2C%20breakbeat%2C%20acid%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%204%29%20%5BDark%20Music%2C%20glitch%2C%20Drone%2C%20space%20noises%2C%20ambient%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%205%29%5BHypnotic%20Deep%20Ambient%20Techno%20Abstract%20Dub-step%5D.mp3",
-    "https://archive.org/download/earth.ambient/01-Earth.ambient.mp3"
+    "https://archive.org/download/earth.ambient/01-Earth.ambient.mp3",
+    "https://archive.org/download/ocean.ambient/01-Ocean.ambient.mp3"
     ];
     const r = getRandomInt(urls.length);
     const audio = new Audio();
