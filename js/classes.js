@@ -127,9 +127,26 @@ class MapLocation {
             this.priceList.push(getRandomInt(30)+10);
         }
         let s = getRandomInt(50) + 5;
+        this.palette = [
+            `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`,
+            `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`,
+            `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`,
+            `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`
+        ];
         for (let i = 0; i < s; i++) {
             // build location's star background
-            this.bg.push(getRandomInt(c.width));
+            let r = getRandomInt(30);
+            if (r == 0) {
+               r = getRandomInt(70) 
+            } else {
+                r = 2;
+            }
+            this.bg.push(
+                [getRandomInt(100),
+                getRandomInt(100),
+                this.palette[getRandomInt(this.palette.length)],
+                r]
+            );
             this.bg.push(getRandomInt(c.height));
         }
         this.isHostile = false;

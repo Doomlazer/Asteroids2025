@@ -463,6 +463,51 @@ function kDown(e) {
             }
         }
 
+        if (e.key == '<') {
+            let loc = mapLocations[constellation][curMapLoc];
+            // sell 50% max
+            if (loc.buySell == 0 && ship.storage[loc.menuNum] > 0) {
+                ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*Math.floor(ship.storage[loc.menuNum]/2);
+                ship.storageTotal -= Math.floor(ship.storage[loc.menuNum]/2)
+                ship.storage[loc.menuNum] -= Math.floor(ship.storage[loc.menuNum]/2);
+            }
+        }
+        if (e.key == ',') {
+            let loc = mapLocations[constellation][curMapLoc];
+            // sell max
+            if (loc.buySell == 0 && ship.storage[loc.menuNum] > 0) {
+                ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*ship.storage[loc.menuNum];
+                ship.storage[loc.menuNum]=0;
+                ship.storageTotal=0;
+            }
+        }
+
+        // Buy 50% max
+        if (e.key == '>') {
+            let loc = mapLocations[constellation][curMapLoc];
+            if (loc.buySell == 1) {
+                let n = Math.floor((ship.maxStorage - ship.storageTotal)/2);
+                if (ship.money < loc.priceList[loc.menuNum]*n) {
+                    n = Math.floor(ship.money/(loc.priceList[loc.menuNum]*2)); 
+                }
+                ship.money -= loc.priceList[loc.menuNum]*n;
+                ship.storage[loc.menuNum] += n;
+                ship.storageTotal += n;
+            }
+        }
+        // Buy max
+        if (e.key == '.') {
+            let loc = mapLocations[constellation][curMapLoc];
+            if (loc.buySell == 1) {
+                let n = ship.maxStorage - ship.storageTotal;
+                if (ship.money < loc.priceList[loc.menuNum]*n) {
+                    n = Math.floor(ship.money/loc.priceList[loc.menuNum]); 
+                }
+                ship.money -= loc.priceList[loc.menuNum]*n;
+                ship.storage[loc.menuNum] += n;
+                ship.storageTotal += n;
+            }
+        }
         if (e.key == ' ') {
             let loc = mapLocations[constellation][curMapLoc];
             if (loc.buySell == 0) {
@@ -595,8 +640,12 @@ function kDown(e) {
         }
         console.log("debug: " + debug);
     }
-    if (e.key == '0') {
-        window.location.reload();
+    if (e.key == 'f') {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
     }
     // toggle sfx
     if (e.key == 's') {
@@ -1060,7 +1109,14 @@ function playMusic() {
     "https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",
     "https://archive.org/download/Sinapz-liquidLightMix3/LiquidLight3.mp3",
     "https://archive.org/download/1757030366_windowlicker/Windowlicker/01%20Aphex%20Twin%20-%20Windowlicker.mp3",
-    "https://archive.org/download/Squarepusher19970724JapanTokyo/Squarepusher%20-%201997-07-24%20Japan-Tokyo.mp3"
+    "https://archive.org/download/Squarepusher19970724JapanTokyo/Squarepusher%20-%201997-07-24%20Japan-Tokyo.mp3",
+
+    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%201%29%20%5Belectro%2C%20techno%2C%20acid%2C%20idm%5D.mp3",
+    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%202%29%20%5BDrone%2C%20Breaks%2C%20dark%20ambient%2C%20noise%2C%20glitch%5D.mp3",
+    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%203%29%20%5Belectro%2C%20idm%2C%20breakbeat%2C%20acid%5D.mp3",
+    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%204%29%20%5BDark%20Music%2C%20glitch%2C%20Drone%2C%20space%20noises%2C%20ambient%5D.mp3",
+    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%205%29%5BHypnotic%20Deep%20Ambient%20Techno%20Abstract%20Dub-step%5D.mp3",
+    "https://archive.org/download/earth.ambient/01-Earth.ambient.mp3"
     ];
     const r = getRandomInt(urls.length);
     const audio = new Audio();

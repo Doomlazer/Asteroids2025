@@ -30,18 +30,15 @@ function draw() {
             break;
         default:
     }
+    
     if (debug) {
-        ctx.fillText('debugging', 10, c.height - 10);
-    }
-    if (bgmTimer > 0) {
-        bgmTimer --;
-        if (bgmTimer < 256) {
-            ctx.fillStyle = `rgb(${bgmTimer},${bgmTimer},${bgmTimer})`;
-        } else {
-            ctx.fillStyle = "#FFFFFF";
-        }
         ctx.font = scaleFont(0.015, "Hyperspace");
-        ctx.fillText(`streaming ${backgroudMusic.src}`, 10, c.height - 10);
+        if (stage == 1) {
+            ctx.fillText('debugging 1 - 1up, 2 - nuke, 3 - hbox, 4 - +FUEL, 7 - B.Spd, 8 - B.Dmg, 9 - $1K', 10, c.height - 10);
+        } else {
+            ctx.fillText('debugging', 10, c.height - 10);
+        }
+    
     }
     /*/ center guide lines
     ctx.strokeStyle = "#00FF00";
@@ -658,7 +655,7 @@ function drawWarp() {
 
 function drawStarField() {
     clearCanvas();
-    drawBG();
+    //drawBG();
     drawGauges();
 
     starField.forEach(s => {
@@ -676,11 +673,22 @@ function drawStarField() {
 function drawBG() {
     let loc = mapLocations[constellation][curMapLoc];
     for (let i = 0; i < loc.bg.length - 1; i ++) {
+        let r = 2;
         ctx.beginPath();
-        ctx.arc(loc.bg[i], loc.bg[i+1], 2, 0, .5 * Math.PI);
-        ctx.strokeStyle = '#445533';
-        ctx.stroke();
+        ctx.arc(c.width*(loc.bg[i][0]/100), c.height*(loc.bg[i][1]/100), loc.bg[i][3], 0, 360);
+        ctx.fillStyle = loc.bg[i][2];
+        ctx.fill();
         ctx.closePath();
+    }
+    if (bgmTimer > 0) {
+        bgmTimer --;
+        if (bgmTimer < 256) {
+            ctx.fillStyle = `rgb(${bgmTimer},${bgmTimer},${bgmTimer})`;
+        } else {
+            ctx.fillStyle = "#FFFFFF";
+        }
+        ctx.font = scaleFont(0.015, "Hyperspace");
+        ctx.fillText(`streaming ${backgroudMusic.src}`, 10, c.height - 10);
     }
 }
 
