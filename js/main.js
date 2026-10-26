@@ -466,7 +466,8 @@ function kDown(e) {
         if (e.key == '<') {
             let loc = mapLocations[constellation][curMapLoc];
             // sell 50% max
-            if (loc.buySell == 0 && ship.storage[loc.menuNum] > 0) {
+            if (ship.storage[loc.menuNum] > 0) {
+                loc.buySell = 0;
                 ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*Math.floor(ship.storage[loc.menuNum]/2);
                 ship.storageTotal -= Math.floor(ship.storage[loc.menuNum]/2)
                 ship.storage[loc.menuNum] -= Math.floor(ship.storage[loc.menuNum]/2);
@@ -475,7 +476,8 @@ function kDown(e) {
         if (e.key == ',') {
             let loc = mapLocations[constellation][curMapLoc];
             // sell max
-            if (loc.buySell == 0 && ship.storage[loc.menuNum] > 0) {
+            if (ship.storage[loc.menuNum] > 0) {
+                loc.buySell = 0;
                 ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*ship.storage[loc.menuNum];
                 ship.storage[loc.menuNum]=0;
                 ship.storageTotal=0;
@@ -485,28 +487,26 @@ function kDown(e) {
         // Buy 50% max
         if (e.key == '>') {
             let loc = mapLocations[constellation][curMapLoc];
-            if (loc.buySell == 1) {
-                let n = Math.floor((ship.maxStorage - ship.storageTotal)/2);
-                if (ship.money < loc.priceList[loc.menuNum]*n) {
-                    n = Math.floor(ship.money/(loc.priceList[loc.menuNum]*2)); 
-                }
-                ship.money -= loc.priceList[loc.menuNum]*n;
-                ship.storage[loc.menuNum] += n;
-                ship.storageTotal += n;
+            loc.buySell = 1
+            let n = Math.floor((ship.maxStorage - ship.storageTotal)/2);
+            if (ship.money < loc.priceList[loc.menuNum]*n) {
+                n = Math.floor(ship.money/(loc.priceList[loc.menuNum]*2)); 
             }
+            ship.money -= loc.priceList[loc.menuNum]*n;
+            ship.storage[loc.menuNum] += n;
+            ship.storageTotal += n;
         }
         // Buy max
         if (e.key == '.') {
             let loc = mapLocations[constellation][curMapLoc];
-            if (loc.buySell == 1) {
-                let n = ship.maxStorage - ship.storageTotal;
-                if (ship.money < loc.priceList[loc.menuNum]*n) {
-                    n = Math.floor(ship.money/loc.priceList[loc.menuNum]); 
-                }
-                ship.money -= loc.priceList[loc.menuNum]*n;
-                ship.storage[loc.menuNum] += n;
-                ship.storageTotal += n;
+            loc.buySell = 1
+            let n = ship.maxStorage - ship.storageTotal;
+            if (ship.money < loc.priceList[loc.menuNum]*n) {
+                n = Math.floor(ship.money/loc.priceList[loc.menuNum]); 
             }
+            ship.money -= loc.priceList[loc.menuNum]*n;
+            ship.storage[loc.menuNum] += n;
+            ship.storageTotal += n;
         }
         if (e.key == ' ') {
             let loc = mapLocations[constellation][curMapLoc];
