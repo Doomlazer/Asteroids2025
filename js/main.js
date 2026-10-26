@@ -1108,9 +1108,7 @@ function playMusic() {
     "https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
     "https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",
     "https://archive.org/download/Sinapz-liquidLightMix3/LiquidLight3.mp3",
-    "https://archive.org/download/1757030366_windowlicker/Windowlicker/01%20Aphex%20Twin%20-%20Windowlicker.mp3",
-    "https://archive.org/download/Squarepusher19970724JapanTokyo/Squarepusher%20-%201997-07-24%20Japan-Tokyo.mp3",
-
+    
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%201%29%20%5Belectro%2C%20techno%2C%20acid%2C%20idm%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%202%29%20%5BDrone%2C%20Breaks%2C%20dark%20ambient%2C%20noise%2C%20glitch%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%203%29%20%5Belectro%2C%20idm%2C%20breakbeat%2C%20acid%5D.mp3",
