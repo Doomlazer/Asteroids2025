@@ -316,7 +316,7 @@ class Asteroid {
             this.path.lineTo(8, 15);
             this.path.lineTo(5, 20);
             this.path.lineTo(-5, 10);
-            this.path.lineTo(-15, 5);
+            this.path.lineTo(-10, 10);
             this.path.lineTo(-10, 5);
             this.path.lineTo(-15, -5)
             this.path.lineTo(-12, -10)

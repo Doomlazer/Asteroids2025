@@ -3,6 +3,9 @@
 // *************
 
 function draw() {
+    ctx.lineWidth = defaultLineWidth;
+    sctx.lineWidth = defaultLineWidth;
+    actx.lineWidth = defaultLineWidth;
     switch (stage) {
         case 0:
             drawTitle();
@@ -257,9 +260,9 @@ function drawMap() {
 
             // selection rect
             ctx.strokeStyle = '#FF0000';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = defaultLineWidth + 2;
             ctx.strokeRect((c.width/20*l.x)-(c.width/20*0.2), (c.height/20*l.y)-(c.height/20*0.3), (c.width/20*0.4),  (c.height/20*0.6));
-            ctx.lineWidth = 1;
+            ctx.lineWidth = defaultLineWidth;
         }
         if (curMapLoc == ind) {
             // you are here marker
@@ -287,10 +290,10 @@ function drawMap() {
         ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
         
         ctx.strokeStyle = warper.color;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = defaultLineWidth + 2;
         ctx.stroke();
         ctx.closePath();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = defaultLineWidth;
         
         if (distanceWarper(warper) < c.width/20*0.005) {
             warper = null;
@@ -462,34 +465,34 @@ function drawUpgrade() {
 }
 
 function archColor(l) {
-    ctx.lineWidth = 1;
+    ctx.lineWidth = defaultLineWidth;
     if (l.visited) {
-        ctx.lineWidth = 3;
+        ctx.lineWidth = defaultLineWidth + 2;
         ctx.strokeStyle = "#ffffff";
     } else {
         ctx.strokeStyle = "#646363";
     }
     if (l.name == "QUANTIUM JUMP STATION") {
         if (l.visited) {
-            ctx.lineWidth = 3;
+            ctx.lineWidth = defaultLineWidth + 2;
             ctx.strokeStyle = "#fc0303"//l.color;
         }
     }
     if (l.name == "TRADING POST") {
         if (l.visited) {
-            ctx.lineWidth = 3;
+            ctx.lineWidth = defaultLineWidth + 2;
             ctx.strokeStyle = "#e7fb04"//l.color;
         }
     }
     if (l.name == "UPGRADE SHOP") {
         if (l.visited) {
-            ctx.lineWidth = 3;
+            ctx.lineWidth = defaultLineWidth + 2;
             ctx.strokeStyle = "#0088ff"//l.color;
         }
     }
     if (l.name == "FUEL DEPOT") {
         if (l.visited) {
-            ctx.lineWidth = 3;
+            ctx.lineWidth = defaultLineWidth + 2;
             ctx.strokeStyle = "#efa505"//l.color;
         }
     }
@@ -526,16 +529,16 @@ function drawWarp() {
             if (i == constellation) {
                 ctx.strokeStyle = '#ff0000';
                 ctx.fillStyle = '#ff0000';
-                ctx.lineWidth = 6;
+                ctx.lineWidth = defaultLineWidth + 5;
             } else {
                 if (loc.warpDestinations[loc.menuNum] == i) {
                     ctx.strokeStyle = '#15e731';
                     ctx.fillStyle = '#15e731';
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = defaultLineWidth + 2;
                 } else {
                     ctx.strokeStyle = '#2d1dd8';
                     ctx.fillStyle = '#808180';
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = defaultLineWidth;
                 }
             }
             ctx.font = "18px Hyperspace";
@@ -546,7 +549,7 @@ function drawWarp() {
             ctx.fillText(constellationNames[i], c.width/15*i + (c.width/10), c.height/20*off);
             ctx.font = "30px Hyperspace";
             ctx.strokeRect(c.width/15*i + (c.width/10), c.height/20*15, (c.width/40)*1, (c.height/20)*1);
-            ctx.lineWidth = 1;
+            ctx.lineWidth = defaultLineWidth;
         }
         
         // draw dest locations
@@ -572,10 +575,10 @@ function drawWarp() {
                 ctx.strokeStyle = "#646363";
             }*/
             archColor(l);
-            ctx.lineWidth = 1;
+            ctx.lineWidth = defaultLineWidth;
             ctx.fillStyle = "#646363"//l.color;
             if (l.visited) {
-                ctx.lineWidth = 2;
+                ctx.lineWidth = defaultLineWidth + 1;
                 ctx.fillStyle = "#f8faf8"
             }
             ctx.stroke();

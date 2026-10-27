@@ -100,6 +100,7 @@ let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1",
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
 let debug = false;
+let defaultLineWidth = 1.5;
 
 
 
@@ -391,6 +392,15 @@ function click(x, y, button) {
 window.addEventListener("keydown", kDown);
 window.addEventListener("keyup", kUp);
 window.addEventListener('resize', doResize);
+window.addEventListener("gamepadconnected", (e) => {
+  console.log(
+    "Gamepad connected at index %d: %s. %d buttons, %d axes.",
+    e.gamepad.index,
+    e.gamepad.id,
+    e.gamepad.buttons.length,
+    e.gamepad.axes.length,
+  );
+});
 
 function kDown(e) {
     if (ship.fuelTotal <= 0 && stage != 0) {
@@ -479,8 +489,8 @@ function kDown(e) {
             if (ship.storage[loc.menuNum] > 0) {
                 loc.buySell = 0;
                 ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*ship.storage[loc.menuNum];
-                ship.storage[loc.menuNum]=0;
-                ship.storageTotal=0;
+                ship.storage[loc.menuNum] -= ship.storage[loc.menuNum];
+                ship.storageTotal -= ship.storage[loc.menuNum];
             }
         }
 
@@ -508,6 +518,7 @@ function kDown(e) {
             ship.storage[loc.menuNum] += n;
             ship.storageTotal += n;
         }
+
         if (e.key == ' ') {
             let loc = mapLocations[constellation][curMapLoc];
             if (loc.buySell == 0) {
@@ -632,6 +643,21 @@ function kDown(e) {
             }
         }
     }
+
+    // defaultLineWidth
+    if (e.key == '[') {
+        defaultLineWidth --;
+        if (defaultLineWidth < 1) {
+            defaultLineWidth = 1;
+        }
+    }
+    if (e.key == ']') {
+        defaultLineWidth ++;
+        if (defaultLineWidth > 5) {
+            defaultLineWidth = 5;
+        }
+    }
+
     if (e.key == '+') {
         if (debug) {
             debug = false;
@@ -1095,27 +1121,18 @@ function getWidth() {
 }
 
 function playMusic() {
-    const urls = ["https://archive.org/download/raveforce1-jungle-breakcore/Dmachine%20-%20Condiments%20of%20the%20Darkside.%20Jungle%20%26%20Breakcore%20Mix%20Heavy%20Amen%20subwoofer%20excurison-yVLXI-m70lQ.mp3",
-    "https://archive.org/download/selected-dnb-1/Inner-Vation%20-%20Movements%20%281999%29-DU3Rezgt-TE.mp3",
-    "https://archive.org/download/selected-dnb-1/Intelligent%20Drum%20%26%20Bass%20-%20Selected%20Works%20%281994-2000%29-1zGaTE2AmsU.mp3",
-    "https://archive.org/download/selected-dnb-1/Jungle%20Mix%20-%20psiX%20-%20Room%2099-lfcehfutGBM.mp3",
-    "https://archive.org/download/selected-dnb-1/Peshay%20Studio%20Set%20%281996%29-JK8ilaPZbKE.mp3",
-    "https://archive.org/download/NinjaGaijinStaringIntoTheEyesOfDeathBREAKCORE15Feb2014/Ninja_Gaijin_-_Staring_Into_The_Eyes_Of_Death_%28BREAKCORE-15Feb2014%29.mp3",
-    "https://archive.org/download/NinjaGaijinGuardiansOfSunshineJUNGLE27May2014/Ninja_Gaijin_-_Guardians_of_Sunshine_%28JUNGLE-27May2014%29.mp3",
-    "https://archive.org/download/NinjaGaijinTheLegacyofthe47RoninJUNGLE/Ninja%20Gaijin%20-%20The%20Legacy%20of%20the%2047%20Ronin%20%28JUNGLE-10Nov2014%29.mp3",
-    "https://archive.org/download/NinjaGaijin-TheChokeholddarkstepMix10july11/Ninja_Gaijin_-_The_Chokehold_10July2011-DARKSTEP-320.mp3",
-    "https://archive.org/download/NinjaGaijinBlackBokorJUNGLE25Apr2015/Ninja%20Gaijin%20-%20Black%20Bokor%20%28JUNGLE-25Apr2015%29.mp3",
-    "https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
-    "https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",
-    "https://archive.org/download/Sinapz-liquidLightMix3/LiquidLight3.mp3",
-    
-    "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%201%29%20%5Belectro%2C%20techno%2C%20acid%2C%20idm%5D.mp3",
+    const urls = [
+        "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%201%29%20%5Belectro%2C%20techno%2C%20acid%2C%20idm%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%202%29%20%5BDrone%2C%20Breaks%2C%20dark%20ambient%2C%20noise%2C%20glitch%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%203%29%20%5Belectro%2C%20idm%2C%20breakbeat%2C%20acid%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%204%29%20%5BDark%20Music%2C%20glitch%2C%20Drone%2C%20space%20noises%2C%20ambient%5D.mp3",
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%205%29%5BHypnotic%20Deep%20Ambient%20Techno%20Abstract%20Dub-step%5D.mp3",
     "https://archive.org/download/earth.ambient/01-Earth.ambient.mp3",
-    "https://archive.org/download/ocean.ambient/01-Ocean.ambient.mp3"
+    "https://archive.org/download/ocean.ambient/01-Ocean.ambient.mp3",
+    //"https://archive.org/download/NinjaGaijinGuardiansOfSunshineJUNGLE27May2014/Ninja_Gaijin_-_Guardians_of_Sunshine_%28JUNGLE-27May2014%29.mp3",
+    //"https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
+    //"https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",
+    //"https://archive.org/download/Sinapz-liquidLightMix3/LiquidLight3.mp3"
     ];
     const r = getRandomInt(urls.length);
     const audio = new Audio();
