@@ -3,6 +3,7 @@ class Ship {
         this.rot = 0;
         this.x = x;
         this.y = y;
+        this.type = "ship";
         this.speed = 0;
         this.money = getRandomInt(512);
         if (this.money == 256) {
@@ -44,6 +45,7 @@ class Ship {
 
 class mobile {
     constructor(x = 0, y = 0) {
+        this.type = "enemy";
         this.rot = getRandomInt(360);
         if (x == 0 && y == 0) {
             if (getRandomInt(2) == 1) {
@@ -62,18 +64,18 @@ class mobile {
                 }
             }
         } else {
-            this.x = x;
-            this.y = y;
+            this.x = 100//x;
+            this.y = 50//y;
         }
         this.speed = 1;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;
-        this.maxSpeed = 2;
-        this.maxBullets = 2;
-        this.baseDamage = 4;
-        this.bulletRate = 40; // delay before next bullet
-        this.bulletTimer = 100; // cool down remaining before firing next bullet
-        this.bulletLife = 100; // how far bullets travel before disapearing
+        this.maxSpeed = 1 + getRandomInt(3);
+        this.maxBullets = 4;
+        this.baseDamage = getRandomInt(10);
+        this.bulletRate = 20; // delay before next bullet
+        this.bulletTimer = getRandomInt(100); // cool down remaining before firing next bullet
+        this.bulletLife = 20 + getRandomInt(200); // how far bullets travel before disapearing
         this.color = '#FFFFFF'
         // star shaped
         this.path = new Path2D();
@@ -90,6 +92,7 @@ class mobile {
         this.hbOffset2 = 30;
         this.health = getRandomInt(5)+(5*constellation);
         this.dead = 0;
+        console.log("x,y: ",this.x,this.y)
     }
 }
 
@@ -127,6 +130,7 @@ class MapLocation {
             this.priceList.push(getRandomInt(30)+10);
         }
         let s = getRandomInt(50) + 5;
+        // random palette for each zone
         this.palette = [
             `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`,
             `rgb(${getRandomInt(256)},${getRandomInt(256)},${getRandomInt(256)})`,
@@ -152,11 +156,11 @@ class MapLocation {
         this.isHostile = false;
         if (type == 'sector') {
             this.name = locationNames[getRandomInt(locationNames.length-1)];
-            if (getRandomInt(10) > 1) {
+            if (getRandomInt(10) > 5) {
                 this.isHostile = true;
-                console.log(this.name, " is hostile")
+                //console.log(this.name, " is hostile")
             }
-            let r = getRandomInt(2) + 1;
+            let r = getRandomInt(3) + 1;
             for (let i = 0; i < r; i++) {
                 let j = getRandomInt(resourceNames.length-1);
                 if (!this.resources.includes(j)) {

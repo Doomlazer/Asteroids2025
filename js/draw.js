@@ -719,8 +719,9 @@ function drawMobiles() {
         moveEntity(e);
         e.bulletTimer --;
         if (e.bulletTimer <= 0) {
-            e.bulletTimer = getRandomInt(250) + 50;
+            e.bulletTimer = getRandomInt(300) + 20;
             if (!ship.dead) {
+                setAudioSource(1);
                 //console.log("e ",e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false)
                 bullets.push(new Bullet(e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false));
                 //console.log(bullets[bullets.length-1])
@@ -734,10 +735,6 @@ function drawMobiles() {
         actx.strokeStyle = e.color;
         actx.stroke(e.path);
         //console.log(e, e.x,e.y)
-        if (isNaN(e.x)) {
-            e.x = 100;
-            e.y = 100;
-        }
         ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
         actx.rotate(-e.spin * Math.PI / 180);
         if (showHitbox && debug) {
