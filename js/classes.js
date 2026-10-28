@@ -4,7 +4,7 @@ class Ship {
         this.x = x;
         this.y = y;
         this.type = "ship";
-        this.shield = (getRandomInt(2) == 1) ? true : false; 
+        this.shield = true; 
         this.shieldRad = 18
         this.speed = 0;
         this.money = getRandomInt(512);
@@ -16,7 +16,7 @@ class Ship {
         this.maxStorage = 20;
         this.storageTotal = 0;
         this.storage = [0,0,0,0,0,0,0,0];
-        this.upgrades = [0,0,0,0,0,0,0,0,0,0,0]; // upgrade levels
+        this.upgrades = [0,0,0,0,0,0,0,0,0,0]; // upgrade levels
         this.collectDistance = 100;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;

@@ -300,7 +300,7 @@ function step(timeStamp) {
                         if (b.fromShip) {
                             ship.comboDamage += 1;
                             if (ship.comboDamage > 10) {ship.comboDamage = 10}
-                            console.log("combo: " + ship.comboDamage);
+                            //console.log("combo: " + ship.comboDamage);
                             score += 5;
                         }
                         if (roid.health < 0) {
@@ -501,7 +501,7 @@ function gamePad() {
                         break;
                     default:
                 }
-                console.log(`Button ${index} pressed`);
+                //console.log(`Button ${index} pressed`);
             } else {
                 switch (index) {
                     case 0:
@@ -544,14 +544,14 @@ function gamePad() {
                 }
             }
         });
-        /* I only have a 8-way anologe so this sucks 
+        /*I only have a 8-way anologe so this sucks 
         let dest = Math.atan2(gamepad.axes[1], gamepad.axes[0]) * (180 / Math.PI)
         sctx.resetTransform()
         sctx.translate(20,20);
         sctx.rotate(dest);
         ship.rot = dest;
-        */
-        /*if (left) {
+        
+        if (left) {
             ship.rot = (ship.rot -= 5) % 360;
             sctx.rotate(-5 * Math.PI / 180);
             if (ship.rot < 0) {
@@ -562,7 +562,7 @@ function gamePad() {
         if (right) {
             sctx.rotate(5 * Math.PI / 180);
             ship.rot = (ship.rot += 5) % 360;
-        }*/
+        }
         //console.log(`Left Stick X: ${gamepad.axes[0]}, Y: ${gamepad.axes[1]}`);*/
     }
     //}
