@@ -16,7 +16,7 @@ class Ship {
         this.maxStorage = 20;
         this.storageTotal = 0;
         this.storage = [0,0,0,0,0,0,0,0];
-        this.upgrades = [0,0,0,0,0,0,0,0,0,0]; // upgrade levels
+        this.upgrades = [0,0,0,0,0,0,0,0,0,0,0]; // upgrade levels
         this.collectDistance = 100;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;

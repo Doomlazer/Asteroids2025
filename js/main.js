@@ -18,6 +18,7 @@ ctx.fillRect(0, 0, c.width, c.height);
 // enemies array
 let enemies = [];
 let deadEnemies = [];
+let joyInputDelay = 0;
 // player ship
 let ship;
 let lives;
@@ -365,6 +366,7 @@ function step(timeStamp) {
         }
     }
 
+    gamePad();
     draw();
     previousTimeStamp = timeStamp;
     requestAnimationFrame(step);
@@ -426,6 +428,145 @@ window.addEventListener("gamepadconnected", (e) => {
     e.gamepad.axes.length,
   );
 });
+
+function gamePad() {
+    // arrow keys left 14- top 12 bottom - 13 right -15
+    const gamepads = navigator.getGamepads();
+    //for (let i = 0; i < gamepads.length; i++) {
+    const gamepad = gamepads[0];
+    if (gamepad) {
+        //console.log(`Gamepad ${i}: ${gamepad.id}`);
+        gamepad.buttons.forEach((button, index) => {
+            let e;
+            if (joyInputDelay > 0) {
+                joyInputDelay --;
+            }
+            if (button.pressed) {
+                switch (index) {
+                    case 0:
+                        e = {key:' '};
+                        kDown(e)
+                        break;
+                    case 1:
+                        e = {key:'m'};
+                        kDown(e)
+                        break;
+                    case 2:
+                        e = {key:','};
+                        kDown(e)
+                        break;
+                    case 3:
+                        e = {key:'.'};
+                        kDown(e)
+                        break;
+                    case 7:
+                        e = {key:'r'};
+                        kDown(e)
+                        break;
+                    case 14:
+                        e = {key:'ArrowLeft'};
+                        if (joyInputDelay < 1) {
+                            kDown(e);
+                            joyInputDelay = 150;
+                        } else if (stage == 1) {
+                            kDown(e);
+                        }
+                        break;
+                    case 15:
+                        e = {key:'ArrowRight'};
+                        if (joyInputDelay < 1) {
+                            kDown(e);
+                            joyInputDelay = 150;
+                        } else if (stage == 1) {
+                            kDown(e);
+                        }
+                        break;
+                    case 12:
+                        e = {key:'ArrowUp'};
+                        if (joyInputDelay < 1) {
+                            kDown(e);
+                            joyInputDelay = 150;
+                        } else if (stage == 1) {
+                            kDown(e);
+                        }
+                        break;
+                    case 13:
+                        e = {key:'ArrowDown'};
+                        if (joyInputDelay < 1) {
+                            kDown(e);
+                            joyInputDelay = 150;
+                        } else if (stage == 1) {
+                            kDown(e);
+                        }
+                        break;
+                    default:
+                }
+                console.log(`Button ${index} pressed`);
+            } else {
+                switch (index) {
+                    case 0:
+                        e = {key:' '};
+                        kUp(e)
+                        break;
+                    case 1:
+                        e = {key:'m'};
+                        kUp(e)
+                        break;
+                    case 2:
+                        e = {key:','};
+                        kUp(e)
+                        break;
+                    case 3:
+                        e = {key:'.'};
+                        kUp(e)
+                        break;
+                    case 7:
+                        e = {key:'r'};
+                        kUp(e)
+                        break;
+                    case 14:
+                        e = {key:'ArrowLeft'};
+                        kUp(e)
+                        break;
+                    case 15:
+                        e = {key:'ArrowRight'};
+                        kUp(e)
+                        break;
+                    case 12:
+                        e = {key:'ArrowUp'};
+                        kUp(e)
+                        break;
+                    case 13:
+                        e = {key:'ArrowDown'};
+                        kUp(e)
+                        break;
+                    default:
+                }
+            }
+        });
+        /* I only have a 8-way anologe so this sucks 
+        let dest = Math.atan2(gamepad.axes[1], gamepad.axes[0]) * (180 / Math.PI)
+        sctx.resetTransform()
+        sctx.translate(20,20);
+        sctx.rotate(dest);
+        ship.rot = dest;
+        */
+        /*if (left) {
+            ship.rot = (ship.rot -= 5) % 360;
+            sctx.rotate(-5 * Math.PI / 180);
+            if (ship.rot < 0) {
+                ship.rot = 360 + ship.rot;
+            }
+        }
+
+        if (right) {
+            sctx.rotate(5 * Math.PI / 180);
+            ship.rot = (ship.rot += 5) % 360;
+        }*/
+        //console.log(`Left Stick X: ${gamepad.axes[0]}, Y: ${gamepad.axes[1]}`);*/
+    }
+    //}
+}
 
 function kDown(e) {
     if (ship.fuelTotal <= 0 && stage != 0) {
