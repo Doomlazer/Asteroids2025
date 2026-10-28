@@ -4,6 +4,8 @@ class Ship {
         this.x = x;
         this.y = y;
         this.type = "ship";
+        this.shield = false;
+        this.shieldRad = 18
         this.speed = 0;
         this.money = getRandomInt(512);
         if (this.money == 256) {

@@ -234,15 +234,21 @@ function step(timeStamp) {
                 if (!b.fromShip) {
                     // fired by enemy
                     if (collision(b, ship) && !ship.dead) {
-                        setAudioSource(4);
-                        ship.dead = 100;
-                        ship.speed = 0;
                         deadBullets.push(b);
-                        let r = getRandomInt(5) + 5;
-                        let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
-                        let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
-                        for (let i = 0; i < r; i++) {
-                            debrisArray.push(new Debri(x1, y1));
+                        if (ship.shield) {
+                            setAudioSource(6);
+                            ship.shield = false;
+                        } else {
+                            setAudioSource(4);
+                            ship.dead = 100;
+                            ship.speed = 0;
+                            deadBullets.push(b);
+                            let r = getRandomInt(5) + 5;
+                            let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
+                            let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
+                            for (let i = 0; i < r; i++) {
+                                debrisArray.push(new Debri(x1, y1));
+                            }
                         }
                     }
                 } else {
@@ -501,8 +507,8 @@ function kDown(e) {
             if (ship.storage[loc.menuNum] > 0) {
                 loc.buySell = 0;
                 ship.money += Math.floor(loc.priceList[loc.menuNum]*0.85)*ship.storage[loc.menuNum];
-                ship.storage[loc.menuNum] -= ship.storage[loc.menuNum];
                 ship.storageTotal -= ship.storage[loc.menuNum];
+                ship.storage[loc.menuNum] -= ship.storage[loc.menuNum];
             }
         }
 
@@ -632,16 +638,17 @@ function kDown(e) {
             // do nothing, count down timer in drawWarp
         }
     } else {
+        // STAGE 1 asteroid field
         if (!ship.dead) {
             // default controls 
             if (e.key == ' ') {
                 spaceBar = true;
-                // TODO bullet firing feels unresponsive 
-                if (bullets.length < ship.maxBullets) {
+                // bullet firing feels unresponsive, this tried to address that
+                /*if (bullets.length < ship.maxBullets && ship.bulletTimer < 1) {
                     setAudioSource(0);
                     ship.bulletTimer = ship.bulletRate;
                     bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
-                }
+                }*/
             }
             if (e.key == 'ArrowLeft') {left = true;}
             if (e.key == 'ArrowRight') {right = true;}
@@ -857,16 +864,17 @@ function moveShip() {
     // move ship
     if (ship.dead <= 0 && lives > 0) {
         // fire
+        if (ship.bulletTimer > 0) {
+            ship.bulletTimer --;
+        }
         if (spaceBar) {
             if (bullets.length < ship.maxBullets) {
-                if (ship.bulletTimer < 0) {
+                if (ship.bulletTimer < 1) {
                     setAudioSource(0);
                     ship.bulletTimer = ship.bulletRate;
                     bullets.push(new Bullet(ship, ship.rot, ship.x + 20, ship.y + 20));
                     // rainbow bullets
                     colorCycle = (colorCycle += 1) % 8;
-                } else {
-                    ship.bulletTimer --;
                 }
             }
         }

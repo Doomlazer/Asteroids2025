@@ -105,6 +105,18 @@ function drawStage1() {
         if (showHitbox && debug) {
             drawHitbox(ship);
         }
+        if (ship.shield) {
+            ctx.lineWidth = defaultLineWidth;
+            ctx.strokeStyle = "#0d40f5"
+            ctx.beginPath();
+            ctx.arc(ship.x+20, ship.y+20, ship.shieldRad, 0, 360);
+            ship.shieldRad += 0.8;
+            if (ship.shieldRad > 24) {
+                ship.shieldRad = 18;
+            }
+            ctx.stroke();
+            ctx.closePath();
+        }
     } else {
         // Ship is currently dead or game over
         if (ship.dead == 1) {
