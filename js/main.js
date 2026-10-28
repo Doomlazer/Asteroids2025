@@ -444,19 +444,19 @@ function gamePad() {
             if (button.pressed) {
                 switch (index) {
                     case 0:
-                        e = {key:' '};
+                        e = {key:'.'};
                         kDown(e)
                         break;
                     case 1:
-                        e = {key:'m'};
+                        e = {key:' '};
                         kDown(e)
                         break;
                     case 2:
-                        e = {key:','};
+                        e = {key:'m'};
                         kDown(e)
                         break;
                     case 3:
-                        e = {key:'.'};
+                        e = {key:','};
                         kDown(e)
                         break;
                     case 7:
@@ -505,19 +505,19 @@ function gamePad() {
             } else {
                 switch (index) {
                     case 0:
-                        e = {key:' '};
+                        e = {key:'.'};
                         kUp(e)
                         break;
                     case 1:
-                        e = {key:'m'};
+                        e = {key:' '};
                         kUp(e)
                         break;
                     case 2:
-                        e = {key:','};
+                        e = {key:'m'};
                         kUp(e)
                         break;
                     case 3:
-                        e = {key:'.'};
+                        e = {key:','};
                         kUp(e)
                         break;
                     case 7:
