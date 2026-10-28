@@ -98,9 +98,10 @@ let bgmTimer = 0;
 let karma = 3;
 let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
-                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE"]
+                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD"];
 let debug = false;
 let defaultLineWidth = 1.5;
+
 
 
 
@@ -121,6 +122,10 @@ function step(timeStamp) {
                 let l = getRandomInt(5);
                 let j = 0;
                 while (j < l) {
+                    // skip sheild
+                    if (possibleUpgrades[i] == "SHIELD") {
+                        continue;
+                    }
                     ship.upgrades[i] ++;
                     doUpgrade(i, ship.upgrades[i]);
                     j ++;
@@ -133,6 +138,8 @@ function step(timeStamp) {
         newAstroidField();
         starField.push(new StarFieldStar());
         //enemies.push(new mobile(0,0)); // 0,0 = radom x,y along width height
+        // set ship.shield price with (lev * lev * 100)+200
+        ship.upgrades[10] = 3;
     }
     const elapsed = timeStamp - start;
 
@@ -578,6 +585,7 @@ function kDown(e) {
             stage = 2;
         }
     } else if (stage == 6) {
+        // UPGRADES
         if (e.key == 'ArrowUp') {
             mapLocations[constellation][curMapLoc].menuNum --;
             if (mapLocations[constellation][curMapLoc].menuNum < 0) {
@@ -598,11 +606,20 @@ function kDown(e) {
             let depot = mapLocations[constellation][curMapLoc];
             let cost = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] * 100 + 200;
             if (ship.money >= cost) {
-                ship.money -= cost;
-                ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] += 1;
-                let lvl = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]]
-                let sel = depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum];
-                doUpgrade(sel, lvl);
+                if (
+                    possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "SHIELD" &&
+                    !ship.shield
+                ) {
+                    ship.money -= cost;
+                    ship.shield = true;
+                    setAudioSource(6);
+                } else {
+                    ship.money -= cost;
+                    ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] += 1;
+                    let lvl = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]]
+                    let sel = depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum];
+                    doUpgrade(sel, lvl);
+                }
             }
         }
 
@@ -853,7 +870,7 @@ function doUpgrade(sel, lvl) {
             ship.bulletLife += 20;
             break;
     }
-    setAudioSource(6)
+    setAudioSource(6);
 }
 
 // *****************
@@ -1145,7 +1162,7 @@ function getWidth() {
     const audio = new Audio();
     audio.crossOrigin = "anonymous";
     audio.src = url;
-    audio.load();
+    //audio.load();
     audio.play();
 }
 

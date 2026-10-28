@@ -68,6 +68,10 @@ function drawTitle() {
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText("STARTING UPGRADE LEVELS:", (c.width/20*(10*ox)+(c.width/20*2.1)), c.height/20*8.5);
     for (let i = 0; i < ship.upgrades.length; i ++) {
+        // skip sheild
+        if (possibleUpgrades[i] == "SHIELD") {
+            continue;
+        }
         if (ship.upgrades[i] > 0) {
             ctx.fillStyle = '#FFFFFF';
         } else {
@@ -468,11 +472,22 @@ function drawUpgrade() {
         }
         // upgrade name
         ctx.fillText(possibleUpgrades[depot.locationUpgrades[i]], c.width/20*3.5, c.height/20*7+(c.height/20*1.2*i));
-        // curr upgrade level
+        
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+        if (possibleUpgrades[depot.locationUpgrades[i]] == "SHIELD") {
+            if (ship.shield) {
+                ctx.fillStyle = '#f90202';
+                ctx.fillText("MAX", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+            } else {
+                ctx.fillText("AVAIL.", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+            }
+        } else {
+            // curr upgrade level
+            ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+        }
         // upgrade price 
-        ctx.fillText(ship.upgrades[depot.locationUpgrades[i]] * 100+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
+        let lev = ship.upgrades[depot.locationUpgrades[i]];
+        ctx.fillText((lev * lev * 100)+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
     }
 }
 

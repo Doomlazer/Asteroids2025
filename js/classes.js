@@ -4,7 +4,7 @@ class Ship {
         this.x = x;
         this.y = y;
         this.type = "ship";
-        this.shield = false;
+        this.shield = (getRandomInt(2) == 1) ? true : false; 
         this.shieldRad = 18
         this.speed = 0;
         this.money = getRandomInt(512);
@@ -92,9 +92,9 @@ class mobile {
         this.path.lineTo(0, -20);
         this.hbOffset1 = 25;
         this.hbOffset2 = 30;
-        this.health = getRandomInt(5)+(5*constellation);
+        this.health = getRandomInt(9)+(5*constellation);
         this.dead = 0;
-        console.log("x,y: ",this.x,this.y)
+        //console.log("x,y: ",this.x,this.y)
     }
 }
 
@@ -158,7 +158,7 @@ class MapLocation {
         this.isHostile = false;
         if (type == 'sector') {
             this.name = locationNames[getRandomInt(locationNames.length-1)];
-            if (getRandomInt(10) > 5) {
+            if (getRandomInt(10) > 4) {
                 this.isHostile = true;
                 //console.log(this.name, " is hostile")
             }
@@ -173,7 +173,7 @@ class MapLocation {
             this.name = 'TRADING POST';
         } else if (type == 'upgrade') {
             this.name = 'UPGRADE SHOP';
-            let r = getRandomInt(3) + 2;
+            let r = getRandomInt(3) + 3;
             while (this.locationUpgrades.length < r) {
                 let u = getRandomInt(possibleUpgrades.length);
                 this.locationUpgrades.push(u);
@@ -181,7 +181,7 @@ class MapLocation {
             this.uniqueNumbers = [...new Set(this.locationUpgrades)];
             this.locationUpgrades = [];
             this.locationUpgrades = this.uniqueNumbers;
-            console.log("this.locationUpgrades: " + this.locationUpgrades);
+            //console.log("this.locationUpgrades: " + this.locationUpgrades);
         } else if (type == 'fuel') {
             this.name = 'FUEL DEPOT';
             this.fuelPrice = getRandomInt(6) + 1;
