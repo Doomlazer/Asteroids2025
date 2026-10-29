@@ -102,6 +102,11 @@ let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD"];
 let debug = false;
 let defaultLineWidth = 1.5;
+let configButtonNames = ["UP/ACCELERATE", "DOWN", "LEFT", "RIGHT", "ACCEPT", "M/BACK", "SELL ALL", "BUY MAX"];
+let configInc = -1;
+let currentConfigButton = configButtonNames[configInc];
+let currentConfig = [];
+let configPrevStage = 0;
 
 
 
@@ -420,13 +425,15 @@ window.addEventListener("keydown", kDown);
 window.addEventListener("keyup", kUp);
 window.addEventListener('resize', doResize);
 window.addEventListener("gamepadconnected", (e) => {
-  console.log(
+  /*console.log(
     "Gamepad connected at index %d: %s. %d buttons, %d axes.",
     e.gamepad.index,
     e.gamepad.id,
     e.gamepad.buttons.length,
     e.gamepad.axes.length,
-  );
+  );*/
+  configPrevStage = stage;
+  stage = 8; //drawJoyConfig
 });
 
 function gamePad() {
@@ -441,106 +448,131 @@ function gamePad() {
             if (joyInputDelay > 0) {
                 joyInputDelay --;
             }
-            if (button.pressed) {
-                switch (index) {
-                    case 0:
-                        e = {key:'.'};
-                        kDown(e)
-                        break;
-                    case 1:
-                        e = {key:'m'};
-                        kDown(e)
-                        break;
-                    case 2:
-                        e = {key:' '};
-                        kDown(e)
-                        break;
-                    case 3:
-                        e = {key:','};
-                        kDown(e)
-                        break;
-                    case 7:
-                        e = {key:'r'};
-                        kDown(e)
-                        break;
-                    case 14:
-                        e = {key:'ArrowLeft'};
-                        if (joyInputDelay < 1) {
-                            kDown(e);
-                            joyInputDelay = 150;
-                        } else if (stage == 1) {
-                            kDown(e);
+
+
+            if (stage == 8) {
+                // config gamepad
+                if (
+                    button.pressed &&
+                    joyInputDelay < 1
+                ) {
+                    if (configInc == -1) {
+                        configInc ++;
+                        joyInputDelay = 500;
+                    } else {
+                        currentConfig[configInc] = index; 
+                        configInc ++;
+                        joyInputDelay = 500;
+                        console.log(configInc)
+                        if (configInc > 7) {
+                            stage = configPrevStage;
                         }
-                        break;
-                    case 15:
-                        e = {key:'ArrowRight'};
-                        if (joyInputDelay < 1) {
-                            kDown(e);
-                            joyInputDelay = 150;
-                        } else if (stage == 1) {
-                            kDown(e);
-                        }
-                        break;
-                    case 12:
-                        e = {key:'ArrowUp'};
-                        if (joyInputDelay < 1) {
-                            kDown(e);
-                            joyInputDelay = 150;
-                        } else if (stage == 1) {
-                            kDown(e);
-                        }
-                        break;
-                    case 13:
-                        e = {key:'ArrowDown'};
-                        if (joyInputDelay < 1) {
-                            kDown(e);
-                            joyInputDelay = 150;
-                        } else if (stage == 1) {
-                            kDown(e);
-                        }
-                        break;
-                    default:
+                    }
+                    
                 }
-                //console.log(`Button ${index} pressed`);
             } else {
-                switch (index) {
-                    case 0:
-                        e = {key:'.'};
-                        kUp(e)
-                        break;
-                    case 1:
-                        e = {key:'m'};
-                        kUp(e)
-                        break;
-                    case 2:
-                        e = {key:' '};
-                        kUp(e)
-                        break;
-                    case 3:
-                        e = {key:','};
-                        kUp(e)
-                        break;
-                    case 7:
-                        e = {key:'r'};
-                        kUp(e)
-                        break;
-                    case 14:
-                        e = {key:'ArrowLeft'};
-                        kUp(e)
-                        break;
-                    case 15:
-                        e = {key:'ArrowRight'};
-                        kUp(e)
-                        break;
-                    case 12:
-                        e = {key:'ArrowUp'};
-                        kUp(e)
-                        break;
-                    case 13:
-                        e = {key:'ArrowDown'};
-                        kUp(e)
-                        break;
-                    default:
+                // normal gamepad inputs
+                if (button.pressed) {
+                    switch (index) {
+                        case currentConfig[7]:
+                            e = {key:'.'};
+                            kDown(e)
+                            break;
+                        case currentConfig[5]:
+                            e = {key:'m'};
+                            kDown(e)
+                            break;
+                        case currentConfig[4]:
+                            e = {key:' '};
+                            kDown(e)
+                            break;
+                        case currentConfig[6]:
+                            e = {key:','};
+                            kDown(e)
+                            break;
+                        case 7:
+                            e = {key:'r'};
+                            kDown(e)
+                            break;
+                        case currentConfig[2]:
+                            e = {key:'ArrowLeft'};
+                            if (joyInputDelay < 1) {
+                                kDown(e);
+                                joyInputDelay = 150;
+                            } else if (stage == 1) {
+                                kDown(e);
+                            }
+                            break;
+                        case currentConfig[3]:
+                            e = {key:'ArrowRight'};
+                            if (joyInputDelay < 1) {
+                                kDown(e);
+                                joyInputDelay = 150;
+                            } else if (stage == 1) {
+                                kDown(e);
+                            }
+                            break;
+                        case currentConfig[0]:
+                            e = {key:'ArrowUp'};
+                            if (joyInputDelay < 1) {
+                                kDown(e);
+                                joyInputDelay = 150;
+                            } else if (stage == 1) {
+                                kDown(e);
+                            }
+                            break;
+                        case currentConfig[1]:
+                            e = {key:'ArrowDown'};
+                            if (joyInputDelay < 1) {
+                                kDown(e);
+                                joyInputDelay = 150;
+                            } else if (stage == 1) {
+                                kDown(e);
+                            }
+                            break;
+                        default:
+                    }
+                    //console.log(`Button ${index} pressed`);
+                } else {
+                    switch (index) {
+                        case currentConfig[7]:
+                            e = {key:'.'};
+                            kUp(e)
+                            break;
+                        case currentConfig[5]:
+                            e = {key:'m'};
+                            kUp(e)
+                            break;
+                        case currentConfig[4]:
+                            e = {key:' '};
+                            kUp(e)
+                            break;
+                        case currentConfig[6]:
+                            e = {key:','};
+                            kUp(e)
+                            break;
+                        case 7:
+                            e = {key:'r'};
+                            kUp(e)
+                            break;
+                        case currentConfig[2]:
+                            e = {key:'ArrowLeft'};
+                            kUp(e)
+                            break;
+                        case currentConfig[3]:
+                            e = {key:'ArrowRight'};
+                            kUp(e)
+                            break;
+                        case currentConfig[0]:
+                            e = {key:'ArrowUp'};
+                            kUp(e)
+                            break;
+                        case currentConfig[1]:
+                            e = {key:'ArrowDown'};
+                            kUp(e)
+                            break;
+                        default:
+                    }
                 }
             }
         });

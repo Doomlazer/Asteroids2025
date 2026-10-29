@@ -31,6 +31,9 @@ function draw() {
         case 7:
             drawWarp();
             break;
+        case 8:
+            drawJoyConfig();
+            break;
         default:
     }
     
@@ -681,6 +684,19 @@ function drawWarp() {
             stage = 2;
         }
     }
+}
+
+function drawJoyConfig() {
+    drawStarField();
+    ctx.fillStyle = 'rgb(20, 20, 20)';
+    ctx.font = scaleFont(0.025, "Hyperspace");
+    ctx.fillRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
+    ctx.strokeStyle = '#ffffff';
+    ctx.strokeRect(c.width/20*2, c.height/20*2, c.width/20*16, c.height/20*16);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = scaleFont(0.04, "Hyperspace");
+    ctx.fillText("CONTROLER CONFIG", c.width/20*5, c.height/20*3.5);
+    ctx.fillText(`PRESS ${configButtonNames[configInc]}`, c.width/20*6, c.height/20*10);
 }
 
 function drawStarField() {
