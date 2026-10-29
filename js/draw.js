@@ -252,7 +252,30 @@ function drawMap() {
                 }
                 ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'trade') {
-                ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16)
+                // draw known resource prices
+                if (l.visited) {
+                    let loc = mapLocations[constellation][curMapLoc];
+                    ctx.fillStyle = '#FFFFFF';
+                    for (let i = 0; i < resourceNames.length; i++) {
+                        let o = (i > 3) ? 4.5 : 0;
+                        ctx.fillText(resourceNames[i], c.width/20*(10.5+o), c.height/20*16+(c.height/20*0.8*(i%4)));
+
+                        // sell price
+                        ctx.fillStyle = '#FF0000';
+                        ctx.fillText(Math.floor(l.priceList[i]*0.85), c.width/20*(12.75+o), c.height/20*16+(c.height/20*0.8*(i%4)));
+                        // buy price
+                        ctx.fillStyle = '#00FF00';
+                        ctx.fillText(l.priceList[i], c.width/20*(13.25+o), c.height/20*16+(c.height/20*0.8*(i%4)));
+
+                        // owned
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillText(ship.storage[i], c.width/20*(14+o), c.height/20*16+(c.height/20*0.8*(i%4)));
+                    }
+                } else {
+                    ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16);
+                }
+            } else if (l.type == 'warp') {
+                ctx.fillText("DESTINATION:", c.width/20*11, c.height/20*16);
             } else if (l.type == 'upgrade') {
                 ctx.fillText("UPGRADES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'fuel') {
@@ -264,14 +287,15 @@ function drawMap() {
                     for (let i = 0; i < l.resources.length; i++) {
                         ctx.fillText(resourceNames[l.resources[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
-                } else if (l.type == 'trade') {
-                    ctx.fillText("BUY AND SELL", 520, 660);
                 } else if (l.type == 'upgrade') {
                     for (let i = 0; i < l.locationUpgrades.length; i++) {
                         ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'fuel') {
                     ctx.fillText("FUEL PRICE: " + l.fuelPrice, c.width/20*11, c.height/20*16);
+                } else if (l.type == 'warp') {
+                    ctx.fillText(constellationNames[l.warpDestinations[0]], c.width/20*14, c.height/20*16);
+                    ctx.fillText(constellationNames[l.warpDestinations[1]], c.width/20*14, c.height/20*17);
                 }
             } else {
                 ctx.fillText("???", c.width/20*13.5, c.height/20*16);

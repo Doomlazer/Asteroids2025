@@ -1236,6 +1236,9 @@ function genMapLocations() {
 function newAstroidField() {
     asteroids = [];
     enemies = [];
+    bullets = [];
+    ship.velX = 0;
+    ship.velY = 0;
     //resources = []; // needed? 
     let r = getRandomInt(9) + 4;
     for (let i=0; i<r; i++) {
