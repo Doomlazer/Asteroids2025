@@ -33,6 +33,12 @@ class Ship {
         this.path.lineTo(10, 10);
         this.path.lineTo(-10, 10);
         this.path.lineTo(0, -10);
+        this.thrustPath = new Path2D();
+        this.thrustPath.moveTo(0, 11);
+        this.thrustPath.lineTo(5, 15);
+        this.thrustPath.lineTo(0, 18);
+        this.thrustPath.lineTo(-5, 16);
+        this.thrustPath.lineTo(0, 11);
         this.hbOffset1 = 10;
         this.hbOffset2 = 20;
         this.dead = 0;
@@ -173,7 +179,7 @@ class MapLocation {
             this.name = 'TRADING POST';
         } else if (type == 'upgrade') {
             this.name = 'UPGRADE SHOP';
-            let r = getRandomInt(3) + 3;
+            let r = getRandomInt(2) + 3;
             while (this.locationUpgrades.length < r) {
                 let u = getRandomInt(possibleUpgrades.length);
                 this.locationUpgrades.push(u);

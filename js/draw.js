@@ -108,6 +108,12 @@ function drawStage1() {
         sctx.strokeStyle = ship.color;
         sctx.clearRect(-20,-20,40,40);
         sctx.stroke(ship.path);
+        if (up) {
+            sctx.strokeStyle = "#f50d0d";
+            sctx.stroke(ship.thrustPath);
+        }
+        
+
         ctx.drawImage(s, 0,0,40,40, ship.x, ship.y,40,40);
         if (showHitbox && debug) {
             drawHitbox(ship);
@@ -222,14 +228,14 @@ function drawMap() {
         ctx.stroke();
         ctx.closePath();
 
-        ctx.font = scaleFont(0.018, "Hyperspace");
+        ctx.font = scaleFont(0.013, "Hyperspace");
         if (l.visited) {
             ctx.fillStyle = l.color;
         } else {
             ctx.fillStyle = "#999999";
         }
-        ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*1));
-
+        ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*0.6));
+        ctx.font = scaleFont(0.018, "Hyperspace");
         // draw more stuff if selected
         ctx.fillStyle = l.color;
         if (curMapSel == ind) {
@@ -246,7 +252,13 @@ function drawMap() {
             if (l.type == 'sector') {
                 ctx.fillText("HOSTILE: ", c.width/20*3, c.height/20*19);
                 if (l.visited) {
+                    if (l.isHostile) {
+                        ctx.fillStyle = "#FF0000";
+                    } else {
+                        ctx.fillStyle = "#00FF00";
+                    }
                     ctx.fillText(l.isHostile, c.width/20*6, c.height/20*19);
+                    ctx.fillStyle = '#FFFFFF';
                 } else {
                     ctx.fillText("???", c.width/20*6, c.height/20*19);
                 }
@@ -275,7 +287,7 @@ function drawMap() {
                     ctx.fillText("RESOURCES: ", c.width/20*11, c.height/20*16);
                 }
             } else if (l.type == 'warp') {
-                ctx.fillText("DESTINATION:", c.width/20*11, c.height/20*16);
+                ctx.fillText("AVAIL.DEST.:", c.width/20*11, c.height/20*16);
             } else if (l.type == 'upgrade') {
                 ctx.fillText("UPGRADES: ", c.width/20*11, c.height/20*16)
             } else if (l.type == 'fuel') {
@@ -289,7 +301,13 @@ function drawMap() {
                     }
                 } else if (l.type == 'upgrade') {
                     for (let i = 0; i < l.locationUpgrades.length; i++) {
-                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
+                        ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13, c.height/20*16+(c.height/20*i));
+                        // curr upgrade level
+                        ctx.fillText(ship.upgrades[l.locationUpgrades[i]], c.width/20*17.5, c.height/20*16+(c.height/20*i));
+                        // upgrade price
+                        let depot = mapLocations[constellation][2];
+                        let lev = ship.upgrades[depot.locationUpgrades[i]];
+                        ctx.fillText((lev * lev * 100)+200, c.width/20*18.25, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'fuel') {
                     ctx.fillText("FUEL PRICE: " + l.fuelPrice, c.width/20*11, c.height/20*16);
@@ -309,8 +327,10 @@ function drawMap() {
         }
         if (curMapLoc == ind) {
             // you are here marker
+            ctx.font = scaleFont(0.013, "Hyperspace");
             ctx.fillStyle = '#00FFFF';
             ctx.fillText("You are here", (c.width/20*l.x)-(c.width/20*1), (c.height/20*l.y)-(c.height/20*0.5));
+            ctx.font = scaleFont(0.018, "Hyperspace");
         }
     });
 
@@ -673,8 +693,12 @@ function drawWarp() {
                     ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*12, c.height/20*11+(c.height/20*0.8*i));
                     // curr upgrade level
                     ctx.fillText(ship.upgrades[l.locationUpgrades[i]], c.width/20*16, c.height/20*11+(c.height/20*0.8*i));
-                    // upgrade price 
-                    ctx.fillText(ship.upgrades[l.locationUpgrades[i]] * 100+200, c.width/20*17, c.height/20*11+(c.height/20*0.8*i));
+                    // upgrade price
+                    let depot = mapLocations[constellation][2];
+                    
+                    let lev = ship.upgrades[depot.locationUpgrades[i]];
+                    console.log(depot.locationUpgrades)
+                    ctx.fillText((lev * lev * 100)+200, c.width/20*17, c.height/20*11+(c.height/20*0.8*i));
                 }
             }
 
