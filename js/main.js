@@ -1443,6 +1443,7 @@ function speak(text, queue = 0, voice = 0) {
 
     const utterance = new SpeechSynthesisUtterance(text);
     const voices = window.speechSynthesis.getVoices();
+    console.log(utterance,voices)
 
     utterance.onend = function(event) {
         // Speech finished
@@ -1468,6 +1469,19 @@ function speak(text, queue = 0, voice = 0) {
         }
     }
 
-    window.speechSynthesis.speak(utterance);
+    console.log(window.speechSynthesis.speak(utterance));
+    console.log("Speech supported:", "speechSynthesis" in window);
+
+    console.log(
+        "Voices:",
+        window.speechSynthesis.getVoices()
+    );
+
+    window.speechSynthesis.onvoiceschanged = () => {
+        console.log(
+            "Voices loaded:",
+            window.speechSynthesis.getVoices()
+        );
+    };
 }
 
