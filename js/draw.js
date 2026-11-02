@@ -270,6 +270,7 @@ function drawMap() {
                     ctx.fillStyle = '#FFFFFF';
                     for (let i = 0; i < resourceNames.length; i++) {
                         let o = (i > 3) ? 4.5 : 0;
+                        ctx.fillStyle = resourceColor[i]
                         ctx.fillText(resourceNames[i], c.width/20*(10.5+o), c.height/20*16+(c.height/20*0.8*(i%4)));
 
                         // sell price
@@ -297,6 +298,7 @@ function drawMap() {
             if (l.visited) {
                 if (l.type == 'sector') {
                     for (let i = 0; i < l.resources.length; i++) {
+                        ctx.fillStyle = resourceColor[l.resources[i]];
                         ctx.fillText(resourceNames[l.resources[i]], c.width/20*13.5, c.height/20*16+(c.height/20*i));
                     }
                 } else if (l.type == 'upgrade') {
@@ -423,13 +425,14 @@ function drawTradingPost() {
 
     for (let i = 0; i<resourceNames.length; i++) {
         if (mapLocations[constellation][curMapLoc].menuNum == i) {
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = resourceColor[i];
             ctx.fillRect(c.width/20*3.8, c.height/20*6.15+(c.height/20*1.2*i), c.width/20*3.2, c.height/20*1);
-            ctx.fillStyle = '#000000'
+            ctx.fillStyle = '#000000';
+            ctx.fillText(resourceNames[i], c.width/20*4, c.height/20*7+(c.height/20*1.2*i));
         } else {
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = resourceColor[i];
+            ctx.fillText(resourceNames[i], c.width/20*4, c.height/20*7+(c.height/20*1.2*i));
         }
-        ctx.fillText(resourceNames[i], c.width/20*4, c.height/20*7+(c.height/20*1.2*i));
 
         // price
         if (station.buySell == 0) {
@@ -668,6 +671,7 @@ function drawWarp() {
                 ctx.fillText(`${constellationNames[loc.warpDestinations[loc.menuNum]]} Prices`, c.width/20*7, c.height/20*4+(c.height/20));
                 ctx.fillStyle = '#FFFFFF';
                 for (let i = 0; i < resourceNames.length; i++) {
+                    ctx.fillStyle = resourceColor[i];
                     ctx.fillText(resourceNames[i], c.width/20*7, c.height/20*6+(c.height/20*0.8*i));
 
                     // sell price
@@ -683,7 +687,7 @@ function drawWarp() {
                 }
             }
 
-            // draw know upgrades
+            // draw known upgrades
             if (l.name == "UPGRADE SHOP" && l.visited) {
                 ctx.fillStyle = "#0088ff";
                 ctx.fillText(`${constellationNames[loc.warpDestinations[loc.menuNum]]} Upgrades`, c.width/20*12, c.height/20*10);
@@ -697,7 +701,7 @@ function drawWarp() {
                     let depot = mapLocations[constellation][2];
                     
                     let lev = ship.upgrades[depot.locationUpgrades[i]];
-                    console.log(depot.locationUpgrades)
+                    //console.log(depot.locationUpgrades)
                     ctx.fillText((lev * lev * 100)+200, c.width/20*17, c.height/20*11+(c.height/20*0.8*i));
                 }
             }
@@ -765,15 +769,18 @@ function drawStarField() {
 }
 
 function drawBG() {
-    let loc = mapLocations[constellation][curMapLoc];
-    for (let i = 0; i < loc.bg.length - 1; i ++) {
-        let r = 2;
-        ctx.beginPath();
-        ctx.arc(c.width*(loc.bg[i][0]/100), c.height*(loc.bg[i][1]/100), loc.bg[i][3], 0, 360);
-        ctx.fillStyle = loc.bg[i][2];
-        ctx.fill();
-        ctx.closePath();
+    if (ship.drawBackgrounds) {
+        let loc = mapLocations[constellation][curMapLoc];
+        for (let i = 0; i < loc.bg.length - 1; i ++) {
+            let r = 2;
+            ctx.beginPath();
+            ctx.arc(c.width*(loc.bg[i][0]/100), c.height*(loc.bg[i][1]/100), loc.bg[i][3], 0, 360);
+            ctx.fillStyle = loc.bg[i][2];
+            ctx.fill();
+            ctx.closePath();
+        }
     }
+
     if (bgmTimer > 0) {
         bgmTimer --;
         if (bgmTimer < 256) {
@@ -783,6 +790,20 @@ function drawBG() {
         }
         ctx.font = scaleFont(0.015, "Hyperspace");
         ctx.fillText(`streaming ${backgroudMusic.src}`, 10, c.height - 10);
+    }
+    if (msgTimer > 0) {
+        // defer to bgm
+        if (bgmTimer > 0) {
+            msgTimer = 0;
+        }
+        msgTimer --;
+        if (msgTimer < 256) {
+            ctx.fillStyle = `rgb(${msgTimer},${msgTimer},${msgTimer})`;
+        } else {
+            ctx.fillStyle = "#FFFFFF";
+        }
+        ctx.font = scaleFont(0.02, "Hyperspace");
+        ctx.fillText(`${msgTimerMsg}`, 10, c.height - 10);
     }
 }
 
@@ -861,6 +882,89 @@ function drawGauges() {
     ctx.font = scaleFont(0.02, "Hyperspace"); //"12px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText("storage", c.width/20*3.4, c.height/20*1.45);
+
+
+    // missions
+    ctx.font = scaleFont(0.015, "Hyperspace"); //"12px Hyperspace";
+    if (ship.curMission == -1 && missions.length > 0) {
+        ship.curMission = 0;
+    }
+    if (missions.length > 0) {
+        let mission = missions[ship.curMission];
+        // goal text
+        if (mission.type == 'sos') {
+            ctx.fillStyle = '#ccfcd2';
+            ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / ${resourceNames[mission.need]} / ${mission.needAmount}` , c.width/20*6, c.height/20*1.45);
+        } else if (mission.type == 'kill') {
+            ctx.fillStyle = '#f59b9b';
+            ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / ${mission.killNum}` , c.width/20*6, c.height/20*1.45);
+        }
+        for (let i = 0; i < missions.length; i++) {
+            let m = missions[i];
+            //console.log(m.type, m.x, m.y, c.width/20*0.5, c.height/20*0.8)
+            if (
+                m.type == 'sos' &&
+                m.constellation == constellation &&
+                m.sector == curMapLoc
+
+            ) {
+                
+                //console.log(m.x, m.y, c.width/20*0.5, c.height/20*0.8)
+                ctx.strokeStyle = "#FFFFFF";
+                ctx.strokeRect(m.x, m.y, 30, 20);
+                if (
+                    ship.x + 20 > m.x - 10&&
+                    ship.x + 20 < m.x + 50 &&
+                    ship.y + 20 > m.y - 10 &&
+                    ship.y + 20 < m.y + 40
+                ) {
+                    if (ship.velX > 0.35) {
+                        ship.velX = 0.35;
+                    }
+                    if (ship.velY > 0.35) {
+                        ship.velY = 0.35;
+                    }
+                    if (ship.velX < -0.35) {
+                        ship.velX = -0.35;
+                    }
+                    if (ship.velY < -0.35) {
+                        ship.velY = -0.35;
+                    }
+                    if (ship.storage[m.need] > 0 & m.needAmount > 0) {
+                        ctx.strokeStyle = "#00FF00";
+                        ship.storage[m.need] --;
+                        ship.storageTotal --;
+                        m.needAmount --;
+                    } else {
+                        ctx.strokeStyle = "#FF0000"
+                    }
+                } else {
+                    ctx.strokeStyle = `rgb(${m.colorLevel},${m.colorLevel},0)`;
+                    m.colorLevel --;
+                    if (m.colorLevel <= 50) {
+                        m.colorLevel = 256;
+                    }
+                }
+                // complete sos mission
+                if (m.needAmount == 0) {
+                    ship.money += m.reward;
+                    if (getRandomInt(3) == 1) {
+                        ship.shield = true;
+                    }
+                    setAudioSource(7);
+                    karma ++;
+                    missions = missions.filter(r => r != m);
+                    missions.push(new Mission());
+                    speak(`Mission Completed. ${m.reward} transfered to account`)
+                }
+                ctx.strokeRect(m.x-10, m.y-10, 50, 40);
+                ctx.font = scaleFont(0.015, "Hyperspace"); //"12px Hyperspace";
+                ctx.fillText("need "+ m.needAmount + " " + (resourceNames[m.need]), m.x-40,m.y+50)
+            }
+        }
+    }
+
+    
 
     // fuel gauge
     ctx.fillStyle = "#888888";

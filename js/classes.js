@@ -1,12 +1,71 @@
+
+class Mission {
+    constructor(t = -1,c = -1,s = -1) {
+        if (t == -1) {
+            if (getRandomInt(2) == 1) {
+                this.type = "kill"; 
+            } else { 
+                this.type = "sos";
+            }
+        } else {
+            this.type = t;
+        }
+        if (c == -1) {
+            this.constellation = getRandomInt(constellationNames.length);
+        } else {
+            this.constellation = c;
+        }
+        if (s == -1) {
+            this.sector = getRandomInt(mapLocations[this.constellation].length);
+        } else {
+            this.sector = s;
+        }
+        //console.log(this.sector)
+        if (
+            this.sector == 2 ||
+            this.sector == 4 ||
+            this.sector == 5 ||
+            this.sector == 7
+        ) {
+            this.sector --;
+            if (this.sector == 4) {
+                this.sector --;
+            }
+        }
+        this.colorLevel = 256;
+        this.x = getRandomInt((getWidth()/4)*3)+(getWidth()/8);
+        this.y = getRandomInt((getHeight()/4)*3)+(getHeight()/8);
+        this.need = getRandomInt(ship.storage.length);
+        this.needAmount = getRandomInt(50 * (Math.floor(this.constellation/3)+1));
+        this.killNum = getRandomInt(3) + 1; 
+        if (this.type == 'kill') {
+            mapLocations[this.constellation][this.sector].isHostile = true;
+            this.reward = 1500 * this.killNum * (Math.floor(this.constellation/3)+1);
+        } else if (this.type == 'sos') {
+            this.reward = 100 * this.needAmount * (Math.floor(this.constellation/3)+1);
+        }
+        msgTimer = 1000;
+        msgTimerMsg = "";
+        if (this.type == 'sos') {
+            msgTimerMsg = `NEW MISSION: A Settlment in ${mapLocations[this.constellation][this.sector].name} is desperate for ${resourceNames[this.need]} requesting ${this.needAmount} ASAP`;
+        } else if (this.type == 'kill') {
+            msgTimerMsg = `NEW MISSION: The Corpo drones in ${mapLocations[this.constellation][this.sector].name} killed my brother. Avenge me ${this.killNum} of them`;
+        }
+        this.msg = msgTimerMsg;
+    }
+}
+
 class Ship {
     constructor(x = c.width/2, y = c.height/2) {
         this.rot = 0;
         this.x = x;
         this.y = y;
+        this.drawBackgrounds = true;
         this.type = "ship";
         this.shield = true; 
         this.shieldRad = 18
         this.speed = 0;
+        this.curMission = -1;
         this.money = getRandomInt(512);
         if (this.money == 256) {
             this.money = getRandomInt(9999);
@@ -47,6 +106,7 @@ class Ship {
         this.velX = 0;
         this.velY = 0;
         this.drag = 0.995; // 1 = frictionless
+        this.drawBG = true;
 
     }
 }

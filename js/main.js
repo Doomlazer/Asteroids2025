@@ -25,17 +25,17 @@ let lives;
 let score;
 let stage = 0; // stage 0 = title, stage 1 = default game, stage 2 = space map
 let locationNames = ['Aelia', 'Adhara', 'Amalthea', 'Andromeda', 'Ascella', 'Astra', 'Aurora', 'Bianca',
-                    'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Diana', 'Elara', 'Halley', 'Helia',
+                    'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Mithras', 'Elara', 'Halley', 'Helia',
                     'Hilal', 'Larissa', 'Leda', 'Libra', 'Lyra', 'Miranda', 'Nashira', 'Ophelia',
                     'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras',
-                    'Calar 25', 'Laffer', '5Bonds-12', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
+                    'Calar 25', 'Laffer-3', 'Bonds5', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
                     'Vohaul', 'Mosely', 'Nakimura 4', 'Shema', 'Shameen', 'Erana', 'Kalalau','Cassima', 'Delaney',
-                    'Zara', 'SPR-3', 'Anansi', 'RAVE-II', 'Beatrice', 'LIAM', 'Boogle'];
+                    'Zara', 'SPR-3', 'Anansi', 'Beatrice', 'LIAM', 'Boogle', 'Paco', 'AVO-323'];
 let constellationNames = ['AQUARIUS', 'ARIES', 'CANCER', 'CAPRICORNUS', 'GEMINI', 'LEO', 'LIBRA', 
                         'PISCES', 'SAGITTARIUS', 'SCORPIUS', 'TAURUS', 'VIRGO'];
 // RD: name, color
-let resourceNames = ['Gold', 'Silver', 'Copper', 'Diamond', 'Platnum', 'Uranium', 'Lithium', 'Ytterbium'];
-let resourceColor = ['#E8B923', '#7d3c98', '#3498db', '#27ae60', '#d35400', '#5d6d7e', '#cd6155', '#48c9b0'];
+let resourceNames = ['Gold', 'Silver', 'Copper', 'Diamond', 'Platinum', 'Uranium', 'Lithium', 'Ytterbium'];
+let resourceColor = ['#E8B923', '#C0C0C0', '#B87333', '#B9F2FF', '#f7d1f4', '#04f729', '#d215e7', '#48c9b0'];
 // x is 1.724% y is 3.06
 let constellationStarsArrays = [[2.9, 12.9, 4.5, 7.6, 6.2, 7.7, 6.4, 11.8, 6.0, 12.9, 6.9, 6.2, 8.5, 5.3, 10.0, 4.7, 9.1, 8.8, 9.4, 11.0, 11.8, 6.9, 14.7, 9.4],
                                 [13.1, 9.6, 11.5, 9.7, 7, 10.6, 4.3, 9.7, 5.2, 13.6, 1.9, 11.7, 2.4, 9.6, 13.9, 11.6, 17, 12.8, 8.2, 5.9, 5.9, 4.5],
@@ -97,7 +97,9 @@ let audioEnabled = true;
 let backgroudMusic = null;
 let bgmTimer = 0;
 let karma = 3;
-let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2"];
+let msgTimer = 0;
+let msgTimerMsg;
+let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2", "extraShip"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD"];
 let debug = false;
@@ -107,6 +109,7 @@ let configInc = -1;
 let currentConfigButton = configButtonNames[configInc];
 let currentConfig = [];
 let configPrevStage = 0;
+let missions = [];
 
 
 
@@ -141,11 +144,15 @@ function step(timeStamp) {
         }
         genMapLocations();
         mapLocations[constellation][0].visited = true;
+        missions.push(new Mission(-1,0,-1)); // first mission in starting system
+        missions.push(new Mission());
+        missions.push(new Mission());
         newAstroidField();
         starField.push(new StarFieldStar());
         //enemies.push(new mobile(0,0)); // 0,0 = radom x,y along width height
-        // set ship.shield price with (lev * lev * 100)+200
-        ship.upgrades[10] = 3;
+        
+        // set ship.shield price with (x * x * 100)+200
+        ship.upgrades[10] = 3; // x
     }
     const elapsed = timeStamp - start;
 
@@ -191,12 +198,17 @@ function step(timeStamp) {
                 if (ship.storageTotal < ship.maxStorage) {
                     deadResources.push(r);
                     if (ship.storageTotal + r.radius > ship.maxStorage) {
-                        // discard part of resources that don't fit the maxStorage
+                        // waste part of resources that don't fit the maxStorage
                         ship.storage[r.resource] += ship.maxStorage - ship.storageTotal;
                         ship.storageTotal += ship.maxStorage - ship.storageTotal;
                     } else {
                         ship.storage[r.resource] += r.radius;
                         ship.storageTotal += r.radius;
+                    }
+                    if (msgTimer <= 0) {
+                        msgTimer = 300;
+                        msgTimerMsg = `Collected ${resourceNames[r.resource]}`;
+                        speak(msgTimerMsg);
                     }
                     resources = resources.filter(n => !deadResources.includes(n));
                     deadResources = [];
@@ -251,11 +263,13 @@ function step(timeStamp) {
                         if (ship.shield) {
                             setAudioSource(6);
                             ship.shield = false;
+                            speak("Shield depleted");
                         } else {
                             setAudioSource(4);
                             ship.dead = 100;
                             ship.speed = 0;
                             deadBullets.push(b);
+                            speak("Ship destroyed")
                             let r = getRandomInt(5) + 5;
                             let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
                             let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
@@ -273,6 +287,26 @@ function step(timeStamp) {
                             e.health -= damage;
                             damageNumbers.push(new DamageNumber(damage, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                             if (e.health <= 0) {
+                                // updated missions
+                                for (let i = 0; i < missions.length; i++) {
+                                    if (
+                                        missions[i].type == "kill" &&
+                                        missions[i].constellation == constellation &&
+                                        missions[i].sector == curMapLoc
+                                    ) {
+                                        speak("Mission target destroyed");
+                                        missions[i].killNum--;
+                                        if (missions[i].killNum <= 0) {
+                                            setAudioSource(7);
+                                            ship.money += missions[i].reward;
+                                            karma ++;
+                                            missions = missions.filter(e => e != missions[i]);
+                                            missions.push(new Mission());
+                                            speak(`Mission Completed. ${missions[i].reward} transfered to account`)
+                                        }
+                                    }
+                                }
+
                                 setAudioSource(4);
                                 if (enemies.length <= 1) {
                                     // set timer for new mobile
@@ -463,7 +497,7 @@ function gamePad() {
                         currentConfig[configInc] = index; 
                         configInc ++;
                         joyInputDelay = 500;
-                        console.log(configInc)
+                        //console.log(configInc)
                         if (configInc > 7) {
                             stage = configPrevStage;
                         }
@@ -867,6 +901,27 @@ function kDown(e) {
         }
     }
 
+    if (e.key == 'q') {
+        if (ship.drawBackgrounds) {
+            ship.drawBackgrounds = false;
+        } else {
+            ship.drawBackgrounds = true;
+        }
+    }
+    if (e.key == 'w') {
+        if (ship.curMission > 0) {
+            ship.curMission --;
+            msgTimer = 500;
+            msgTimerMsg = `Mission ${ship.curMission+1} of ${missions.length}`;
+        }
+    }
+    if (e.key == 'e') {
+        if (ship.curMission < missions.length - 1) {
+            ship.curMission ++;
+            msgTimer = 500;
+            msgTimerMsg = `Mission ${ship.curMission+1} of ${missions.length}`;
+        }
+    }
     if (e.key == '+') {
         if (debug) {
             debug = false;
@@ -932,7 +987,7 @@ function kDown(e) {
                 mapLocations[constellation].forEach(l => {
                     str += l.x + ", " + l.y + ", ";
                 });
-                console.log(str);
+                //console.log(str);
             }
         }
 
@@ -1244,6 +1299,7 @@ function newAstroidField() {
     for (let i=0; i<r; i++) {
         asteroids.push(new Asteroid());
     }
+
     if (mapLocations[constellation][curMapLoc].isHostile) {
         let e = new mobile();
         enemies.push(e); // 0,0 = radom x,y along width height
@@ -1378,5 +1434,40 @@ function playMusic() {
     audio.play();
 }
 
+function speak(text, queue = 0, voice = 0) {
+    console.log("speak",text)
+    
+    if (!queue) {
+        window.speechSynthesis.cancel();
+    }
 
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+
+    utterance.onend = function(event) {
+        // Speech finished
+    };
+
+    if (voices.length > 0) {
+
+        let selectedVoice = Math.floor(Math.random() * voices.length);
+
+        if (voice != 0) {
+            selectedVoice = voice;
+        }
+        if (
+            selectedVoice >= 0 &&
+            selectedVoice < voices.length
+        ) {
+            utterance.voice =
+                voices[selectedVoice];
+        } else {
+            console.log(
+                'selected voice not available'
+            );
+        }
+    }
+
+    window.speechSynthesis.speak(utterance);
+}
 
