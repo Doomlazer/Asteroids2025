@@ -235,7 +235,29 @@ function drawMap() {
             ctx.fillStyle = "#999999";
         }
         ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*0.6));
+        
+        // mission markers
+        ctx.font = scaleFont(0.012, "Hyperspace");
+        for (let i = 0; i < missions.length; i++) {
+            //console.log(missions[i].constellation, constellation,missions[i].sector, l.sectorNum)
+            //console.log(missions[i].constellation,l.constNumber )
+            if (
+                missions[i].constellation == l.constNumber &&
+                missions[i].sector == l.sectorNum
+            ) {
+                //console.log(missions[i].constellation, constellation,missions[i].sector, l.sectorNum)
+                if (missions[i].type == 'kill') {
+                    ctx.fillStyle = ship.killColor;
+                } else if (missions[i].type == 'sos') {
+                    ctx.fillStyle = ship.sosColor;
+                } else if (missions[i].type == 'life') {
+                    ctx.fillStyle = ship.lifeColor;
+                }
+                ctx.fillText("M", c.width/20*l.x-(c.width/20*0.3), c.height/20*l.y + (c.height/20*0.1));
+            }
+        }
         ctx.font = scaleFont(0.018, "Hyperspace");
+
         // draw more stuff if selected
         ctx.fillStyle = l.color;
         if (curMapSel == ind) {
@@ -627,6 +649,26 @@ function drawWarp() {
             ctx.font = "30px Hyperspace";
             ctx.strokeRect(c.width/15*i + (c.width/10), c.height/20*15, (c.width/40)*1, (c.height/20)*1);
             ctx.lineWidth = defaultLineWidth;
+            ctx.font = scaleFont(0.015, "Hyperspace");
+            
+            // offset multipule missions markers in same constillation
+            let oa = [];
+            for (let j = 0; j < constellationNames.length; j++) {
+                oa.push(0);
+            }
+            for (let j = 0; j < missions.length; j++) {
+                if (missions[j].constellation == i) {
+                    if (missions[j].type == 'kill') {
+                        ctx.fillStyle = ship.killColor;
+                    } else if (missions[j].type == 'sos') {
+                        ctx.fillStyle = ship.sosColor;
+                    } else if (missions[j].type == 'life') {
+                        ctx.fillStyle = ship.lifeColor;
+                    }
+                    ctx.fillText("M", c.width/15*i + (c.width/10) + (c.width/160) + (4*oa[missions[j].constellation]), c.height/20*15 + (c.height/30));
+                    oa[missions[j].constellation] ++;
+                }
+            }
         }
         
         // draw dest locations
@@ -893,17 +935,20 @@ function drawGauges() {
         let mission = missions[ship.curMission];
         // goal text
         if (mission.type == 'sos') {
-            ctx.fillStyle = '#ccfcd2';
+            ctx.fillStyle = ship.sosColor;
             ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / ${resourceNames[mission.need]} / ${mission.needAmount}` , c.width/20*6, c.height/20*1.45);
         } else if (mission.type == 'kill') {
-            ctx.fillStyle = '#f59b9b';
+            ctx.fillStyle = ship.killColor;
             ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / ${mission.killNum}` , c.width/20*6, c.height/20*1.45);
+        } else if (mission.type == 'life') {
+            ctx.fillStyle = ship.lifeColor;
+            ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / $${mission.needAmount}` , c.width/20*6, c.height/20*1.45);
         }
         for (let i = 0; i < missions.length; i++) {
             let m = missions[i];
             //console.log(m.type, m.x, m.y, c.width/20*0.5, c.height/20*0.8)
             if (
-                m.type == 'sos' &&
+                (m.type == 'sos' ||m.type == 'life') &&
                 m.constellation == constellation &&
                 m.sector == curMapLoc
 
@@ -930,37 +975,83 @@ function drawGauges() {
                     if (ship.velY < -0.35) {
                         ship.velY = -0.35;
                     }
-                    if (ship.storage[m.need] > 0 & m.needAmount > 0) {
+
+                    if (m.type == 'life') {
+                        if (m.needAmount > 2025 && ship.money > 50 ) {
+                            ctx.strokeStyle = "#00FF00";
+                            ship.money -= 500;
+                            m.needAmount -= 500;
+                        } else if (ship.money > 50) {
+                            ctx.strokeStyle = "#00FF00";
+                            ship.money -= 50;
+                            m.needAmount -= 50;
+                        } else {
+                            ctx.strokeStyle = "#FF0000";
+                        }
+                    } else if (
+                        ship.storage[m.need] > 0 &&
+                        m.needAmount > 0 &&
+                        m.collectionDelay <= 0 &&
+                        !ship.dead
+                    ) {
                         ctx.strokeStyle = "#00FF00";
                         ship.storage[m.need] --;
                         ship.storageTotal --;
                         m.needAmount --;
+                        m.collectionDelay = 10;
+                    } else if (
+                        ship.storage[m.need] > 0 &&
+                        m.needAmount > 0 &&
+                        !ship.dead
+                    ) {
+                        // collection delay requirement makes color jittery
+                        ctx.strokeStyle = "#00FF00";
                     } else {
                         ctx.strokeStyle = "#FF0000"
                     }
                 } else {
-                    ctx.strokeStyle = `rgb(${m.colorLevel},${m.colorLevel},0)`;
+                    if (m.type == 'life') {
+                        // blue strobe
+                        ctx.strokeStyle = `rgb(0,${m.colorLevel/2},${m.colorLevel})`;
+                    } else {
+                        // yellow strobe
+                        ctx.strokeStyle = `rgb(${m.colorLevel},${m.colorLevel},0)`;
+                    }
+                    
                     m.colorLevel --;
                     if (m.colorLevel <= 50) {
                         m.colorLevel = 256;
                     }
                 }
+                if (m.collectionDelay > 0) {
+                    m.collectionDelay --;
+                }
                 // complete sos mission
-                if (m.needAmount == 0) {
+                if (m.needAmount <= 0) {
                     ship.money += m.reward;
                     if (getRandomInt(3) == 1) {
                         ship.shield = true;
                     }
                     setAudioSource(7);
-                    karma ++;
+                    if (m.type == "life") {
+                        lives ++;
+                        speak(`Mission Completed. Extra spaceship awarded.`)
+                    } else {
+                        karma ++;
+                        speak(`Mission Completed. ${m.reward} transfered to account`)
+                    }
+                    
                     missions = missions.filter(r => r != m);
                     missions.push(new Mission());
-                    speak(`Mission Completed. ${m.reward} transfered to account`)
                 }
                 ctx.strokeRect(m.x-10, m.y-10, 50, 40);
                 ctx.font = scaleFont(0.013, "Hyperspace"); //"12px Hyperspace";
                 ctx.fillStyle = "#FFFFFF"
-                ctx.fillText("need "+ m.needAmount + " " + (resourceNames[m.need]), m.x-40,m.y+50)
+                if (m.type == 'life') {
+                    ctx.fillText("EXTRA SHIP "+ m.needAmount, m.x-40,m.y+50);
+                } else {
+                    ctx.fillText("need "+ m.needAmount + " " + (resourceNames[m.need]), m.x-40,m.y+50);
+                }
             }
         }
     }

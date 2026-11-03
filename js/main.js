@@ -1277,6 +1277,7 @@ function collision(e, t) {
 
 function genMapLocations() {
     for (j = 0; j < mapLocations.length; j++ ) {
+        let c = 0;
         for (let i = 0; i < constellationStarsArrays[j].length/2; i++) {
             t = 'sector';
             if (i == 2) {
@@ -1288,7 +1289,8 @@ function genMapLocations() {
             } else if (i == 7) {
                 t = 'fuel';
             }
-            mapLocations[j].push(new MapLocation(t,i*2, j));
+            mapLocations[j].push(new MapLocation(t,i*2, j, c));
+            c++;
         }
     }
 }
@@ -1441,6 +1443,9 @@ function playMusic() {
 
 function speak(text, queue = true, voice = 0) {
     //console.log("speak",text)
+    if (!audioEnabled) {
+        return;
+    }
     
     if (!queue) {
         window.speechSynthesis.cancel();

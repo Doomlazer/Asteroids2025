@@ -2,11 +2,16 @@
 class Mission {
     constructor(t = -1,c = -1,s = -1) {
         if (t == -1) {
-            if (getRandomInt(2) == 1) {
-                this.type = "kill"; 
-            } else { 
-                this.type = "sos";
+            if (getRandomInt(6) == 1) {
+                this.type = "life"; 
+            } else {
+                if (getRandomInt(2) == 1) {
+                    this.type = "kill"; 
+                } else { 
+                    this.type = "sos";
+                }
             }
+            
         } else {
             this.type = t;
         }
@@ -42,16 +47,23 @@ class Mission {
             mapLocations[this.constellation][this.sector].isHostile = true;
             this.reward = 1500 * this.killNum * (Math.floor(this.constellation/3)+1);
         } else if (this.type == 'sos') {
-            this.reward = 100 * this.needAmount * (Math.floor(this.constellation/3)+1);
+            this.reward = 120 * this.needAmount * (Math.floor(this.constellation/3)+1);
+        } else if (this.type == 'life') {
+            this.needAmount = 2025*(this.constellation/3+1);
+            this.reward = 120;
+
         }
         msgTimer = 1000;
         msgTimerMsg = "";
         if (this.type == 'sos') {
-            msgTimerMsg = `NEW MISSION: A Settlment in ${mapLocations[this.constellation][this.sector].name} is desperate for ${resourceNames[this.need]} requesting ${this.needAmount} ASAP`;
+            msgTimerMsg = `MISSION: A Settlment in ${mapLocations[this.constellation][this.sector].name} is desperate for ${resourceNames[this.need]} requesting ${this.needAmount} ASAP`;
+        } else if (this.type == 'life') {
+            msgTimerMsg = `MISSION: Compatiple ship conponents detected in ${mapLocations[this.constellation][this.sector].name}. Investigation recommended.`;
         } else if (this.type == 'kill') {
-            msgTimerMsg = `NEW MISSION: The Corpo drones in ${mapLocations[this.constellation][this.sector].name} killed my brother. Avenge me ${this.killNum} of them`;
+            msgTimerMsg = `MISSION: The Corpo drones in ${mapLocations[this.constellation][this.sector].name} killed my brother. Avenge me ${this.killNum} of them`;
         }
         this.msg = msgTimerMsg;
+        this.collectionDelay = 0;
     }
 }
 
@@ -60,6 +72,9 @@ class Ship {
         this.rot = 0;
         this.x = x;
         this.y = y;
+        this.sosColor = '#ccfcd2';
+        this.killColor = '#f59b9b';
+        this.lifeColor = '#03bcfa';
         this.drawBackgrounds = true;
         this.type = "ship";
         this.shield = true; 
@@ -180,9 +195,11 @@ class Warper {
 }
 
 class MapLocation {
-    constructor(type, num, constNumber) {
+    constructor(type, num, constNumber, sector) {
         this.x = constellationStarsArrays[constNumber][num];
         this.y = constellationStarsArrays[constNumber][num+1];
+        this.sectorNum = sector;
+        this.constNumber = constNumber;
         this.type = type;
         this.visited = false;
         this.color = '#FFFFFF';
