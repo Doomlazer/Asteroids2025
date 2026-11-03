@@ -110,6 +110,7 @@ let currentConfigButton = configButtonNames[configInc];
 let currentConfig = [];
 let configPrevStage = 0;
 let missions = [];
+let voices;
 
 
 
@@ -142,6 +143,10 @@ function step(timeStamp) {
             }
             //console.log(possibleUpgrades[i] + ": " + ship.upgrades[i]);
         }
+        // safari needs to load voices here, Chromium does
+        // it in speak() - window.speechSynthesis.onvoiceschanged 
+        voices = window.speechSynthesis.getVoices();
+        speak("Asteroids 2025");
         genMapLocations();
         mapLocations[constellation][0].visited = true;
         missions.push(new Mission(-1,0,-1)); // first mission in starting system
@@ -1434,22 +1439,21 @@ function playMusic() {
     audio.play();
 }
 
-function speak(text, queue = 0, voice = 0) {
-    console.log("speak",text)
+function speak(text, queue = true, voice = 0) {
+    //console.log("speak",text)
     
     if (!queue) {
         window.speechSynthesis.cancel();
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    const voices = window.speechSynthesis.getVoices();
-    console.log(utterance,voices)
 
     utterance.onend = function(event) {
         // Speech finished
     };
 
-    if (voices.length > 0) {
+    //console.log("voices:",voices)
+    if (voices?.length > 0) {
 
         let selectedVoice = Math.floor(Math.random() * voices.length);
 
@@ -1460,8 +1464,8 @@ function speak(text, queue = 0, voice = 0) {
             selectedVoice >= 0 &&
             selectedVoice < voices.length
         ) {
-            utterance.voice =
-                voices[selectedVoice];
+            utterance.voice = voices[selectedVoice];
+            window.speechSynthesis.speak(utterance);
         } else {
             console.log(
                 'selected voice not available'
@@ -1469,19 +1473,9 @@ function speak(text, queue = 0, voice = 0) {
         }
     }
 
-    console.log(window.speechSynthesis.speak(utterance));
-    console.log("Speech supported:", "speechSynthesis" in window);
 
-    console.log(
-        "Voices:",
-        window.speechSynthesis.getVoices()
-    );
-
+    // load voices for chromium broswers, safari is done during init;
     window.speechSynthesis.onvoiceschanged = () => {
-        console.log(
-            "Voices loaded:",
-            window.speechSynthesis.getVoices()
-        );
-    };
+        voices = window.speechSynthesis.getVoices();
+    }
 }
-

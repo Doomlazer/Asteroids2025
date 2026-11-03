@@ -958,7 +958,8 @@ function drawGauges() {
                     speak(`Mission Completed. ${m.reward} transfered to account`)
                 }
                 ctx.strokeRect(m.x-10, m.y-10, 50, 40);
-                ctx.font = scaleFont(0.015, "Hyperspace"); //"12px Hyperspace";
+                ctx.font = scaleFont(0.013, "Hyperspace"); //"12px Hyperspace";
+                ctx.fillStyle = "#FFFFFF"
                 ctx.fillText("need "+ m.needAmount + " " + (resourceNames[m.need]), m.x-40,m.y+50)
             }
         }
