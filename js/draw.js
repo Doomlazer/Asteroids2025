@@ -112,6 +112,15 @@ function drawStage1() {
             sctx.strokeStyle = "#f50d0d";
             sctx.stroke(ship.thrustPath);
         }
+        // draw lazer nub on top ship
+        if (ship.lzrEquip) {
+            sctx.beginPath();
+            sctx.arc(0, 0, 3, 0, 360);
+            sctx.strokeStyle = "#FFFFFF";
+            sctx.stroke();
+            sctx.closePath();
+        }
+            
         
 
         ctx.drawImage(s, 0,0,40,40, ship.x, ship.y,40,40);
@@ -252,6 +261,8 @@ function drawMap() {
                     ctx.fillStyle = ship.sosColor;
                 } else if (missions[i].type == 'life') {
                     ctx.fillStyle = ship.lifeColor;
+                } else if (missions[i].type == 'lzr') {
+                    ctx.fillStyle = ship.lzrColor;
                 }
                 ctx.fillText("M", c.width/20*l.x-(c.width/20*0.3), c.height/20*l.y + (c.height/20*0.1));
             }
@@ -664,6 +675,8 @@ function drawWarp() {
                         ctx.fillStyle = ship.sosColor;
                     } else if (missions[j].type == 'life') {
                         ctx.fillStyle = ship.lifeColor;
+                    } else if (missions[j].type == 'lzr') {
+                        ctx.fillStyle = ship.lzrColor;
                     }
                     ctx.fillText("M", c.width/15*i + (c.width/10) + (c.width/160) + (4*oa[missions[j].constellation]), c.height/20*15 + (c.height/30));
                     oa[missions[j].constellation] ++;
@@ -855,15 +868,46 @@ function clearCanvas() {
 }
 
 function drawAsteroids() {
-    asteroids.forEach(roid => {
+    asteroids.forEach(e => {
         actx.clearRect(-40,-40,80,80);
-        actx.rotate(roid.spin * Math.PI / 180);
-        actx.strokeStyle = roid.color;
-        actx.stroke(roid.path);
-        ctx.drawImage(a, 0,0,80,80, roid.x, roid.y,80,80);
-        actx.rotate(-roid.spin * Math.PI / 180);
+        actx.rotate(e.spin * Math.PI / 180);
+        actx.strokeStyle = e.color;
+        actx.stroke(e.path);
+        ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
+        actx.rotate(-e.spin * Math.PI / 180);
         if (showHitbox && debug) {
-            drawHitbox(roid);
+            drawHitbox(e);
+        }
+
+        if (ship.lzrEquip && !ship.dead) {
+            if (distance2D(e, ship) < ship.lzrDistance + (15*ship.lzrLvl) && stage != 0) {
+                ctx.strokeStyle = "#fbff00";
+                ctx.lineWidth = ship.lzrLvl;
+                ctx.beginPath(); 
+                ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
+                if (e.large) {
+                    ctx.lineTo(e.x + e.hbOffset2*0.8, e.y + e.hbOffset2*0.8); 
+                } else {
+                    ctx.lineTo(e.x + e.hbOffset2*1.3, e.y + e.hbOffset2*1.3); 
+                }
+                ctx.stroke(); // Render the line
+                if (e.lzrCool <= 0) {
+                    let dam = getRandomInt(ship.lzrLvl+1)+1;
+                    e.health -= dam;
+                    damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
+                    e.lzrCool = 25;
+                    //console.log(e.health)
+                    if (e.health <= 0) {
+                        // updated missions
+                        killRoid(e);
+                        asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+                        deadAsteroids = [];
+                    }
+                }
+            }
+            if (e.lzrCool > 0) {
+                e.lzrCool --;
+            }
         }
     });
 }
@@ -893,6 +937,34 @@ function drawMobiles() {
         actx.rotate(-e.spin * Math.PI / 180);
         if (showHitbox && debug) {
             drawHitbox(e);
+        }
+
+        // check if in laser range
+        if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead) {
+            if (distance2D(e, ship) < ship.lzrDistance + (15*ship.lzrLvl)) {
+                ctx.strokeStyle = "#FF0000";
+                ctx.lineWidth = ship.lzrLvl;
+                ctx.beginPath(); 
+                ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
+                ctx.lineTo(e.x + (e.hbOffset2*1.4), e.y+ (e.hbOffset2*1.4)); 
+                ctx.stroke(); // Render the line
+                if (e.lzrCool <= 0) {
+                    let dam = getRandomInt(ship.lzrLvl+1)+1;
+                    e.health -= dam;
+                    damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
+                    e.lzrCool = 25;
+                    console.log(e.health)
+                    if (e.health <= 0) {
+                        // updated missions
+                        killEnemyShip(e);
+                        enemies = enemies.filter(e => !deadEnemies.includes(e));
+                        deadEnemies = [];
+                    }
+                }
+            }
+            if (e.lzrCool > 0) {
+                e.lzrCool --;
+            }
         }
     });
 }
@@ -943,15 +1015,26 @@ function drawGauges() {
         } else if (mission.type == 'life') {
             ctx.fillStyle = ship.lifeColor;
             ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / $${mission.needAmount}` , c.width/20*6, c.height/20*1.45);
+        } else if (mission.type == 'lzr') {
+            ctx.fillStyle = ship.lzrColor;
+            if (ship.lzrLvl == 1) {
+                ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / L.Z.R. Install`, c.width/20*6, c.height/20*1.45);
+            } else {
+                ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / L.Z.R. Upgrade ${ship.lzrLvl}`, c.width/20*6, c.height/20*1.45);
+            }
+            
         }
         for (let i = 0; i < missions.length; i++) {
             let m = missions[i];
             //console.log(m.type, m.x, m.y, c.width/20*0.5, c.height/20*0.8)
             if (
-                (m.type == 'sos' ||m.type == 'life') &&
+                (
+                    m.type == 'sos' ||
+                    m.type == 'life' ||
+                    m.type == 'lzr'
+                ) &&
                 m.constellation == constellation &&
                 m.sector == curMapLoc
-
             ) {
                 
                 //console.log(m.x, m.y, c.width/20*0.5, c.height/20*0.8)
@@ -988,6 +1071,10 @@ function drawGauges() {
                         } else {
                             ctx.strokeStyle = "#FF0000";
                         }
+                    } else if (m.type == 'lzr') {
+                        ctx.strokeStyle = "#00FF00";
+                        m.needAmount -= 1;
+                        m.collectionDelay = 2;
                     } else if (
                         ship.storage[m.need] > 0 &&
                         m.needAmount > 0 &&
@@ -1007,15 +1094,17 @@ function drawGauges() {
                         // collection delay requirement makes color jittery
                         ctx.strokeStyle = "#00FF00";
                     } else {
-                        ctx.strokeStyle = "#FF0000"
+                        ctx.strokeStyle = "#FF0000";
                     }
                 } else {
                     if (m.type == 'life') {
                         // blue strobe
                         ctx.strokeStyle = `rgb(0,${m.colorLevel/2},${m.colorLevel})`;
-                    } else {
+                    } else if (m.type == 'lzr') {
                         // yellow strobe
                         ctx.strokeStyle = `rgb(${m.colorLevel},${m.colorLevel},0)`;
+                    } else {
+                        ctx.strokeStyle = `rgb(0,${m.colorLevel},${m.colorLevel})`;
                     }
                     
                     m.colorLevel --;
@@ -1029,16 +1118,29 @@ function drawGauges() {
                 // complete sos mission
                 if (m.needAmount <= 0) {
                     ship.money += m.reward;
-                    if (getRandomInt(3) == 1) {
-                        ship.shield = true;
-                    }
                     setAudioSource(7);
                     if (m.type == "life") {
                         lives ++;
-                        speak(`Mission Completed. Extra spaceship awarded.`)
+                        speak(`Mission Completed. Extra spaceship awarded.`);
+                    } else if (m.type == 'lzr') {
+                        if (ship.lzrEquip) {
+                            ship.lzrLvl ++;
+                            if (ship.lzrLvl == 4) {
+                                speak(`Mission Completed. L.Z.R. Optical Weapons Platform installed.`);
+                            } else {
+                                speak(`Mission Completed. L.Z.R. Optical Mining System upgraded.`);
+                            }
+                            
+                        } else {
+                            ship.lzrEquip = true;
+                            speak(`Mission Completed. L.Z.R. Optical Mining System installed.`);
+                        }
                     } else {
+                        if (getRandomInt(3) == 1) {
+                            ship.shield = true;
+                        }
                         karma ++;
-                        speak(`Mission Completed. ${m.reward} transfered to account`)
+                        speak(`Mission Completed. ${m.reward} transfered to account`);
                     }
                     
                     missions = missions.filter(r => r != m);
@@ -1049,6 +1151,9 @@ function drawGauges() {
                 ctx.fillStyle = "#FFFFFF"
                 if (m.type == 'life') {
                     ctx.fillText("EXTRA SHIP "+ m.needAmount, m.x-40,m.y+50);
+                } else if (m.type == 'lzr') {
+                    ctx.fillText(`INSTALL LVL.${ship.lzrLvl}`, m.x-40,m.y-20);
+                    ctx.fillText(m.needAmount, m.x,m.y+50);
                 } else {
                     ctx.fillText("need "+ m.needAmount + " " + (resourceNames[m.need]), m.x-40,m.y+50);
                 }

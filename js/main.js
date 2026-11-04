@@ -27,10 +27,13 @@ let stage = 0; // stage 0 = title, stage 1 = default game, stage 2 = space map
 let locationNames = ['Aelia', 'Adhara', 'Amalthea', 'Andromeda', 'Ascella', 'Astra', 'Aurora', 'Bianca',
                     'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Mithras', 'Elara', 'Halley', 'Helia',
                     'Hilal', 'Larissa', 'Leda', 'Libra', 'Lyra', 'Miranda', 'Nashira', 'Ophelia',
-                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Vega', 'Luna', 'Eluria', 'Mithras',
+                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Zaneta', 'Luna', 'Eluria', 'Mithras',
                     'Calar 25', 'Laffer-3', 'Bonds5', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
                     'Vohaul', 'Mosely', 'Nakimura 4', 'Shema', 'Shameen', 'Erana', 'Kalalau','Cassima', 'Delaney',
-                    'Zara', 'SPR-3', 'Anansi', 'Beatrice', 'LIAM', 'Boogle', 'Paco', 'AVO-323'];
+                    'Zara', 'SPR-3', 'Anansi', 'Beatrice', 'LIAM', 'Knelix', 'Paco', 'AVO-323', 'Alioth', 
+                    'Altair', 'Astrophel', 'Cielo', 'Draco', 'Finlay', 'Hesperos', 'Janus', 'Oberon', 'Qamar', 
+                    'Rasalas', 'Rigel-9', 'Sabik', 'Samson', 'Adhara', 'Alcyone', 'Amalthea', 'Belinda','Cassiopeia',
+                    'Charon', 'Cordelia','Cybele','Galatea','Indu','Larissa', 'Thalassa', 'Zaniah'];
 let constellationNames = ['AQUARIUS', 'ARIES', 'CANCER', 'CAPRICORNUS', 'GEMINI', 'LEO', 'LIBRA', 
                         'PISCES', 'SAGITTARIUS', 'SCORPIUS', 'TAURUS', 'VIRGO'];
 // RD: name, color
@@ -293,40 +296,7 @@ function step(timeStamp) {
                             damageNumbers.push(new DamageNumber(damage, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                             if (e.health <= 0) {
                                 // updated missions
-                                for (let i = 0; i < missions.length; i++) {
-                                    if (
-                                        missions[i].type == "kill" &&
-                                        missions[i].constellation == constellation &&
-                                        missions[i].sector == curMapLoc
-                                    ) {
-                                        speak("Mission target destroyed");
-                                        missions[i].killNum--;
-                                        if (missions[i].killNum <= 0) {
-                                            setAudioSource(7);
-                                            ship.money += missions[i].reward;
-                                            karma ++;
-                                            missions = missions.filter(e => e != missions[i]);
-                                            missions.push(new Mission());
-                                            speak(`Mission Completed. ${missions[i].reward} transfered to account`)
-                                        }
-                                    }
-                                }
-
-                                setAudioSource(4);
-                                if (enemies.length <= 1) {
-                                    // set timer for new mobile
-                                    respawnTimer = 300 + getRandomInt(200);
-                                    if (getRandomInt(5) == 1) {
-                                        enemies.push(new mobile());
-                                    }
-                                }
-                                deadEnemies.push(e);
-                                let r = getRandomInt(5) + 5;
-                                let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
-                                let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
-                                for (let i = 0; i < r; i++) {
-                                    debrisArray.push(new Debri(x1, y1));
-                                }
+                                killEnemyShip(e);
                             }
                         }
                     });
@@ -348,25 +318,7 @@ function step(timeStamp) {
                             score += 5;
                         }
                         if (roid.health < 0) {
-                            deadAsteroids.push(roid);
-                            // small little if large
-                            if (roid.large) {
-                                score += 250;
-                                setAudioSource(2);
-                                let r = getRandomInt(2) + 2;
-                                for (let i=0; i<r; i++) {
-                                    asteroids.push(new Asteroid(false, roid.x, roid.y));
-                                }
-                            } else {
-                                // small score
-                                score += 100;
-                                setAudioSource(3);
-                                let r = getRandomInt(2) + 1;
-                                for (let i=0; i<r; i++) {
-                                    resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
-                                        roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
-                                }
-                            }
+                           killRoid(roid);
                         }
                         damageNumbers.push(new DamageNumber(damage, roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
                     }
@@ -447,6 +399,66 @@ function moveEntity(e, screenWrap = true) {
         } else if (e.y < 0  - e.hbOffset1 - e.hbOffset2 - 5) {
             e.y = c.height + e.hbOffset1;
         }
+    }
+}
+
+function killRoid(roid) {
+    deadAsteroids.push(roid);
+    // small little if large
+    if (roid.large) {
+        score += 250;
+        setAudioSource(2);
+        let r = getRandomInt(2) + 2;
+        for (let i=0; i<r; i++) {
+            asteroids.push(new Asteroid(false, roid.x, roid.y));
+        }
+    } else {
+        // small score
+        score += 100;
+        setAudioSource(3);
+        let r = getRandomInt(2) + 1;
+        for (let i=0; i<r; i++) {
+            resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
+                roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+        }
+    }
+}
+
+function killEnemyShip(e) {
+    // updated missions
+    for (let i = 0; i < missions.length; i++) {
+        if (
+            missions[i].type == "kill" &&
+            missions[i].constellation == constellation &&
+            missions[i].sector == curMapLoc
+        ) {
+            speak("Mission target destroyed");
+            missions[i].killNum--;
+            if (missions[i].killNum <= 0) {
+                setAudioSource(7);
+                ship.money += missions[i].reward;
+                karma ++;
+                missions = missions.filter(e => e != missions[i]);
+                missions.push(new Mission());
+                speak(`Mission Completed. ${missions[i].reward} transfered to account`)
+            }
+        }
+    }
+
+    setAudioSource(4);
+    if (enemies.length <= 1) {
+        // set timer for new mobile
+        respawnTimer = 300 + getRandomInt(200);
+        if (getRandomInt(5) == 1) {
+            enemies.push(new mobile());
+        }
+    }
+    deadEnemies.push(e);
+    let r = getRandomInt(5) + 5;
+    let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
+    let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
+    for (let i = 0; i < r; i++) {
+        debrisArray.push(new Debri(x1, y1));
     }
 }
 

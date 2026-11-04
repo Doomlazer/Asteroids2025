@@ -3,7 +3,22 @@ class Mission {
     constructor(t = -1,c = -1,s = -1) {
         if (t == -1) {
             if (getRandomInt(6) == 1) {
-                this.type = "life"; 
+                if (getRandomInt(2) == 1) {
+                    // only allow one lzr upgrade at a time
+                    let t = false;
+                    for (let i = 0; i < missions.length; i++) {
+                        if (missions[i].type == "lzr") {
+                            t = true;
+                        }
+                    } 
+                    if (t) {
+                        this.type = "life"; 
+                    } else {
+                        this.type = "lzr"; 
+                    }
+                } else { 
+                    this.type = "life";
+                }
             } else {
                 if (getRandomInt(2) == 1) {
                     this.type = "kill"; 
@@ -43,25 +58,31 @@ class Mission {
         this.need = getRandomInt(ship.storage.length);
         this.needAmount = getRandomInt(50 * (Math.floor(this.constellation/3)+1));
         this.killNum = getRandomInt(3) + 1; 
+
+        msgTimerMsg = "";
         if (this.type == 'kill') {
+            msgTimerMsg = `MISSION: The Corpo drones in ${mapLocations[this.constellation][this.sector].name} killed my brother. Avenge me ${this.killNum} of them`;
             mapLocations[this.constellation][this.sector].isHostile = true;
             this.reward = 1500 * this.killNum * (Math.floor(this.constellation/3)+1);
         } else if (this.type == 'sos') {
+            msgTimerMsg = `MISSION: A Settlment in ${mapLocations[this.constellation][this.sector].name} is desperate for ${resourceNames[this.need]} requesting ${this.needAmount} ASAP`;
             this.reward = 120 * this.needAmount * (Math.floor(this.constellation/3)+1);
         } else if (this.type == 'life') {
+            msgTimerMsg = `MISSION: Compatiple ship conponents detected in ${mapLocations[this.constellation][this.sector].name}. Investigation recommended.`;
             this.needAmount = 2025*(this.constellation/3+1);
             this.reward = 120;
-
+        } else if (this.type == 'lzr') {
+            this.needAmount = 100 + getRandomInt(500);
+            if (ship.lzrLvl == 1) {
+                msgTimerMsg = `MISSION: Collect the L.Z.R. Optical Mining System`;
+            } else if (ship.lzrLvl == 3){
+                msgTimerMsg = `MISSION: Install the Offensive upgrade for the L.Z.R. Optical Mining System`;
+            } else {
+                msgTimerMsg = `MISSION: Upgrade the L.Z.R. Optical Mining System to level ${ship.lzrLvl+1}`;
+            }
+            this.reward = 254;
         }
         msgTimer = 1000;
-        msgTimerMsg = "";
-        if (this.type == 'sos') {
-            msgTimerMsg = `MISSION: A Settlment in ${mapLocations[this.constellation][this.sector].name} is desperate for ${resourceNames[this.need]} requesting ${this.needAmount} ASAP`;
-        } else if (this.type == 'life') {
-            msgTimerMsg = `MISSION: Compatiple ship conponents detected in ${mapLocations[this.constellation][this.sector].name}. Investigation recommended.`;
-        } else if (this.type == 'kill') {
-            msgTimerMsg = `MISSION: The Corpo drones in ${mapLocations[this.constellation][this.sector].name} killed my brother. Avenge me ${this.killNum} of them`;
-        }
         this.msg = msgTimerMsg;
         this.collectionDelay = 0;
     }
@@ -72,9 +93,13 @@ class Ship {
         this.rot = 0;
         this.x = x;
         this.y = y;
+        this.lzrLvl = 1;
+        this.lzrEquip = false;
+        this.lzrDistance = 90;
         this.sosColor = '#ccfcd2';
         this.killColor = '#f59b9b';
         this.lifeColor = '#03bcfa';
+        this.lzrColor = '#fafaa6'
         this.drawBackgrounds = true;
         this.type = "ship";
         this.shield = true; 
@@ -160,6 +185,7 @@ class mobile {
         this.bulletTimer = getRandomInt(100); // cool down remaining before firing next bullet
         this.bulletLife = 20 + getRandomInt(200); // how far bullets travel before disapearing
         this.color = '#FFFFFF'
+        this.lzrCool = 25;
         // star shaped
         this.path = new Path2D();
         this.path.moveTo(0, -20);
@@ -419,5 +445,6 @@ class Asteroid {
         this.speed = getRandomInt(3)+0.2;
         this.color = '#FFFFFF';
         this.clockwise = getRandomInt(2);
+        this.lzrCool = 25;
     }
 }
