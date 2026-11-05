@@ -400,7 +400,7 @@ function drawMap() {
     } else {
         ctx.font = "40px Hyperspace";
         ctx.fillStyle = '#FFFFFF';
-        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*2, c.width/20*11, c.width * 0.025);
+        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*4, c.width/20*6, c.width * 0.025);
     }
     
     if (warper) {

@@ -1368,7 +1368,12 @@ function angle(cx, cy, ex, ey) {
     var dy = ey - cy;
     var dx = ex - cx;
     var theta = Math.atan2(dy, dx); // range (-PI, PI]
-    theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+
+    let ugh = 0;
+    if (16 - getRandomInt(12) > 15) {
+        ugh = getRandomInt(6);
+    }
+    theta *= (180 + ugh) / Math.PI; // rads to degs, range (-180, 180]
     return theta;
 }
 
