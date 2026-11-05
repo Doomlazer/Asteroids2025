@@ -6,8 +6,8 @@ Asteroids clone with RPG elements.
 
 Shoot rocks & alien spaceships
 
-<img src="./images/fight.png" alt="Typical gameplay of shooting asteriods" width="600">
-<!--img src="./images/fight1.png" alt="Alternate gampeplay screenshot" width="500"-->
+<!--img src="./images/fight.png" alt="Typical gameplay of shooting asteriods" width="600">
+
 
 Trade resources & buy upgrades
 
@@ -15,7 +15,7 @@ Trade resources & buy upgrades
 
 Other stuff to explore
 
-<img src="./images/map.png" alt="A map of some other systems" width="600">
+<img src="./images/map.png" alt="A map of some other systems" width="600"-->
 
 # Play beta version in browser
 
