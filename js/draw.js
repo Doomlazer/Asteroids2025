@@ -212,7 +212,6 @@ function drawStage1() {
         ctx.font = scaleFont(0.013, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         //drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
-        alert("OUT OF FUEL - GAME OVER");
         location.reload();
     }
 

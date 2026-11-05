@@ -424,6 +424,7 @@ class Asteroid {
             this.hbOffset1 = 15;
             this.hbOffset2 = 50;
             this.health = getRandomInt(10)+(10* constellation);
+            this.large = true;
         } else {
             // small
             this.x = x;
@@ -444,6 +445,7 @@ class Asteroid {
             this.hbOffset1 = 25;
             this.hbOffset2 = 30;
             this.health = getRandomInt(5)+(5*constellation);
+            this.large = false;
         }
         this.large = large;
         this.spin = getRandomInt(360);
