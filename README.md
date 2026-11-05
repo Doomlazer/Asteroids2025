@@ -19,4 +19,16 @@ Other stuff to explore
 
 # Play beta version in browser
 
-[Click Here](https://doomlazer.github.io/Asteroids2025)
+[Click to play](https://doomlazer.github.io/Asteroids2025)
+
+Controls:
+
+"[ / ]" = change default line width
+"a" - skip to random song
+"s" = toggle mute sound
+"S" - toggle mute sfx and speech, play bgm
+"+" - debug
+
+Note: The current audio system glitches out on Safari causing slow down. Use Chromium browsers until I can resolve that issue. No LLMs were used in the making of this game, except for some web searches which are all stack overflow answers anyhow. 
+
+All music streamed from Archive.org links. No ownership implied.
