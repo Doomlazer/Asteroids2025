@@ -1252,15 +1252,23 @@ function moveShip() {
         asteroids.forEach(roid => {
             // ship & asteroid collision
             if (collision(ship, roid)) {
-                setAudioSource(3);
-                ship.dead = 100;
-                ship.speed = 0;
-                let r = getRandomInt(5) + 5;
-                let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
-                let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
-                for (let i = 0; i < r; i++) {
-                    debrisArray.push(new Debri(x1, y1));
+                console.log(!roid.large && ship.shield)
+                if (!roid.large && ship.shield) {
+                    ship.shield = false;
+                    roid.health = 0;
+                    killRoid(roid);
+                }  else {
+                    setAudioSource(3);
+                    ship.dead = 100;
+                    ship.speed = 0;
+                    let r = getRandomInt(5) + 5;
+                    let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
+                    let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
+                    for (let i = 0; i < r; i++) {
+                        debrisArray.push(new Debri(x1, y1));
+                    }
                 }
+                
             }
             // enemy & asteroid collision
             enemies.forEach(e => {

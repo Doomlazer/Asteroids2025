@@ -398,9 +398,9 @@ function drawMap() {
     if (ship.fuelTotal > 0) {
         moveEntity(warper);
     } else {
-        ctx.font = scaleFont(0.013, "Hyperspace");
+        ctx.font = scaleFont(0.05, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*4, c.width/20*6, c.width/20 * 0.013);
+        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*3, c.width/20*6, c.width/20 * 0.6);
     }
     
     if (warper) {
