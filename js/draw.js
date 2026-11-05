@@ -211,7 +211,8 @@ function drawStage1() {
     if (lives <= 0) {
         ctx.font = scaleFont(0.013, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
+        //drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
+        alert("OUT OF FUEL - GAME OVER");
         location.reload();
     }
 
@@ -1081,7 +1082,7 @@ function drawGauges() {
                 m.constellation == constellation &&
                 m.sector == curMapLoc
             ) {
-                
+                ship.curMission = i;m
                 //console.log(m.x, m.y, c.width/20*0.5, c.height/20*0.8)
                 ctx.strokeStyle = "#FFFFFF";
                 ctx.strokeRect(m.x, m.y, 30, 20);

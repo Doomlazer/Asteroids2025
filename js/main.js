@@ -115,6 +115,25 @@ let configPrevStage = 0;
 let missions = [];
 let voices;
 let titleI = -25;
+let help = `Controls:
+
+"r" - reroll init stats on title screen
+
+"[ / ]" = change default line width
+
+"w / e" = cycle available missions
+
+", / ." = sell / buy all
+
+"< / >" = sell / buy half
+
+"a" - skip to random song
+
+"s" = toggle mute sound
+
+"S" - toggle mute sfx and speech, play bgm
+
+"+" - debug`;
 
 
 
@@ -436,6 +455,7 @@ function killEnemyShip(e) {
             missions[i].constellation == constellation &&
             missions[i].sector == curMapLoc
         ) {
+            ship.curMission = i
             speak("Mission target destroyed");
             missions[i].killNum--;
             if (missions[i].killNum <= 0) {
@@ -968,6 +988,12 @@ function kDown(e) {
             msgTimerMsg = `Mission ${ship.curMission+1} of ${missions.length}`;
         }
     }
+    if (e.key == "/") {
+        setAudioSource(7)
+        ctx.fillStyle = "#FF0000";
+        ctx.font = scaleFont(0.2, "Hyperspace");
+        ctx.fillText(help, 10,10)
+    }
     if (e.key == '+') {
         if (debug) {
             debug = false;
@@ -1472,6 +1498,7 @@ function playMusic() {
     "https://archive.org/download/modo-radio/MUSIC%20GEMS%20%28Collection%205%29%5BHypnotic%20Deep%20Ambient%20Techno%20Abstract%20Dub-step%5D.mp3",
     "https://archive.org/download/earth.ambient/01-Earth.ambient.mp3",
     "https://archive.org/download/ocean.ambient/01-Ocean.ambient.mp3",
+    "https://archive.org/download/paokala-trance-mix-2008/Paokala-Trance_mix_2008.mp3",
     "https://archive.org/download/TheOrb-PlaygroundMix/PlaygroundMix.mp3",
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/A1-Axis%20V0.99.mp3",
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/A2-Dancing%20Galaxy%20%28on%20A%20Mission%20Remix%29.mp3",
@@ -1479,7 +1506,9 @@ function playMusic() {
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/B2-Searching%20For%20UFO%27s%20%28Bright%20Light%20Remix%29.mp3",
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/C1-Life%20On%20Mars%20%28Domestic%20Remix%29.mp3",
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/C2-Electrostatic.mp3",
+    "https://archive.org/download/dj-phaze-chillout-trance-mix/DJ%20Phaze%20-%20Chillout%20Trance%20mix.mp3",
     "https://archive.org/download/EpicAmbientMixPart2/Epic%20Ambient%20Mix%20Part%202.mp3",
+    "https://archive.org/download/dj-foil-summer-03/Dj%20Foil%20-%20Summer%2003.mp3"
     //"https://archive.org/download/NinjaGaijinGuardiansOfSunshineJUNGLE27May2014/Ninja_Gaijin_-_Guardians_of_Sunshine_%28JUNGLE-27May2014%29.mp3",
     //"https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
     //"https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",

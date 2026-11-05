@@ -23,7 +23,15 @@ Other stuff to explore
 
 Controls:
 
+"r" - reroll init stats on title screen
+
 "[ / ]" = change default line width
+
+"w / e" = cycle available missions
+
+", / ." = sell / buy all
+
+"< / >" = sell / buy half
 
 "a" - skip to random song
 
@@ -32,6 +40,8 @@ Controls:
 "S" - toggle mute sfx and speech, play bgm
 
 "+" - debug
+
+USB Controller will ask to define inputs each game1 for now
 
 Note: The current audio system glitches out on Safari causing slow down. Use Chromium browsers until I can resolve that issue. No LLMs were used in the making of this game, except for some web searches which are all stack overflow answers anyhow. 
 
