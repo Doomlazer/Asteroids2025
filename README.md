@@ -24,9 +24,13 @@ Other stuff to explore
 Controls:
 
 "[ / ]" = change default line width
+
 "a" - skip to random song
+
 "s" = toggle mute sound
+
 "S" - toggle mute sfx and speech, play bgm
+
 "+" - debug
 
 Note: The current audio system glitches out on Safari causing slow down. Use Chromium browsers until I can resolve that issue. No LLMs were used in the making of this game, except for some web searches which are all stack overflow answers anyhow. 
