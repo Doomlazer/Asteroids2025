@@ -209,9 +209,9 @@ function drawStage1() {
     drawGauges();
 
     if (lives <= 0) {
-        ctx.font = scaleFont(0.05, "Hyperspace");
+        ctx.font = scaleFont(0.013, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("GAME OVER", (c.width/20)*8, (c.height/20)*10);
+        drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
         location.reload();
     }
 
@@ -398,9 +398,9 @@ function drawMap() {
     if (ship.fuelTotal > 0) {
         moveEntity(warper);
     } else {
-        ctx.font = "40px Hyperspace";
+        ctx.font = scaleFont(0.013, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*4, c.width/20*6, c.width * 0.025);
+        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*4, c.width/20*6, c.width/20 * 0.013);
     }
     
     if (warper) {

@@ -95,7 +95,7 @@ class Ship {
         this.y = y;
         this.fuelCon = 0;
         this.storageWarning = true;
-        this.storageWarnCoolDown = 0;
+        this.storageWarnCoolDown = 1;
         this.fuelStat = 0;
         this.lzrLvl = 1;
         this.lzrEquip = false;
