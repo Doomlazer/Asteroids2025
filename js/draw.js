@@ -55,6 +55,18 @@ function draw() {
     */
 }
 
+function drawStringFX(ctx, text, x, y, spacing) {
+    for (let i = 0; i < text.length; i++) {
+        let r = Math.abs(i - titleI);
+        ctx.fillStyle = `rgb(${255-(255/(r/5))},${255-(255/(r/5))},${255-(255/(r/5))})`;
+        //console.log(ctx.fontSize)
+        ctx.fillText(text[i], x+(spacing*i), y);//- ((255/(r/5))/10));
+    }
+    titleI = titleI + 0.2;
+    if (titleI > text.length + 50) {
+        titleI = -50
+    }
+}
 
 
 function drawTitle() {
@@ -64,7 +76,7 @@ function drawTitle() {
 
     ctx.font = scaleFont(0.1, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("ASTEROIDS 2025", c.width/20*1.5, c.height/20*6);
+    drawStringFX(ctx, "ASTEROIDS 2025", c.width/20*1.5, c.height/20*6, c.width * 0.06);
 
     let ox = 0, oy = 10;
     ctx.font = scaleFont(0.025, "Hyperspace");
@@ -207,6 +219,20 @@ function drawStage1() {
         ctx.font = scaleFont(0.03, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
+        if (ship.storageWarnCoolDown > 0) {
+            ship.storageWarnCoolDown --;
+        }
+        if (
+            ship.storageWarnCoolDown == 0 && 
+            msgTimer == 0 && 
+            bgmTimer == 0 &&
+            ship.storageWarning
+        ) {
+            speak("Storage is full");
+            msgTimer = 400;
+            msgTimerMsg = "Storage is full";
+            ship.storageWarnCoolDown = 800;
+        } 
     }
 }
 
@@ -374,11 +400,13 @@ function drawMap() {
     } else {
         ctx.font = "40px Hyperspace";
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("OUT OF FUEL - GAME OVER", 230, 400);
+        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*2, c.width/20*11, c.width * 0.025);
     }
     
     if (warper) {
-        ship.fuelTotal -= 0.05;
+        ship.fuelCon = ship.storageTotal/200;
+        ship.fuelTotal -= ship.fuelCon;
+        ship.fuelStat += ship.fuelCon;
         if (ship.fuelTotal < 0) {
             ship.fuelTotal = 0;
         }
@@ -564,13 +592,24 @@ function drawUpgrade() {
             } else {
                 ctx.fillText("AVAIL.", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
             }
+        } else if (possibleUpgrades[depot.locationUpgrades[i]] == "LZR UPGRADE") {
+            if (ship.lzrEquip) {
+                ctx.fillText(ship.lzrLvl, c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+            } else {
+                ctx.fillStyle = '#f90202';
+                ctx.fillText("ERR", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+            }
         } else {
             // curr upgrade level
             ctx.fillText(ship.upgrades[depot.locationUpgrades[i]], c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
         }
         // upgrade price 
-        let lev = ship.upgrades[depot.locationUpgrades[i]];
-        ctx.fillText((lev * lev * 100)+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
+        if (possibleUpgrades[depot.locationUpgrades[i]] == "LZR UPGRADE") {
+            ctx.fillText((3000*ship.lzrLvl)+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
+        } else {
+            let lev = ship.upgrades[depot.locationUpgrades[i]];
+            ctx.fillText((lev * lev * 100)+200, c.width/20*14.5, c.height/20*7+(c.height/20*1.2*i));
+        }
     }
 }
 
@@ -778,8 +817,10 @@ function drawWarp() {
         }
     } else {
         jumpTimer --;
-        if (jumpTimer% 10) {
-            ship.fuelTotal -= 0.1;
+        if (jumpTimer % 10 == 0) {
+            ship.fuelCon = ship.storageTotal/20;
+            ship.fuelTotal -= ship.fuelCon;//-= 0.1;
+            ship.fuelStat += ship.fuelCon;
             if (ship.fuelTotal <= 0) {
                 // TODO Fix this 
                 lives --; //= 0;
@@ -880,7 +921,7 @@ function drawAsteroids() {
         }
 
         if (ship.lzrEquip && !ship.dead) {
-            if (distance2D(e, ship) < ship.lzrDistance + (15*ship.lzrLvl) && stage != 0) {
+            if (distance2D({"x":e.x+e.hbOffset2*0.8,"y":e.y+e.hbOffset2*0.8}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl) && stage != 0) {
                 ctx.strokeStyle = "#fbff00";
                 ctx.lineWidth = ship.lzrLvl;
                 ctx.beginPath(); 
@@ -891,8 +932,9 @@ function drawAsteroids() {
                     ctx.lineTo(e.x + e.hbOffset2*1.3, e.y + e.hbOffset2*1.3); 
                 }
                 ctx.stroke(); // Render the line
+                ctx.lineWidth = ship.defaultLineWidth;
                 if (e.lzrCool <= 0) {
-                    let dam = getRandomInt(ship.lzrLvl+1)+1;
+                    let dam = getRandomInt(ship.lzrLvl*(ship.baseDamage/2))+1;
                     e.health -= dam;
                     damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                     e.lzrCool = 25;
@@ -941,13 +983,14 @@ function drawMobiles() {
 
         // check if in laser range
         if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead) {
-            if (distance2D(e, ship) < ship.lzrDistance + (15*ship.lzrLvl)) {
+            if (distance2D({"x":e.x+e.hbOffset2*1.4,"y":e.y+e.hbOffset2*1.4}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl)) {
                 ctx.strokeStyle = "#FF0000";
                 ctx.lineWidth = ship.lzrLvl;
                 ctx.beginPath(); 
                 ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
                 ctx.lineTo(e.x + (e.hbOffset2*1.4), e.y+ (e.hbOffset2*1.4)); 
                 ctx.stroke(); // Render the line
+                ctx.lineWidth = ship.defaultLineWidth;
                 if (e.lzrCool <= 0) {
                     let dam = getRandomInt(ship.lzrLvl+1)+1;
                     e.health -= dam;
@@ -1019,6 +1062,8 @@ function drawGauges() {
             ctx.fillStyle = ship.lzrColor;
             if (ship.lzrLvl == 1) {
                 ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / L.Z.R. Install`, c.width/20*6, c.height/20*1.45);
+            }  else if (ship.lzrLvl == 3) {
+                ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / L.Z.R. Offensive Upgrade`, c.width/20*6, c.height/20*1.45);
             } else {
                 ctx.fillText(`${constellationNames[mission.constellation]} / ${mapLocations[mission.constellation][mission.sector].name} / L.Z.R. Upgrade ${ship.lzrLvl}`, c.width/20*6, c.height/20*1.45);
             }
@@ -1074,7 +1119,7 @@ function drawGauges() {
                     } else if (m.type == 'lzr') {
                         ctx.strokeStyle = "#00FF00";
                         m.needAmount -= 1;
-                        m.collectionDelay = 2;
+                        m.collectionDelay = 10;
                     } else if (
                         ship.storage[m.need] > 0 &&
                         m.needAmount > 0 &&
@@ -1175,5 +1220,10 @@ function drawGauges() {
     ctx.font = scaleFont(0.02, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText("Fuel", c.width/20*13.9, c.height/20*1.45);
+
+    // fuel consumption readout
+    ctx.fillStyle = '#777676';
+    ctx.font = scaleFont(0.02, "Hyperspace");
+    ctx.fillText(Math.floor(ship.fuelCon*500), c.width/20*15.8, c.height/20*1.45);
 
 }

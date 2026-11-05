@@ -104,7 +104,7 @@ let msgTimer = 0;
 let msgTimerMsg;
 let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2", "extraShip"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
-                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD"];
+                        "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD", "LZR UPGRADE"];
 let debug = false;
 let defaultLineWidth = 1.5;
 let configButtonNames = ["UP/ACCELERATE", "DOWN", "LEFT", "RIGHT", "ACCEPT", "M/BACK", "SELL ALL", "BUY MAX"];
@@ -114,6 +114,7 @@ let currentConfig = [];
 let configPrevStage = 0;
 let missions = [];
 let voices;
+let titleI = -25;
 
 
 
@@ -136,7 +137,10 @@ function step(timeStamp) {
                 let j = 0;
                 while (j < l) {
                     // skip sheild
-                    if (possibleUpgrades[i] == "SHIELD") {
+                    if (
+                        possibleUpgrades[i] == "SHIELD" ||
+                        possibleUpgrades[i] == "LZR UPGRADE"
+                    ) {
                         continue;
                     }
                     ship.upgrades[i] ++;
@@ -153,7 +157,7 @@ function step(timeStamp) {
         genMapLocations();
         mapLocations[constellation][0].visited = true;
         missions.push(new Mission(-1,0,-1)); // first mission in starting system
-        missions.push(new Mission());
+        missions.push(new Mission('lzr',getRandomInt(constellationNames.length)));
         missions.push(new Mission());
         newAstroidField();
         starField.push(new StarFieldStar());
@@ -444,6 +448,8 @@ function killEnemyShip(e) {
             }
         }
     }
+
+    ship.money += getRandomInt(100*constellation) + 100;
 
     setAudioSource(4);
     if (enemies.length <= 1) {
@@ -829,14 +835,37 @@ function kDown(e) {
             // buy
             let depot = mapLocations[constellation][curMapLoc];
             let cost = ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] * 100 + 200;
+            if (possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "LZR UPGRADE") {
+                cost = (3000*ship.lzrLvl)+200;
+            }
             if (ship.money >= cost) {
                 if (
                     possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "SHIELD" &&
                     !ship.shield
                 ) {
+                    // shield available
                     ship.money -= cost;
                     ship.shield = true;
                     setAudioSource(6);
+                } else if (
+                    possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "SHIELD" &&
+                    ship.shield
+                ) {
+                    // already has a sheild
+                    return;
+                } else if (
+                    possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "LZR UPGRADE" &&
+                    !ship.lzrEquip
+                ) {
+                    // must get a lzr in the wild to upgrade.
+                    return;
+                } else if (
+                    possibleUpgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] == "LZR UPGRADE" &&
+                    ship.lzrEquip
+                ) {
+                    // lzr upgrade
+                    ship.money -= cost;
+                    ship.lzrLvl ++;
                 } else {
                     ship.money -= cost;
                     ship.upgrades[depot.locationUpgrades[mapLocations[constellation][curMapLoc].menuNum]] += 1;
@@ -1143,16 +1172,16 @@ function moveShip() {
 
         // ship rotation
         if (left) {
-            ship.rot = (ship.rot -= 5) % 360;
-            sctx.rotate(-5 * Math.PI / 180);
+            ship.rot = (ship.rot -= ship.rotSpeed) % 360;
+            sctx.rotate(-ship.rotSpeed * Math.PI / 180);
             if (ship.rot < 0) {
                 ship.rot = 360 + ship.rot;
             }
         }
 
         if (right) {
-            sctx.rotate(5 * Math.PI / 180);
-            ship.rot = (ship.rot += 5) % 360;
+            ship.rot = (ship.rot += ship.rotSpeed) % 360;
+            sctx.rotate(ship.rotSpeed * Math.PI / 180);
         }
 
         if (ship.flightModel == 0) { // car style flight
@@ -1168,7 +1197,9 @@ function moveShip() {
                 if (ship.speed < ship.maxSpeed) {
                     ship.speed += ship.acceleration;
                 }
-                ship.fuelTotal -= 0.003;
+                ship.fuelCon = ship.storageTotal/600;
+                ship.fuelTotal -= ship.fuelCon;
+                ship.fuelStat += ship.fuelCon;
                 if (ship.fuelTotal < 0) {
                     ship.fuelTotal = 0;
                 }
@@ -1196,7 +1227,9 @@ function moveShip() {
                     ship.velY = (ship.velY / speed) * ship.maxSpeed;
                 }
 
-                ship.fuelTotal -= 0.003;
+                ship.fuelCon = ship.storageTotal/600;
+                ship.fuelTotal -= ship.fuelCon;
+                ship.fuelStat += ship.fuelCon;
                 if (ship.fuelTotal < 0) {
                     ship.fuelTotal = 0;
                 }

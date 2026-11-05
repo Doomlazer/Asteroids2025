@@ -93,6 +93,10 @@ class Ship {
         this.rot = 0;
         this.x = x;
         this.y = y;
+        this.fuelCon = 0;
+        this.storageWarning = true;
+        this.storageWarnCoolDown = 0;
+        this.fuelStat = 0;
         this.lzrLvl = 1;
         this.lzrEquip = false;
         this.lzrDistance = 90;
@@ -122,6 +126,7 @@ class Ship {
         this.maxSpeed = 2;
         this.maxBullets = 3;
         this.baseDamage = 4;
+        this.rotSpeed = 3;
         this.comboDamage = 0;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 0; // cool down remaining before firing next bullet
@@ -197,8 +202,8 @@ class mobile {
         this.path.lineTo(-20, 0);
         this.path.lineTo(-7, -7);
         this.path.lineTo(0, -20);
-        this.hbOffset1 = 25;
-        this.hbOffset2 = 30;
+        this.hbOffset1 = 20;
+        this.hbOffset2 = 40;
         this.health = getRandomInt(9)+(5*constellation);
         this.dead = 0;
         //console.log("x,y: ",this.x,this.y)
