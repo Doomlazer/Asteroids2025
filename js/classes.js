@@ -99,7 +99,7 @@ class Ship {
         this.fuelStat = 0;
         this.lzrLvl = 1;
         this.lzrEquip = false;
-        this.lzrDistance = 90;
+        this.lzrDistance = 120;
         this.sosColor = '#ccfcd2';
         this.killColor = '#f59b9b';
         this.lifeColor = '#03bcfa';
