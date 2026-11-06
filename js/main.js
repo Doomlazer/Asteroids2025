@@ -1109,6 +1109,8 @@ function kDown(e) {
         }
         if (e.key == '8') {
             ship.baseDamage += 2;
+            ship.lzrEquip = true;
+            ship.lzrLvl += 1;
         }
         if (e.key == '9') {
             ship.money += 1000;

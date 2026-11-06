@@ -923,7 +923,7 @@ function drawAsteroids() {
         if (ship.lzrEquip && !ship.dead) {
             if (distance2D({"x":e.x+e.hbOffset2*0.8,"y":e.y+e.hbOffset2*0.8}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl) && stage != 0) {
                 ctx.strokeStyle = "#fbff00";
-                ctx.lineWidth = ship.lzrLvl;
+                ctx.lineWidth = Math.min(ship.lzrLvl, 5);
                 ctx.beginPath(); 
                 ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
                 if (e.large) {
@@ -951,6 +951,7 @@ function drawAsteroids() {
                 e.lzrCool --;
             }
         }
+        ctx.lineWidth = ship.defaultLineWidth;
     });
 }
 
@@ -985,7 +986,7 @@ function drawMobiles() {
         if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead) {
             if (distance2D({"x":e.x+e.hbOffset2*1.4,"y":e.y+e.hbOffset2*1.4}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl)) {
                 ctx.strokeStyle = "#FF0000";
-                ctx.lineWidth = ship.lzrLvl;
+                ctx.lineWidth = Math.min(ship.lzrLvl, 5);
                 ctx.beginPath(); 
                 ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
                 ctx.lineTo(e.x + (e.hbOffset2*1.4), e.y+ (e.hbOffset2*1.4)); 
