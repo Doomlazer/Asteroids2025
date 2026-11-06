@@ -1159,7 +1159,7 @@ function doUpgrade(sel, lvl) {
             break;
         case 7:
             // ship deceleration
-            ship.breakSpeed += 0.25;
+            ship.breakSpeed += 0.02;
             break;
         case 8:
             // bullet damage
@@ -1223,7 +1223,7 @@ function moveShip() {
                 if (ship.speed < ship.maxSpeed) {
                     ship.speed += ship.acceleration;
                 }
-                ship.fuelCon = ship.storageTotal/600;
+                ship.fuelCon = ship.storageTotal/800;
                 ship.fuelTotal -= ship.fuelCon;
                 ship.fuelStat += ship.fuelCon;
                 if (ship.fuelTotal < 0) {
@@ -1253,24 +1253,21 @@ function moveShip() {
                     ship.velY = (ship.velY / speed) * ship.maxSpeed;
                 }
 
-                ship.fuelCon = ship.storageTotal/600;
+                ship.fuelCon = ship.storageTotal/800;
                 ship.fuelTotal -= ship.fuelCon;
                 ship.fuelStat += ship.fuelCon;
                 if (ship.fuelTotal < 0) {
                     ship.fuelTotal = 0;
                 }
             }
-            /* reverse thrust (not in original Asteroids)
+            // reverse thrust (not in original Asteroids)
             if (down) {
                 const angle = ship.rot * Math.PI / 180;
 
-                ship.velX -= Math.cos(angle) * ship.acceleration * 0.5;
-                ship.velY -= Math.sin(angle) * ship.acceleration * 0.5;
-            }*/
+                ship.velX -= Math.cos(angle) * ship.breakSpeed * 0.5;
+                ship.velY -= Math.sin(angle) * ship.breakSpeed * 0.5;
+            }
 
-            // Apply drag
-            ship.velX *= ship.drag;
-            ship.velY *= ship.drag;
         }
 
         moveEntity(ship);

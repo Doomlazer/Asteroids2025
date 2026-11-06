@@ -2,7 +2,7 @@
 class Mission {
     constructor(t = -1,c = -1,s = -1) {
         if (t == -1) {
-            if (getRandomInt(6) == 1) {
+            if (getRandomInt(3) == 1) {
                 if (getRandomInt(2) == 1) {
                     // only allow one lzr upgrade at a time
                     let t = false;
@@ -69,7 +69,7 @@ class Mission {
             this.reward = 120 * this.needAmount * (Math.floor(this.constellation/3)+1);
         } else if (this.type == 'life') {
             msgTimerMsg = `MISSION: Compatiple ship conponents detected in ${mapLocations[this.constellation][this.sector].name}. Investigation recommended.`;
-            this.needAmount = 2025*(this.constellation/3+1);
+            this.needAmount = Math.floor(1025*(this.constellation/3+1));
             this.reward = 120;
         } else if (this.type == 'lzr') {
             this.needAmount = 100 + getRandomInt(500);
@@ -122,7 +122,7 @@ class Ship {
         this.upgrades = [0,0,0,0,0,0,0,0,0,0]; // upgrade levels
         this.collectDistance = 100;
         this.acceleration = 0.05;
-        this.breakSpeed = 0.05;
+        this.breakSpeed = 0.03;
         this.maxSpeed = 2;
         this.maxBullets = 3;
         this.baseDamage = 4;

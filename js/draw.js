@@ -404,7 +404,7 @@ function drawMap() {
     }
     
     if (warper) {
-        ship.fuelCon = ship.storageTotal/200;
+        ship.fuelCon = ship.storageTotal/400;
         ship.fuelTotal -= ship.fuelCon;
         ship.fuelStat += ship.fuelCon;
         if (ship.fuelTotal < 0) {
@@ -818,7 +818,7 @@ function drawWarp() {
     } else {
         jumpTimer --;
         if (jumpTimer % 10 == 0) {
-            ship.fuelCon = ship.storageTotal/20;
+            ship.fuelCon = ship.storageTotal/80;
             ship.fuelTotal -= ship.fuelCon;//-= 0.1;
             ship.fuelStat += ship.fuelCon;
             if (ship.fuelTotal <= 0) {
@@ -1038,7 +1038,7 @@ function drawGauges() {
 
     ctx.font = scaleFont(0.02, "Hyperspace"); //"12px Hyperspace";
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("storage", c.width/20*3.4, c.height/20*1.45);
+    ctx.fillText(`${Math.floor(ship.storageTotal)}/${ship.maxStorage}`, c.width/20*3.4, c.height/20*1.45);
 
 
     // missions
@@ -1209,17 +1209,28 @@ function drawGauges() {
     
 
     // fuel gauge
-    ctx.fillStyle = "#888888";
+    //console.log(ship.fuelTotal/ship.maxFuel)
+    if (ship.fuelTotal/ship.maxFuel <= 0.25) {
+        ctx.fillStyle = "#AA0000";
+        ctx.strokeStyle = "#FF0000";
+        if (msgTimer == 0) {
+            msgTimer = 600;
+            msgTimerMsg = "FUEL LEVEL IS LOW";
+            speak(msgTimerMsg);
+        }
+    } else {
+        ctx.fillStyle = "#888888";
+        ctx.strokeStyle = "#FFFFFF";
+    }
     ctx.fillRect(c.width/20*13, c.height/20*0.8, (c.width/20*2.5/100)*ship.fuelTotal*(100/ship.maxFuel), c.height/20*0.8);
 
-    ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
     ctx.rect(c.width/20*13, c.height/20*0.8, c.width/20*2.5, c.height/20*0.8);
     ctx.stroke();
 
     ctx.font = scaleFont(0.02, "Hyperspace");
     ctx.fillStyle = '#FFFFFF';
-    ctx.fillText("Fuel", c.width/20*13.9, c.height/20*1.45);
+    ctx.fillText(`${Math.floor(ship.fuelTotal)}/${ship.maxFuel}`, c.width/20*13.2, c.height/20*1.45);
 
     // fuel consumption readout
     ctx.fillStyle = '#777676';
