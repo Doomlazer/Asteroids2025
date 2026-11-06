@@ -23,7 +23,7 @@ Other stuff to explore
 
 Controls:
 
-"r" - reroll init stats on title screen
+"r" - reroll init stats on title screen (reload window)
 
 "[ / ]" = change default line width
 
@@ -37,12 +37,23 @@ Controls:
 
 "s" = toggle mute sound
 
-"S" - toggle mute sfx and speech, play bgm
+"S" - toggle mute sfx and speech, but keep bgm
+
+"q" - toggle backgrounds
 
 "+" - debug
 
-USB Controller will ask to define inputs each game1 for now
+"UpArrow" - accelerate
 
-Note: The current audio system glitches out on Safari causing slow down. Use Chromium browsers until I can resolve that issue. No LLMs were used in the making of this game, except for some web searches which are all stack overflow answers anyhow. 
+"Left/Right" - rotate
 
-All music streamed from Archive.org links. No ownership implied.
+"SpaceBar" - fire/accept
+
+"m" - back/exit
+
+
+Fuel consuption is based on weight carried. Your ship consumes no fuel unless there are resources in the storage hold. More mass, greater fuel consumption. Running out of fuel is an automatic game over.
+
+Note: The current audio system glitches out on Safari causing slow down. Use Chromium browsers until I can resolve that issue. USB Controller will ask to define inputs each reload for the time being.
+
+All in-game music is streamed from [Archive.org links](https://github.com/Doomlazer/Asteroids2025/blob/f4462fec6cda17d0f097b00c5f313d420906c4c5/js/main.js#L1492). No ownership implied.
