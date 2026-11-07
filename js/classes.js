@@ -110,7 +110,7 @@ class Ship {
         this.shieldRad = 18
         this.speed = 0;
         this.curMission = -1;
-        this.money = getRandomInt(512);
+        this.money = getRandomInt(1024);
         if (this.money == 256) {
             this.money = getRandomInt(9999);
         }
@@ -128,10 +128,11 @@ class Ship {
         this.baseDamage = 4;
         this.rotSpeed = 3;
         this.comboDamage = 0;
+        this.bulletColor = `rgb(255,255,255)`;
         this.bulletRate = 40; // delay before next bullet
         this.bulletTimer = 0; // cool down remaining before firing next bullet
         this.bulletLife = 100;
-        this.color = 'rgb(255, 255, 255)'
+        this.color = `rgb(255,255,255)`;
         this.path = new Path2D();
         this.path.moveTo(0, -10);
         this.path.lineTo(10, 10);
@@ -145,7 +146,8 @@ class Ship {
         this.thrustPath.lineTo(0, 11);
         this.hbOffset1 = 10;
         this.hbOffset2 = 20;
-        this.dead = 0;
+        this.dead = false;
+        this.deadCounter = 0;
         // asteroids flight model
         this.flightModel = 1;
         this.velX = 0;
@@ -240,6 +242,12 @@ class MapLocation {
         this.buySell = 0;
         this.menuNum = 0;
         this.priceList = [];
+        this.hasPaint = (getRandomInt(10) == 1) ? true : false;
+        this.paintDelay = 30;
+        this.paintCost = getRandomInt(200)+100;
+        this.paintX = getRandomInt(c.width/2) + c.width/4;
+        this.paintY = getRandomInt(c.height/2) + c.height/4;
+        this.paintColor  = `rgb(${(getRandomInt(205)+50)},${(getRandomInt(205)+50)},${(getRandomInt(205)+50)})`;
         this.locationUpgrades = [];
         this.warpDestinations = [];
         for (let i = 0; i < 8; i++) {
@@ -310,32 +318,46 @@ class MapLocation {
 }
 
 class Resource {
-    constructor(type, x, y) {
+    constructor(type = -1, x, y, rad = -1) {
         this.x = x - 5 + getRandomInt(10);
         this.y = y - 5 + getRandomInt(10);
         this.hbOffset1 = 0;
         this.hbOffset2 = 0;
-        this.speed = 0.1;
+        this.speed = 0.1 //getRandomInt(100)/500;
         this.maxSpeed = 2;
         this.rot = getRandomInt(360);
-        this.radius = getRandomInt(5 * (karma/2)) + 1;
-        let loc = mapLocations[constellation][curMapLoc];
-        let s = getRandomInt(loc.resources.length);
-        let t = loc.resources[s];
-        this.resource = t;
-        this.name = resourceNames[t];
-        this.color = resourceColor[t];
+        if (rad == -1) {
+            this.radius = Math.floor(getRandomInt(5 * (karma/2)) + 1);
+        } else {
+            this.radius = rad;
+        }
+        if (type == -1) {
+            let loc = mapLocations[constellation][curMapLoc];
+            let s = getRandomInt(loc.resources.length);
+            let t = loc.resources[s];
+            this.resource = t;
+            this.name = resourceNames[t];
+            this.color = resourceColor[t];
+        } else {
+            this.resource = type;
+            this.name = resourceNames[type];
+            this.color = resourceColor[type];
+        }
     }
 }
 
 class Debri {
-    constructor(x, y) {
-        this.color = "#FFFFFF";
+    constructor(x, y, type = 'ship') {
+        if (type == 'ship') {
+           this.color = (getRandomInt(3)==1) ? '#f2fb03' : '#f70505';
+        } else if (type == 'e1') {
+            this.color = (getRandomInt(3)==1) ? '#d2fc03' : '#05b2f7';
+        }
         this.x = x;
         this.y = y;
-        this.speed = getRandomInt(2) + 3;
+        this.speed = getRandomInt(4) + 1;
         this.rot = getRandomInt(360);
-        this.life = getRandomInt(20) + 10;
+        this.life = getRandomInt(30) + 5;
         this.hbOffset1 = 0;
         this.hbOffset2 = 0;
         this.radius = getRandomInt(3) + 1;
@@ -344,7 +366,7 @@ class Debri {
 
 class StarFieldStar {
     constructor() {
-        this.color = "#FFFFFF";
+        this.color = (getRandomInt(4) == 1) ? `rgb(${getRandomInt(255)},${getRandomInt(255)},${getRandomInt(255)})` : "#FFFFFF";
         this.x = c.width/2;
         this.y = c.height/2;
         this.speed = 0.01;
@@ -368,7 +390,11 @@ class Bullet {
             // rainbow bullets
             colorCycle = (colorCycle += 1) % 8;
         } else {
-            this.color = '#FFFFFF';
+            if (fromShip) {
+                this.color = ship.bulletColor; 
+            } else {
+                this.color = '#FFFFFF';
+            }
         }
         this.speed = speed;
         this.hbOffset1 = -this.damage/3;

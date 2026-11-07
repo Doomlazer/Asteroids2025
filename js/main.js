@@ -146,7 +146,7 @@ function step(timeStamp) {
     if (start === undefined) {
         doResize();
         score = 0;
-        lives = 3;
+        lives = 3 + getRandomInt(8);
         start = timeStamp;
         ship = new Ship();
         // random inital upgrades
@@ -225,7 +225,7 @@ function step(timeStamp) {
         // move resource
         resources.forEach(r => {
             moveEntity(r);
-            if (collision(r, ship)) {
+            if (!ship.dead && collision(r, ship)) {
                 if (ship.storageTotal < ship.maxStorage) {
                     deadResources.push(r);
                     if (ship.storageTotal + r.radius > ship.maxStorage) {
@@ -244,7 +244,7 @@ function step(timeStamp) {
                     resources = resources.filter(n => !deadResources.includes(n));
                     deadResources = [];
                 }
-            } else if (distance2D(r, ship) < ship.collectDistance && ship.storageTotal < ship.maxStorage ) {
+            } else if (!ship.dead && distance2D(r, ship) < ship.collectDistance && ship.storageTotal < ship.maxStorage) {
                 let a = ship.hbOffset1+(ship.hbOffset2/2);
                 r.rot = angle360(r.x, r.y, ship.x+a, ship.y+a);
                 if (r.speed < r.maxSpeed) {
@@ -297,13 +297,25 @@ function step(timeStamp) {
                             speak("Shield depleted");
                         } else {
                             setAudioSource(4);
-                            ship.dead = 100;
+                            ship.dead = true;
+                            ship.deadCounter = 120;
                             ship.speed = 0;
+                            ship.velX = 0;
+                            ship.velY = 0;
                             deadBullets.push(b);
-                            speak("Ship destroyed")
-                            let r = getRandomInt(5) + 5;
+                            speak("Ship destroyed");
+                            msgTimer = 1000;
+                            msgTimerMsg = "Ship destroyed";
+                            let r = ship.fuelTotal;
                             let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
                             let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
+                            for (let i = 0; i < ship.storage.length; i++) {
+                                if (ship.storage[i] > 0) {
+                                    resources.push(new Resource(i, x1, y1, getRandomInt(ship.storage[i])));
+                                }
+                                ship.storage[i] = 0;
+                            }
+                            ship.storageTotal = 0;
                             for (let i = 0; i < r; i++) {
                                 debrisArray.push(new Debri(x1, y1));
                             }
@@ -469,13 +481,15 @@ function killEnemyShip(e) {
         }
     }
 
-    ship.money += getRandomInt(100*constellation) + 100;
+    ship.money += getRandomInt(1000*constellation) + 800;
 
     setAudioSource(4);
     if (enemies.length <= 1) {
         // set timer for new mobile
-        respawnTimer = 300 + getRandomInt(200);
+        respawnTimer = 300 + getRandomInt(600);
         if (getRandomInt(5) == 1) {
+            enemies.push(new mobile());
+            enemies.push(new mobile());
             enemies.push(new mobile());
         }
     }
@@ -484,7 +498,7 @@ function killEnemyShip(e) {
     let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
     let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
     for (let i = 0; i < r; i++) {
-        debrisArray.push(new Debri(x1, y1));
+        debrisArray.push(new Debri(x1, y1, 'e1'));
     }
 }
 
@@ -903,7 +917,11 @@ function kDown(e) {
         //console.log(warping);
         // warp to other constilation
         if (!warping) {
-            jumpTimer = 200;
+            if (ship.storageTotal == 0) {
+                jumpTimer = 20;
+            } else {
+                jumpTimer = 180 + Math.floor(ship.storageTotal/2);
+            }
             if (e.key == 'ArrowUp' || e.key == 'ArrowLeft') {
                 mapLocations[constellation][curMapLoc].menuNum --;
                 if (mapLocations[constellation][curMapLoc].menuNum < 0) {
@@ -1284,13 +1302,26 @@ function moveShip() {
                     killRoid(roid);
                 }  else {
                     setAudioSource(3);
-                    ship.dead = 100;
+                    ship.dead = true;
+                    ship.deadCounter = 120;
                     ship.speed = 0;
-                    let r = getRandomInt(5) + 5;
+                    ship.velX = 0;
+                    ship.velY = 0;
+                    speak("Ship destroyed");
+                    msgTimer = 1000;
+                    msgTimerMsg = "Ship destroyed";
+                    let r = ship.fuelTotal;
                     let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
                     let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
+                    for (let i = 0; i < ship.storage.length; i++) {
+                        if (ship.storage[i] > 0) {
+                            resources.push(new Resource(i, x1, y1, getRandomInt(ship.storage[i])));
+                        }
+                        ship.storage[i] = 0;
+                    }
+                    ship.storageTotal = 0;
                     for (let i = 0; i < r; i++) {
-                        debrisArray.push(new Debri(x1, y1));
+                        debrisArray.push(new Debri(x1, y1, 'ship'));
                     }
                 }
                 
@@ -1309,7 +1340,7 @@ function moveShip() {
                     let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
                     let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
                     for (let i = 0; i < r; i++) {
-                        debrisArray.push(new Debri(x1, y1));
+                        debrisArray.push(new Debri(x1, y1, 'e1'));
                     }
                     enemies = enemies.filter(e => !deadEnemies.includes(e));
                     deadEnemies = [];
@@ -1380,7 +1411,7 @@ function newAstroidField() {
     ship.velX = 0;
     ship.velY = 0;
     //resources = []; // needed? 
-    let r = getRandomInt(9) + 4;
+    let r = getRandomInt(9) + 3;
     for (let i=0; i<r; i++) {
         asteroids.push(new Asteroid());
     }
@@ -1507,7 +1538,12 @@ function playMusic() {
     "https://archive.org/download/astral_projection-unmixed-vinyl-2000/C2-Electrostatic.mp3",
     "https://archive.org/download/dj-phaze-chillout-trance-mix/DJ%20Phaze%20-%20Chillout%20Trance%20mix.mp3",
     "https://archive.org/download/EpicAmbientMixPart2/Epic%20Ambient%20Mix%20Part%202.mp3",
-    "https://archive.org/download/dj-foil-summer-03/Dj%20Foil%20-%20Summer%2003.mp3"
+    "https://archive.org/download/dj-foil-summer-03/Dj%20Foil%20-%20Summer%2003.mp3",
+    "https://archive.org/download/ultima-thule-735/UT_735_56k.mp3",
+    "https://archive.org/download/seramind-audioscenarion-010/Seramind%20-%20Audioscenarion%20010.mp3",
+    "https://archive.org/download/Substak-MonokrakDeepMix/Substak-Monokrak.mp3",
+    "https://archive.org/download/acidplanet-audio-01244591/01244591.mp3",
+    "https://archive.org/download/pitch-up-my-dub-selectah-2-radial-wholeness_202007/Pitch%20Up%20My%20Dub%20Selectah%202%20-%20Radial%20Wholeness.mp3"
     //"https://archive.org/download/NinjaGaijinGuardiansOfSunshineJUNGLE27May2014/Ninja_Gaijin_-_Guardians_of_Sunshine_%28JUNGLE-27May2014%29.mp3",
     //"https://archive.org/download/CriteriaForFailureLiveMixAtKuznetskiyMost/Criteria%20For%20Failure%20-%20%20Live%20mix%20at%20Kuznetskiy%20Most.mp3",
     //"https://archive.org/download/dj-combo-ragga-jungle-bass-action-1/DJ%20Combo%20-%20Ragga%20Jungle%20Bass%20Action%201.mp3",

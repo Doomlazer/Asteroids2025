@@ -112,8 +112,70 @@ function drawTitle() {
 function drawStage1() {
     clearCanvas();
     drawBG();
+
+    let loc = mapLocations[constellation][curMapLoc];
+    if (loc.hasPaint) {
+        if (loc.paintDelay > 0) {
+            loc.paintDelay --;
+        }
+        if (loc.paintDelay == 0) {
+            loc.paintDelay = 30;
+        }
+        if (
+            ship.x + 20 > loc.paintX - 10 &&
+            ship.x + 20 < loc.paintX + 50 &&
+            ship.y + 20 > loc.paintY - 10 &&
+            ship.y + 20 < loc.paintY + 40
+        ) {
+            if (ship.velX > 0.35) {
+                ship.velX = 0.35;
+            }
+            if (ship.velY > 0.35) {
+                ship.velY = 0.35;
+            }
+            if (ship.velX < -0.35) {
+                ship.velX = -0.35;
+            }
+            if (ship.velY < -0.35) {
+                ship.velY = -0.35;
+            }
+        
+            if (loc.paintCost > 0) {
+                loc.paintCost --;
+            }
+            
+        }
+        
+        // complete paint
+        if (loc.paintCost <= 0) {
+            loc.hasPaint = false;
+            ship.bulletColor = ship.color;
+            ship.color = loc.paintColor;
+            setAudioSource(7);
+            let r = getRandomInt(ship.upgrades.length);
+            ship.upgrades[r] ++;
+            doUpgrade(r, ship.upgrades[r]);
+            speak(`Paint job Completed.`);
+            if (getRandomInt(3) == 1) {
+                ship.shield = true;
+            }
+        }
+        //console.log(loc)
+        ctx.strokeStyle = loc.paintColor
+        ctx.lineWidth = defaultLineWidth + 3;
+        ctx.strokeRect(loc.paintX-10, loc.paintY-10, 50, 40);
+        ctx.font = scaleFont(0.013, "Hyperspace"); //"12px Hyperspace";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(`Paint JOB`, loc.paintX-30,loc.paintY-20);
+        ctx.fillText(loc.paintCost, loc.paintX,loc.paintY+50);
+        ctx.lineWidth = defaultLineWidth;
+        
+    }
+
     drawAsteroids();
     drawMobiles();
+
+
     
     // draw ship
     if (ship.dead <= 0 && lives > 0) {
@@ -153,19 +215,22 @@ function drawStage1() {
         }
     } else {
         // Ship is currently dead or game over
-        if (ship.dead == 1) {
+        if (ship.deadCounter == 1) {
             // reposition
             lives --; 
             if (lives > 0) {
                 ship.x = c.width/2;
                 ship.y = c.height/2;
+                ship.dead = false;
             } else {
                 // move ship offscreen
                 ship.x = c.width*2;
                 ship.y = c.height*2;
             }
         }
-        ship.dead --;
+        if (ship.deadCounter > 0) {
+            ship.deadCounter --;
+        }
     }
     
     // draw bullets
@@ -185,7 +250,7 @@ function drawStage1() {
     debrisArray.forEach(d => {
         ctx.beginPath();
         ctx.arc(d.x, d.y, d.radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#FFFFFF';
+        ctx.strokeStyle = d.color;
         ctx.stroke();
         ctx.closePath();
     });
@@ -280,6 +345,7 @@ function drawMap() {
                 missions[i].constellation == l.constNumber &&
                 missions[i].sector == l.sectorNum
             ) {
+                ship.curMission = i;
                 //console.log(missions[i].constellation, constellation,missions[i].sector, l.sectorNum)
                 if (missions[i].type == 'kill') {
                     ctx.fillStyle = ship.killColor;
@@ -932,7 +998,7 @@ function drawAsteroids() {
                     ctx.lineTo(e.x + e.hbOffset2*1.3, e.y + e.hbOffset2*1.3); 
                 }
                 ctx.stroke(); // Render the line
-                ctx.lineWidth = ship.defaultLineWidth;
+                ctx.lineWidth = defaultLineWidth;
                 if (e.lzrCool <= 0) {
                     let dam = getRandomInt(ship.lzrLvl*(ship.baseDamage/2))+1;
                     e.health -= dam;
@@ -951,7 +1017,7 @@ function drawAsteroids() {
                 e.lzrCool --;
             }
         }
-        ctx.lineWidth = ship.defaultLineWidth;
+        ctx.lineWidth = defaultLineWidth;
     });
 }
 
@@ -991,7 +1057,7 @@ function drawMobiles() {
                 ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
                 ctx.lineTo(e.x + (e.hbOffset2*1.4), e.y+ (e.hbOffset2*1.4)); 
                 ctx.stroke(); // Render the line
-                ctx.lineWidth = ship.defaultLineWidth;
+                ctx.lineWidth = defaultLineWidth;
                 if (e.lzrCool <= 0) {
                     let dam = getRandomInt(ship.lzrLvl+1)+1;
                     e.health -= dam;
@@ -1029,8 +1095,15 @@ function drawGauges() {
     let y = 20;
 
     // storage gague
-    ctx.fillStyle = "#888888";
-    ctx.fillRect(c.width/20*3, c.height/20*0.8, (c.width/20*2.5/100)*ship.storageTotal*(100/ship.maxStorage), c.height/20*0.8);
+    let p = 0;
+    for (let i = 0; i < ship.storage.length; i++) {
+        if (ship.storage[i] > 0) {
+            ctx.fillStyle = resourceColor[i];
+            let rw = ship.storage[i]/ship.maxStorage;
+            ctx.fillRect((c.width/20*3)+p, c.height/20*0.8, ((c.width/20)*2.5)*rw, c.height/20*0.8);
+            p += ((c.width/20)*2.5)*rw;
+        }
+    }
 
     ctx.strokeStyle = "#FFFFFF";
     ctx.beginPath();
@@ -1038,6 +1111,8 @@ function drawGauges() {
     ctx.stroke();
 
     ctx.font = scaleFont(0.02, "Hyperspace"); //"12px Hyperspace";
+    ctx.fillStyle = '#000000';
+    ctx.fillText(`${Math.floor(ship.storageTotal)}/${ship.maxStorage}`, (c.width/20*3.4) - 2, (c.height/20*1.45) - 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(`${Math.floor(ship.storageTotal)}/${ship.maxStorage}`, c.width/20*3.4, c.height/20*1.45);
 
@@ -1073,6 +1148,9 @@ function drawGauges() {
         for (let i = 0; i < missions.length; i++) {
             let m = missions[i];
             //console.log(m.type, m.x, m.y, c.width/20*0.5, c.height/20*0.8)
+            if (m.constellation == constellation) {
+                ship.curMission = i;
+            }
             if (
                 (
                     m.type == 'sos' ||
@@ -1082,7 +1160,7 @@ function drawGauges() {
                 m.constellation == constellation &&
                 m.sector == curMapLoc
             ) {
-                ship.curMission = i;m
+                ship.curMission = i;
                 //console.log(m.x, m.y, c.width/20*0.5, c.height/20*0.8)
                 ctx.strokeStyle = "#FFFFFF";
                 ctx.strokeRect(m.x, m.y, 30, 20);
@@ -1230,6 +1308,8 @@ function drawGauges() {
     ctx.stroke();
 
     ctx.font = scaleFont(0.02, "Hyperspace");
+    ctx.fillStyle = '#000000';
+    ctx.fillText(`${Math.floor(ship.fuelTotal)}/${ship.maxFuel}`, (c.width/20*13.2)-2, (c.height/20*1.45)-2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(`${Math.floor(ship.fuelTotal)}/${ship.maxFuel}`, c.width/20*13.2, c.height/20*1.45);
 
