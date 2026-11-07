@@ -279,29 +279,30 @@ function drawStage1() {
     if (lives <= 0) {
         ctx.font = scaleFont(0.013, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        //drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
-        location.reload();
+        drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
+        //location.reload();
     }
 
     if (mapReminder || ship.storageTotal == ship.maxStorage) {
         ctx.font = scaleFont(0.03, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
-        if (ship.storageWarnCoolDown > 0) {
-            ship.storageWarnCoolDown --;
-        }
-        if (
-            ship.storageWarnCoolDown == 0 && 
-            msgTimer == 0 && 
-            bgmTimer == 0 &&
-            ship.storageWarning
-        ) {
-            speak("Storage is full");
-            msgTimer = 400;
-            msgTimerMsg = "Storage is full";
-            ship.storageWarnCoolDown = 800;
-        } 
     }
+    if (ship.storageWarnCoolDown > 0) {
+        ship.storageWarnCoolDown --;
+    }
+    if (
+        ship.storageTotal == ship.maxStorage &&
+        ship.storageWarnCoolDown == 0 && 
+        msgTimer == 0 && 
+        bgmTimer == 0 &&
+        ship.storageWarning
+    ) {
+        speak("Storage is full");
+        msgTimer = 400;
+        msgTimerMsg = "Storage is full";
+        ship.storageWarnCoolDown = 800;
+    } 
 }
 
 function drawMap() {
@@ -1029,7 +1030,11 @@ function drawMobiles() {
         moveEntity(e);
         e.bulletTimer --;
         if (e.bulletTimer <= 0) {
-            e.bulletTimer = getRandomInt(300) + 20;
+            if (e.timesFired % 5 == 0) {
+                e.bulletTimer = getRandomInt(400);
+            } else {
+                e.bulletTimer = getRandomInt(e.bulletRate)+5;
+            }
             if (!ship.dead) {
                 setAudioSource(1);
                 let rx = getRandomInt(e.shotJitter);
@@ -1047,6 +1052,7 @@ function drawMobiles() {
                 //console.log(bullets[bullets.length-1])
                 // improved Enemy accuacy every bullet, 
                 // learning faster with high ship.karma
+                e.timesFired ++;
                 e.shotJitter -= e.int; 
                 if (e.shotJitter < 0) {
                     e.shotJitter = 0;

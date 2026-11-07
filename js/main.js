@@ -1180,7 +1180,7 @@ function doUpgrade(sel, lvl) {
             break;
         case 6:
             // collection distance
-            ship.collectDistance += 50 * lvl;
+            ship.collectDistance += 50;
             break;
         case 7:
             // ship deceleration
@@ -1210,7 +1210,14 @@ function moveShip() {
             ship.bulletTimer --;
         }
         if (spaceBar) {
-            if (bullets.length < ship.maxBullets) {
+            // don't count enemy bullets agiast ship max
+            let m = 0;
+            for (let b in bullets) {
+                if (b.fromShip) {
+                    m ++;
+                }
+            }
+            if (m < ship.maxBullets) {
                 if (ship.bulletTimer < 1) {
                     setAudioSource(0);
                     ship.bulletTimer = ship.bulletRate;
