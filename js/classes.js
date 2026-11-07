@@ -355,7 +355,7 @@ class Debri {
         }
         this.x = x;
         this.y = y;
-        this.speed = getRandomInt(4) + 1;
+        this.speed = getRandomInt(4) + (getRandomInt(100)/100) + 1;
         this.rot = getRandomInt(360);
         this.life = getRandomInt(30) + 5;
         this.hbOffset1 = 0;
