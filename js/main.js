@@ -311,9 +311,14 @@ function step(timeStamp) {
                             let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
                             for (let i = 0; i < ship.storage.length; i++) {
                                 if (ship.storage[i] > 0) {
-                                    resources.push(new Resource(i, x1, y1, getRandomInt(ship.storage[i])));
+                                    // conserve only part of resources in storage on death
+                                    let r = getRandomInt(ship.storage[i]);
+                                    // any break them up
+                                    for (let j = 0; j < Math.ceil(r/4); j++) {
+                                        resources.push(new Resource(i, x1, y1, 2+getRandomInt(3)));
+                                    }
+                                    ship.storage[i] = 0;
                                 }
-                                ship.storage[i] = 0;
                             }
                             ship.storageTotal = 0;
                             for (let i = 0; i < r; i++) {
@@ -1315,9 +1320,14 @@ function moveShip() {
                     let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
                     for (let i = 0; i < ship.storage.length; i++) {
                         if (ship.storage[i] > 0) {
-                            resources.push(new Resource(i, x1, y1, getRandomInt(ship.storage[i])));
+                            // consere only part of resources in storage on death
+                            let r = getRandomInt(ship.storage[i]);
+                            // any break them up
+                            for (let j = 0; j < Math.ceil(r/4); j++) {
+                                resources.push(new Resource(i, x1, y1, 2+getRandomInt(3)));
+                            }
+                            ship.storage[i] = 0;
                         }
-                        ship.storage[i] = 0;
                     }
                     ship.storageTotal = 0;
                     for (let i = 0; i < r; i++) {
@@ -1332,6 +1342,7 @@ function moveShip() {
                     setAudioSource(4);
                     if (enemies.length <= 1) {
                         // set timer for new mobile
+                        ship.money += 50;
                         respawnTimer = 50 + getRandomInt(200);
 
                     }

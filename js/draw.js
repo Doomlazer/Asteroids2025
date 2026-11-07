@@ -222,6 +222,9 @@ function drawStage1() {
                 ship.x = c.width/2;
                 ship.y = c.height/2;
                 ship.dead = false;
+                if (ship.fuelTotal > 50) {
+                    ship.fuelTotal = 50;
+                }
             } else {
                 // move ship offscreen
                 ship.x = c.width*2;
@@ -1029,9 +1032,25 @@ function drawMobiles() {
             e.bulletTimer = getRandomInt(300) + 20;
             if (!ship.dead) {
                 setAudioSource(1);
+                let rx = getRandomInt(e.shotJitter);
+                rx = rx - (e.shotJitter/2);
+                let ry = getRandomInt(e.shotJitter);
+                ry = ry - (e.shotJitter/2);
                 //console.log("e ",e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false)
-                bullets.push(new Bullet(e, angle(e.x,e.y,ship.x+ship.hbOffset1,ship.y+ship.hbOffset1), e.x + 40, e.y + 40, 5, false));
+                bullets.push(new Bullet(e, angle(
+                    e.x + e.hbOffset2,
+                    e.y + e.hbOffset2,
+                    ship.x + ship.hbOffset2 + rx,
+                    ship.y + ship.hbOffset2 + rx),
+                    e.x + e.hbOffset2,
+                    e.y + e.hbOffset2, 5, false));
                 //console.log(bullets[bullets.length-1])
+                // improved Enemy accuacy every bullet, 
+                // learning faster with high ship.karma
+                e.shotJitter -= e.int; 
+                if (e.shotJitter < 0) {
+                    e.shotJitter = 0;
+                }
             }
         }
         if (getRandomInt(20) == 1) {

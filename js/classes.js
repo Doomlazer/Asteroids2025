@@ -185,12 +185,18 @@ class mobile {
         this.speed = 1;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;
+        this.timesFired = 0;
+        this.int = karma*2;
         this.maxSpeed = 1 + getRandomInt(3);
-        this.maxBullets = 4;
+        this.maxBullets = getRandomInt(20);
         this.baseDamage = getRandomInt(10);
         this.bulletRate = 20; // delay before next bullet
         this.bulletTimer = getRandomInt(100); // cool down remaining before firing next bullet
         this.bulletLife = 20 + getRandomInt(200); // how far bullets travel before disapearing
+        this.shotJitter = 100 + getRandomInt(100) - (this.bulletLife/10);
+        if (this.shotJitter < 0) {
+            this.shotJitter = 0;
+        }
         this.color = '#FFFFFF'
         this.lzrCool = 25;
         // star shaped
