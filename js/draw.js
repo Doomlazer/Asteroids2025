@@ -277,10 +277,15 @@ function drawStage1() {
     drawGauges();
 
     if (lives <= 0) {
-        ctx.font = scaleFont(0.013, "Hyperspace");
+        ctx.font = scaleFont(0.06, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
-        drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.013);
-        //location.reload();
+        drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.7);
+        if (ship.gameOverCounter > 0) {
+            //drawStringFX(ctx, `  ${ship.gameOverCounter}`,c.width/20*7, c.width/20*8, c.width/20 * 0.7);
+            ship.gameOverCounter --;
+        } else {
+            drawStringFX(ctx, `PRESS KEY TO RESTART`,c.width/20*3.5, c.width/20*8, c.width/20 * 0.7);
+        }
     }
 
     if (mapReminder || ship.storageTotal == ship.maxStorage) {
@@ -471,6 +476,12 @@ function drawMap() {
         ctx.font = scaleFont(0.05, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*3, c.width/20*6, c.width/20 * 0.6);
+        if (ship.gameOverCounter > 0) {
+            //drawStringFX(ctx, `  ${ship.gameOverCounter}`,c.width/20*7, c.width/20*8, c.width/20 * 0.7);
+            ship.gameOverCounter --;
+        } else {
+            drawStringFX(ctx, `PRESS KEY TO RESTART`,c.width/20*3.5, c.width/20*8, c.width/20 * 0.7);
+        }
     }
     
     if (warper) {

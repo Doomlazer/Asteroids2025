@@ -146,7 +146,7 @@ function step(timeStamp) {
     if (start === undefined) {
         doResize();
         score = 0;
-        lives = 3 + getRandomInt(8);
+        lives = 3 + getRandomInt(6);
         start = timeStamp;
         ship = new Ship();
         // random inital upgrades
@@ -697,8 +697,16 @@ function gamePad() {
 }
 
 function kDown(e) {
-    if (ship.fuelTotal <= 0 && stage != 0) {
-        location.reload();
+    if (
+        (
+            ship.fuelTotal <= 0 ||
+            lives <= 0
+        )
+        && stage != 0) {
+        // pasue on game over before continuing
+        if (ship.gameOverCounter <= 0) {
+            location.reload();
+        }
     }
     if (stage == 0) {
         // title controls
@@ -722,7 +730,7 @@ function kDown(e) {
                 curMapSel = mapLocations[constellation].length - 1;
             }
             //console.log("curmapsel: " + curMapSel);
-            // space to goto des
+            // space to goto map destination
             if (e.key == ' ') {
                 if (curMapLoc == curMapSel) {
                     if (mapLocations[constellation][curMapLoc].type == 'trade') {

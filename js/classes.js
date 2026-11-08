@@ -109,6 +109,7 @@ class Ship {
         this.shield = true; 
         this.shieldRad = 18
         this.speed = 0;
+        this.gameOverCounter = 200;
         this.curMission = -1;
         this.money = getRandomInt(1024);
         if (this.money == 256) {
