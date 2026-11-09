@@ -113,6 +113,7 @@ function drawStage1() {
     clearCanvas();
     drawBG();
 
+    // Paint UPGRADE locations
     let loc = mapLocations[constellation][curMapLoc];
     if (loc.hasPaint) {
         if (loc.paintDelay > 0) {
@@ -178,11 +179,11 @@ function drawStage1() {
 
     
     // draw ship
-    if (ship.dead <= 0 && lives > 0) {
+    if (!ship.dead && lives > 0) {
         sctx.strokeStyle = ship.color;
         sctx.clearRect(-20,-20,40,40);
         sctx.stroke(ship.path);
-        if (up) {
+        if (up && ship.fuelTotal > 0) {
             sctx.strokeStyle = "#f50d0d";
             sctx.stroke(ship.thrustPath);
         }
@@ -195,8 +196,6 @@ function drawStage1() {
             sctx.closePath();
         }
             
-        
-
         ctx.drawImage(s, 0,0,40,40, ship.x, ship.y,40,40);
         if (showHitbox && debug) {
             drawHitbox(ship);
@@ -216,7 +215,6 @@ function drawStage1() {
     } else {
         // Ship is currently dead or game over
         if (ship.deadCounter == 1) {
-            // reposition
             lives --; 
             if (lives > 0) {
                 ship.x = c.width/2;
@@ -233,6 +231,25 @@ function drawStage1() {
         }
         if (ship.deadCounter > 0) {
             ship.deadCounter --;
+        }
+    }
+
+    // game over if ship drifting in the void without gas
+    if (!ship.fuelRelatedDeath && ship.fuelTotal <= 0) {
+        ship.fuelRelatedDeath = true;
+        // drift for a bit longer for dramatic effect
+        lives = 1;
+        ship.gameOverCounter = 600;
+        speak("OUT OF FUEL - GAME OVER");
+    } else if (ship.fuelRelatedDeath && ship.fuelTotal <= 0 && !ship.dead) {
+        ctx.font = scaleFont(0.05, "Hyperspace");
+        ctx.fillStyle = '#FFFFFF';
+        drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*3.5, c.width/20*6, c.width/20 * 0.6);
+        if (ship.gameOverCounter > 0) {
+            //drawStringFX(ctx, `  ${ship.gameOverCounter}`,c.width/20*7, c.width/20*8, c.width/20 * 0.7);
+            ship.gameOverCounter --;
+        } else {
+            drawStringFX(ctx, `PRESS KEY TO RESTART`,c.width/20*3.5, c.width/20*8, c.width/20 * 0.7);
         }
     }
     
@@ -280,7 +297,10 @@ function drawStage1() {
         ctx.font = scaleFont(0.06, "Hyperspace");
         ctx.fillStyle = '#FFFFFF';
         drawStringFX(ctx, "GAME OVER",c.width/20*7, c.width/20*6, c.width/20 * 0.7);
-        if (ship.gameOverCounter > 0) {
+        if (ship.gameOverCounter == 200) {
+            speak("GAME OVER");
+            ship.gameOverCounter --;
+        } else if (ship.gameOverCounter > 0) {
             //drawStringFX(ctx, `  ${ship.gameOverCounter}`,c.width/20*7, c.width/20*8, c.width/20 * 0.7);
             ship.gameOverCounter --;
         } else {
@@ -288,26 +308,28 @@ function drawStage1() {
         }
     }
 
-    if (mapReminder || ship.storageTotal == ship.maxStorage) {
-        ctx.font = scaleFont(0.03, "Hyperspace");
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
+    if (!ship.dead) {
+        if ((mapReminder || ship.storageTotal == ship.maxStorage) && !ship.fuelRelatedDeath) {
+            ctx.font = scaleFont(0.03, "Hyperspace");
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillText("PRESS 'M' FOR SPACE MAP", c.width/20*6, c.height/20*18);
+        }
+        if (ship.storageWarnCoolDown > 0) {
+            ship.storageWarnCoolDown --;
+        }
+        if (
+            ship.storageTotal == ship.maxStorage &&
+            ship.storageWarnCoolDown == 0 && 
+            msgTimer == 0 && 
+            bgmTimer == 0 &&
+            ship.storageWarning
+        ) {
+            speak("Storage is full");
+            msgTimer = 400;
+            msgTimerMsg = "Storage is full";
+            ship.storageWarnCoolDown = 800;
+        }
     }
-    if (ship.storageWarnCoolDown > 0) {
-        ship.storageWarnCoolDown --;
-    }
-    if (
-        ship.storageTotal == ship.maxStorage &&
-        ship.storageWarnCoolDown == 0 && 
-        msgTimer == 0 && 
-        bgmTimer == 0 &&
-        ship.storageWarning
-    ) {
-        speak("Storage is full");
-        msgTimer = 400;
-        msgTimerMsg = "Storage is full";
-        ship.storageWarnCoolDown = 800;
-    } 
 }
 
 function drawMap() {
@@ -527,8 +549,6 @@ function drawMap() {
                 newAstroidField();
             }
         }
-    } else {
-
     }
 }
 
@@ -903,8 +923,7 @@ function drawWarp() {
             ship.fuelTotal -= ship.fuelCon;//-= 0.1;
             ship.fuelStat += ship.fuelCon;
             if (ship.fuelTotal <= 0) {
-                // TODO Fix this 
-                lives --; //= 0;
+                stage = 2;
             }
         }
         if (jumpTimer < 1) {
@@ -1328,7 +1347,7 @@ function drawGauges() {
     if (ship.fuelTotal/ship.maxFuel <= 0.25) {
         ctx.fillStyle = "#AA0000";
         ctx.strokeStyle = "#FF0000";
-        if (msgTimer == 0) {
+        if (msgTimer == 0 && !ship.dead) {
             msgTimer = 600;
             msgTimerMsg = "FUEL LEVEL IS LOW";
             speak(msgTimerMsg);

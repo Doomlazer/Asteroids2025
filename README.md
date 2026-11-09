@@ -41,7 +41,7 @@ Controls:
 
 "q" - toggle backgrounds
 
-"+" - debug
+"r / t" - adjust ship rotation speed
 
 "UpArrow" - accelerate
 

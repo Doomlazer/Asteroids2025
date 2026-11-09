@@ -225,7 +225,14 @@ function step(timeStamp) {
         // move resource
         resources.forEach(r => {
             moveEntity(r);
-            if (!ship.dead && collision(r, ship)) {
+            if (r.collectDelay > 0) {
+                r.collectDelay --;
+            }
+            if (
+                !ship.dead &&
+                collision(r, ship) &&
+                r.collectDelay == 0
+            ) {
                 if (ship.storageTotal < ship.maxStorage) {
                     deadResources.push(r);
                     if (ship.storageTotal + r.radius > ship.maxStorage) {
@@ -244,7 +251,12 @@ function step(timeStamp) {
                     resources = resources.filter(n => !deadResources.includes(n));
                     deadResources = [];
                 }
-            } else if (!ship.dead && distance2D(r, ship) < ship.collectDistance && ship.storageTotal < ship.maxStorage) {
+            } else if (
+                !ship.dead &&
+                distance2D(r, ship) < ship.collectDistance &&
+                ship.storageTotal < ship.maxStorage &&
+                r.collectDelay == 0
+            ) {
                 let a = ship.hbOffset1+(ship.hbOffset2/2);
                 r.rot = angle360(r.x, r.y, ship.x+a, ship.y+a);
                 if (r.speed < r.maxSpeed) {
@@ -306,22 +318,30 @@ function step(timeStamp) {
                             speak("Ship destroyed");
                             msgTimer = 1000;
                             msgTimerMsg = "Ship destroyed";
-                            let r = ship.fuelTotal;
-                            let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);
-                            let y1 = ship.y + ship.hbOffset1 + (ship.hbOffset2/2);
+                            let x1 = ship.x + ship.hbOffset2;
+                            let y1 = ship.y + ship.hbOffset2;
                             for (let i = 0; i < ship.storage.length; i++) {
                                 if (ship.storage[i] > 0) {
+                                    // how much or little to split up resources
+                                    let d = 4;
+                                    // make an even number to avoid fractions
+                                    if (ship.storage[i] % d != 0) {
+                                        resources.push(new Resource(i, x1, y1, ship.storage[i] % d, 100));
+                                    }
                                     // conserve only part of resources in storage on death
-                                    let r = getRandomInt(ship.storage[i]);
-                                    // any break them up
-                                    for (let j = 0; j < Math.ceil(r/4); j++) {
-                                        resources.push(new Resource(i, x1, y1, 2+getRandomInt(3)));
+                                    let f = getRandomInt(ship.storage[i]);
+                                    let r = f - (f % 2);
+                                    // break them up into smaller units
+                                    for (let j = 0; j < r/d; j++) {
+                                        resources.push(new Resource(i, x1, y1, r/d, 100));
                                     }
                                     ship.storage[i] = 0;
                                 }
                             }
                             ship.storageTotal = 0;
-                            for (let i = 0; i < r; i++) {
+
+                            // explosion based on current fuel amount
+                            for (let i = 0; i < ship.fuelTotal; i++) {
                                 debrisArray.push(new Debri(x1, y1));
                             }
                         }
@@ -981,7 +1001,46 @@ function kDown(e) {
             if (e.key == 'f') {
                 ship.flightModel == 0 ? ship.flightModel = 1 : ship.flightModel = 0;
             }
+
+            // dump all resources
+            if (e.key == 'x') {
+                for (let i = 0; i < ship.storage.length; i++) {
+                    if (ship.storage[i] > 0) {
+                        console.log(`processing ${ship.storage[i]} of ${resourceNames[i]}`);
+                        // how much or little to split up resources
+                        let d = 4;
+                        // make an even number to avoid fractions
+                        if (ship.storage[i] % d != 0) {
+                            console.log(`dumped REMAINDER ${ship.storage[i] % d} of ${resourceNames[i]}`);
+                            resources.push(new Resource(i, ship.x + ship.hbOffset2, ship.y  + ship.hbOffset2, ship.storage[i] % d, 100));
+                        }
+                        let r = ship.storage[i] - (ship.storage[i] % d);
+                        // break them up into smaller units
+                        console.log("r/d",r/d,"r",r,"d",d)
+                        for (let j = 0; j < r/d; j++) {
+                            console.log(`dumped ${r/d} of ${resourceNames[i]}`);
+                            resources.push(new Resource(i, ship.x + ship.hbOffset2, ship.y  + ship.hbOffset2, r/(r/d), 100));
+                        }
+                        ship.storage[i] = 0;
+                    }
+                }
+                ship.storageTotal = 0;
+            }
         }
+    }
+
+    // ship rotation speed
+    if (e.key == 'r') {
+        ship.rotSpeed -= 0.25;
+        speak(`Rotation Speed is now ${ship.rotSpeed}`, false, 5);
+        msgTimer = 250;
+        msgTimerMsg = `Rotation Speed is now ${ship.rotSpeed}`;
+    }
+    if (e.key == 't') {
+        ship.rotSpeed += 0.25;
+        speak(`Rotation Speed is now ${ship.rotSpeed}`, false, 5);
+        msgTimer = 250;
+        msgTimerMsg = `Rotation Speed is now ${ship.rotSpeed}`;
     }
 
     // defaultLineWidth
@@ -1212,7 +1271,7 @@ function doUpgrade(sel, lvl) {
 
 function moveShip() {
     // move ship
-    if (ship.dead <= 0 && lives > 0) {
+    if (!ship.dead && lives > 0) {
         // fire
         if (ship.bulletTimer > 0) {
             ship.bulletTimer --;
@@ -1250,66 +1309,67 @@ function moveShip() {
             sctx.rotate(ship.rotSpeed * Math.PI / 180);
         }
 
-        if (ship.flightModel == 0) { // car style flight
-            // ship breaking
-            if (down) {
-                ship.speed -= ship.breakSpeed;
-                if (ship.speed < 0) {
-                    ship.speed = 0;
-                }   
-            }
-            // ship speed up
-            if (up && ship.fuelTotal > 0) {
-                if (ship.speed < ship.maxSpeed) {
-                    ship.speed += ship.acceleration;
+        if (!ship.fuelRelatedDeath) {
+            if (ship.flightModel == 0) { // car style flight
+                // ship breaking
+                if (down) {
+                    ship.speed -= ship.breakSpeed;
+                    if (ship.speed < 0) {
+                        ship.speed = 0;
+                    }   
                 }
-                ship.fuelCon = ship.storageTotal/800;
-                ship.fuelTotal -= ship.fuelCon;
-                ship.fuelStat += ship.fuelCon;
-                if (ship.fuelTotal < 0) {
-                    ship.fuelTotal = 0;
+                // ship speed up
+                if (up && ship.fuelTotal > 0) {
+                    if (ship.speed < ship.maxSpeed) {
+                        ship.speed += ship.acceleration;
+                    }
+                    ship.fuelCon = ship.storageTotal/800;
+                    ship.fuelTotal -= ship.fuelCon;
+                    ship.fuelStat += ship.fuelCon;
+                    if (ship.fuelTotal < 0) {
+                        ship.fuelTotal = 0;
+                    }
+                } else {
+                    if (ship.speed > 0) {
+                        ship.speed -= 0.01;
+                    } else {
+                        ship.speed = 0;
+                    }
                 }
             } else {
-                if (ship.speed > 0) {
-                    ship.speed -= 0.01;
-                } else {
-                    ship.speed = 0;
+                // classic asteroids flight
+                // thrust
+                if (up && ship.fuelTotal > 0) {
+
+                    const angle = ship.rot * Math.PI / 180;
+
+                    ship.velX += Math.cos(angle) * ship.acceleration;
+                    ship.velY += Math.sin(angle) * ship.acceleration;
+
+                    // Optional speed cap
+                    const speed = Math.hypot(ship.velX, ship.velY);
+                    if (speed > ship.maxSpeed) {
+                        ship.velX = (ship.velX / speed) * ship.maxSpeed;
+                        ship.velY = (ship.velY / speed) * ship.maxSpeed;
+                    }
+
+                    ship.fuelCon = ship.storageTotal/800;
+                    ship.fuelTotal -= ship.fuelCon;
+                    ship.fuelStat += ship.fuelCon;
+                    if (ship.fuelTotal <= 0) {
+                        ship.fuelTotal = 0;
+                    }
                 }
-            }
-        } else {
-            // classic asteroids flight
-            // thrust
-            if (up && ship.fuelTotal > 0) {
+                // reverse thrust (not in original Asteroids)
+                if (down) {
+                    const angle = ship.rot * Math.PI / 180;
 
-                const angle = ship.rot * Math.PI / 180;
-
-                ship.velX += Math.cos(angle) * ship.acceleration;
-                ship.velY += Math.sin(angle) * ship.acceleration;
-
-                // Optional speed cap
-                const speed = Math.hypot(ship.velX, ship.velY);
-                if (speed > ship.maxSpeed) {
-                    ship.velX = (ship.velX / speed) * ship.maxSpeed;
-                    ship.velY = (ship.velY / speed) * ship.maxSpeed;
+                    ship.velX -= Math.cos(angle) * ship.breakSpeed * 0.5;
+                    ship.velY -= Math.sin(angle) * ship.breakSpeed * 0.5;
                 }
 
-                ship.fuelCon = ship.storageTotal/800;
-                ship.fuelTotal -= ship.fuelCon;
-                ship.fuelStat += ship.fuelCon;
-                if (ship.fuelTotal < 0) {
-                    ship.fuelTotal = 0;
-                }
             }
-            // reverse thrust (not in original Asteroids)
-            if (down) {
-                const angle = ship.rot * Math.PI / 180;
-
-                ship.velX -= Math.cos(angle) * ship.breakSpeed * 0.5;
-                ship.velY -= Math.sin(angle) * ship.breakSpeed * 0.5;
-            }
-
         }
-
         moveEntity(ship);
 
         asteroids.forEach(roid => {

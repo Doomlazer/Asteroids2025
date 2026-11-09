@@ -91,8 +91,10 @@ class Mission {
 class Ship {
     constructor(x = c.width/2, y = c.height/2) {
         this.rot = 0;
+        this.rotSpeed = 3;
         this.x = x;
         this.y = y;
+        this.fuelRelatedDeath = false;
         this.fuelCon = 0;
         this.storageWarning = true;
         this.storageWarnCoolDown = 1;
@@ -109,7 +111,7 @@ class Ship {
         this.shield = true; 
         this.shieldRad = 18
         this.speed = 0;
-        this.gameOverCounter = 200;
+        this.gameOverCounter = 300;
         this.curMission = -1;
         this.money = getRandomInt(1024);
         if (this.money == 256) {
@@ -127,7 +129,6 @@ class Ship {
         this.maxSpeed = 2;
         this.maxBullets = 3;
         this.baseDamage = 4;
-        this.rotSpeed = 3;
         this.comboDamage = 0;
         this.bulletColor = `rgb(255,255,255)`;
         this.bulletRate = 40; // delay before next bullet
@@ -325,11 +326,12 @@ class MapLocation {
 }
 
 class Resource {
-    constructor(type = -1, x, y, rad = -1) {
+    constructor(type = -1, x, y, rad = -1, collectDelay = 0) {
         this.x = x - 5 + getRandomInt(10);
         this.y = y - 5 + getRandomInt(10);
         this.hbOffset1 = 0;
         this.hbOffset2 = 0;
+        this.collectDelay = collectDelay;
         this.speed = 0.1 //getRandomInt(100)/500;
         this.maxSpeed = 2;
         this.rot = getRandomInt(360);
