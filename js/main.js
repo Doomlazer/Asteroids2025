@@ -717,17 +717,19 @@ function gamePad() {
 }
 
 function kDown(e) {
+    // game over key handling
     if (
         (
             ship.fuelTotal <= 0 ||
             lives <= 0
         )
         && stage != 0) {
-        // pasue on game over before continuing
         if (ship.gameOverCounter <= 0) {
             location.reload();
         }
     }
+
+    // intro screen
     if (stage == 0) {
         // title controls
         if (e.key == 'r') {
@@ -736,19 +738,24 @@ function kDown(e) {
             stage ++;
         }
         playMusic();
+
+    // map controls
     } else if (stage == 2) {
         if (!warping) {
-            // map controls
-            if (e.key == 'ArrowLeft') {curMapSel --;}
-            if (e.key == 'ArrowRight') {curMapSel ++;}
-            if (e.key == 'ArrowUp') {curMapSel --;}
-            if (e.key == 'ArrowDown') {curMapSel ++;}
-            if (curMapSel > mapLocations[constellation].length - 1) {
-                curMapSel = 0;
-            }
-            if (curMapSel < 0) {
-                curMapSel = mapLocations[constellation].length - 1;
-            }
+            if (ship.mapControlCycle) {
+                if (e.key == 'ArrowLeft') {curMapSel --;}
+                if (e.key == 'ArrowRight') {curMapSel ++;}
+                if (e.key == 'ArrowUp') {curMapSel --;}
+                if (e.key == 'ArrowDown') {curMapSel ++;}
+                if (curMapSel > mapLocations[constellation].length - 1) {
+                    curMapSel = 0;
+                }
+                if (curMapSel < 0) {
+                    curMapSel = mapLocations[constellation].length - 1;
+                }
+            } else {
+                doNearstControlStyle(e);
+            }   
             //console.log("curmapsel: " + curMapSel);
             // space to goto map destination
             if (e.key == ' ') {
@@ -1690,5 +1697,77 @@ function speak(text, queue = true, voice = 0) {
     // load voices for chromium broswers, safari is done during init;
     window.speechSynthesis.onvoiceschanged = () => {
         voices = window.speechSynthesis.getVoices();
+    }
+}
+
+function doNearstControlStyle(e) {
+    let run = mapLocations[constellation].length;
+    let b = mapLocations[constellation][curMapSel];
+    if (e.key == 'ArrowLeft') {
+        let closestDistance = 9999;
+        for (let i = 0; i < run; i++) {
+            let e = mapLocations[constellation][i];
+            if (
+                curMapSel != i &&
+                e.x < b.x
+            ) {
+                let dist = distance2D(e, b);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    curMapSel = i;
+                }
+            }
+        }
+    }
+
+    if (e.key == 'ArrowRight') {
+        let closestDistance = 9999;
+        for (let i = 0; i < run; i++) {
+            let e = mapLocations[constellation][i];
+            if (
+                curMapSel != i &&
+                e.x > b.x
+            ) {
+                let dist = distance2D(b,e);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    curMapSel = i;
+                }
+            }
+        }
+    }
+
+    if (e.key == 'ArrowUp') {
+        let closestDistance = 9999;
+        for (let i = 0; i < run; i++) {
+            let e = mapLocations[constellation][i];
+            if (
+                curMapSel != i &&
+                e.y < b.y
+            ) {
+                let dist = distance2D(e, b);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    curMapSel = i;
+                }
+            }
+        }
+    }
+
+    if (e.key == 'ArrowDown') {
+        let closestDistance = 9999;
+        for (let i = 0; i < run; i++) {
+            let e = mapLocations[constellation][i];
+            if (
+                curMapSel != i &&
+                e.y > b.y
+            ) {
+                let dist = distance2D(b,e);
+                if (dist < closestDistance) {
+                    closestDistance = dist;
+                    curMapSel = i;
+                }
+            }
+        }
     }
 }

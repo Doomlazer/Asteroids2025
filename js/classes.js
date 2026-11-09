@@ -92,6 +92,7 @@ class Ship {
     constructor(x = c.width/2, y = c.height/2) {
         this.rot = 0;
         this.rotSpeed = 3;
+        this.mapControlCycle = false;
         this.x = x;
         this.y = y;
         this.fuelRelatedDeath = false;

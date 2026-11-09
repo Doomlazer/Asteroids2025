@@ -550,6 +550,64 @@ function drawMap() {
             }
         }
     }
+
+    // Degbug alt map control scheme
+    if (debug) {
+        let b = mapLocations[constellation][curMapSel];
+        for (let i = 0; i < mapLocations[constellation].length; i++) {
+            let e = mapLocations[constellation][i];
+            if (e.x < b.x) {
+                ctx.strokeStyle = '#e7fb0a';
+                ctx.lineWidth = defaultLineWidth + 8;
+                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
+                ctx.font = scaleFont(0.04, "Hyperspace");
+                ctx.fillStyle = '#f9f004';
+                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
+                let path = new Path2D();
+                path.moveTo(c.width/20*e.x, c.height/20*e.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                ctx.stroke(path);
+
+            }
+            if (e.x > b.x) {
+                ctx.strokeStyle = '#4cdd09';
+                ctx.lineWidth = defaultLineWidth + 6;
+                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
+                ctx.font = scaleFont(0.035, "Hyperspace");
+                ctx.fillStyle = '#4cdd09';
+                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((e.x-b.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
+                let path = new Path2D();
+                path.moveTo(c.width/20*e.x, c.height/20*e.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                ctx.stroke(path);
+            }
+            if (e.y < b.y) {
+                ctx.strokeStyle = '#0909dd';
+                ctx.lineWidth = defaultLineWidth + 4;
+                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
+                ctx.font = scaleFont(0.02, "Hyperspace");
+                ctx.fillStyle = '#0909dd';
+                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
+                let path = new Path2D();
+                path.moveTo(c.width/20*e.x, c.height/20*e.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                ctx.stroke(path);
+            }
+            if (e.y > b.y) {
+                ctx.strokeStyle = '#dd1709';
+                ctx.lineWidth = defaultLineWidth + 2;
+                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
+                ctx.lineWidth = defaultLineWidth;
+                ctx.font = scaleFont(0.025, "Hyperspace");
+                ctx.fillStyle = '#dd1709';
+                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y - ((e.y-b.y)/2)));
+                let path = new Path2D();
+                path.moveTo(c.width/20*e.x, c.height/20*e.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                ctx.stroke(path);
+            }
+        }
+    }
 }
 
 function drawTradingPost() {
