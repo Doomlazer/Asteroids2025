@@ -43,6 +43,8 @@ Controls:
 
 "r / t" - adjust ship rotation speed
 
+"y / u" - adjust cardnal direction angle width on local map
+
 "UpArrow" - accelerate
 
 "Left/Right" - rotate

@@ -27,7 +27,7 @@ let stage = 0; // stage 0 = title, stage 1 = default game, stage 2 = space map
 let locationNames = ['Aelia', 'Adhara', 'Amalthea', 'Andromeda', 'Ascella', 'Astra', 'Aurora', 'Bianca',
                     'Calypso', 'Celeste', 'Chanda', 'Cordelia', 'Mithras', 'Elara', 'Halley', 'Helia',
                     'Hilal', 'Larissa', 'Leda', 'Libra', 'Lyra', 'Miranda', 'Nashira', 'Ophelia',
-                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Zaneta', 'Luna', 'Eluria', 'Mithras',
+                    'Pandora', 'Phoebe', 'Portia', 'Titania', 'Stella', 'Luna', 'Eluria', 'Mithras',
                     'Calar 25', 'Laffer-3', 'Bonds5', 'Rosella', 'Graham', 'Fenrus', 'Wilkans', 'Alpha-Bains-6',
                     'Vohaul', 'Mosely', 'Nakimura 4', 'Shema', 'Shameen', 'Erana', 'Kalalau','Cassima', 'Delaney',
                     'Zara', 'SPR-3', 'Anansi', 'Beatrice', 'LIAM', 'Knelix', 'Paco', 'AVO-323', 'Alioth', 
@@ -742,21 +742,20 @@ function kDown(e) {
     // map controls
     } else if (stage == 2) {
         if (!warping) {
-            if (ship.mapControlCycle) {
-                if (e.key == 'ArrowLeft') {curMapSel --;}
-                if (e.key == 'ArrowRight') {curMapSel ++;}
-                if (e.key == 'ArrowUp') {curMapSel --;}
-                if (e.key == 'ArrowDown') {curMapSel ++;}
-                if (curMapSel > mapLocations[constellation].length - 1) {
-                    curMapSel = 0;
-                }
-                if (curMapSel < 0) {
-                    curMapSel = mapLocations[constellation].length - 1;
-                }
-            } else {
-                doNearstControlStyle(e);
-            }   
-            //console.log("curmapsel: " + curMapSel);
+
+            // change destination if arrow key
+            curMapSel = getNearestLoc(e); 
+
+            // direction angle width adjust
+            if (e.key == 'y') {
+                ship.mapDirOff -= 1;
+                ship.mapDirAdjustTimer = 1000;
+            }
+            if (e.key == 'u') {
+                ship.mapDirOff += 1;
+                ship.mapDirAdjustTimer= 1000;
+            }
+            
             // space to goto map destination
             if (e.key == ' ') {
                 if (curMapLoc == curMapSel) {
@@ -1526,11 +1525,12 @@ function angle(cx, cy, ex, ey) {
     var dx = ex - cx;
     var theta = Math.atan2(dy, dx); // range (-PI, PI]
 
-    let ugh = 0;
+    /*let ugh = 0;
     if (16 - getRandomInt(12) > 15) {
         ugh = getRandomInt(6);
-    }
-    theta *= (180 + ugh) / Math.PI; // rads to degs, range (-180, 180]
+    }*/
+    //theta *= (180 + ugh) / Math.PI; // rads to degs, range (-180, 180]
+    theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
     return theta;
 }
 
@@ -1700,74 +1700,115 @@ function speak(text, queue = true, voice = 0) {
     }
 }
 
-function doNearstControlStyle(e) {
-    let run = mapLocations[constellation].length;
-    let b = mapLocations[constellation][curMapSel];
-    if (e.key == 'ArrowLeft') {
-        let closestDistance = 9999;
-        for (let i = 0; i < run; i++) {
-            let e = mapLocations[constellation][i];
-            if (
-                curMapSel != i &&
-                e.x < b.x
-            ) {
-                let dist = distance2D(e, b);
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    curMapSel = i;
-                }
-            }
-        }
-    }
+function getNearestLoc(e) {
+    // 120 degree cardnal checks
+    let c = mapLocations[constellation][curMapSel]; // current
+    let closestDistance = 9999;
+    let s; // angle start
+    let f; // angle end
+    let t = curMapSel; 
 
-    if (e.key == 'ArrowRight') {
-        let closestDistance = 9999;
-        for (let i = 0; i < run; i++) {
-            let e = mapLocations[constellation][i];
-            if (
-                curMapSel != i &&
-                e.x > b.x
-            ) {
-                let dist = distance2D(b,e);
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    curMapSel = i;
+    for (let i = 0; i < mapLocations[constellation].length; i++) {
+        let d = mapLocations[constellation][i]; // dest
+        let a = angle360(c.x, c.y, d.x, d.y);
+        // shift the angle 45 deg to make calculations easier
+        // console.log(a > s, a < f, a, s , f, d.name, closestDistance);
+        let r = false;
+        switch (e.key) {
+            case "ArrowLeft":
+                if (
+                    a > 120 - ship.mapDirOff &&
+                    a < 240 + ship.mapDirOff
+                ) {
+                    r = true;
                 }
+                break;
+            case "ArrowUp":
+                if (
+                    a > 210 - ship.mapDirOff &&
+                    a < 330 + ship.mapDirOff
+                ) {
+                    r = true;
+                }
+                break;
+            case "ArrowRight":
+                // use or here for angles over 360
+                console.log()
+                if (
+                    a > 300 - ship.mapDirOff ||
+                    a < 60 + ship.mapDirOff
+                ) {
+                    r = true;
+                }
+                break;
+            case "ArrowDown":
+                if (
+                    a > 30 - ship.mapDirOff &&
+                    a < 150 + ship.mapDirOff
+                ) {
+                    r = true;
+                }
+                break;
+            default:
+                r = false;
+        }
+        if (
+            curMapSel != i &&
+            r
+        ) {
+            let dist = distance2D(c, d);
+            if (dist != 0 && dist < closestDistance) {
+                closestDistance = dist;
+                t = i;
             }
         }
     }
+    
+    // Check 180 degrees as a backup if noting was found in 90
+    let r = false;
+    if (t == curMapSel) {
 
-    if (e.key == 'ArrowUp') {
-        let closestDistance = 9999;
-        for (let i = 0; i < run; i++) {
-            let e = mapLocations[constellation][i];
-            if (
-                curMapSel != i &&
-                e.y < b.y
-            ) {
-                let dist = distance2D(e, b);
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    curMapSel = i;
-                }
+        for (let i = 0; i < mapLocations[constellation].length; i++) {
+            let d = mapLocations[constellation][i]; // dest
+            switch (e.key) {
+                case "ArrowLeft":
+                    if (c.x > d.x) {
+                        r = true;
+                    }
+                    break;
+                case "ArrowUp":
+                    if (c.y > d.y) {
+                        r = true;
+                    }
+                    break;
+                case "ArrowRight":
+                    if (c.x < d.x) {
+                        r = true;
+                    }
+                    break;
+                case "ArrowDown":
+                    if (c.y < d.y) {
+                        r = true;
+                    }
+                    break;
+                default:
             }
-        }
-    }
 
-    if (e.key == 'ArrowDown') {
-        let closestDistance = 9999;
-        for (let i = 0; i < run; i++) {
-            let e = mapLocations[constellation][i];
-            if (
-                curMapSel != i &&
-                e.y > b.y
-            ) {
-                let dist = distance2D(b,e);
+            if (curMapSel != i && r) {
+                let dist = distance2D(c, d);
                 if (dist < closestDistance) {
                     closestDistance = dist;
-                    curMapSel = i;
+                    t = i;
                 }
             }
         }
     }
+    return t;
+}
+
+function calculateNewPoint(x1, y1, angle, length) {
+    const radians = angle * (Math.PI / 180);
+    const x2 = x1 + length * Math.cos(radians);
+    const y2 = y1 + length * Math.sin(radians);
+    return { x: x2, y: y2 };
 }

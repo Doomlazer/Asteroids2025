@@ -90,6 +90,10 @@ class Mission {
 
 class Ship {
     constructor(x = c.width/2, y = c.height/2) {
+        this.mapDirHints = true;
+        this.mapDirAdjustTimer = 0;
+        this.mapDirOff = 0;
+        this.nearestDirs = [-1,-1,-1,-1];
         this.rot = 0;
         this.rotSpeed = 3;
         this.mapControlCycle = false;

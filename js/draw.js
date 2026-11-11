@@ -190,7 +190,7 @@ function drawStage1() {
         // draw lazer nub on top ship
         if (ship.lzrEquip) {
             sctx.beginPath();
-            sctx.arc(0, 0, 3, 0, 360);
+            sctx.arc(0, 0, 3, 0, 2 * Math.PI);
             sctx.strokeStyle = "#FFFFFF";
             sctx.stroke();
             sctx.closePath();
@@ -204,7 +204,7 @@ function drawStage1() {
             ctx.lineWidth = defaultLineWidth;
             ctx.strokeStyle = "#0d40f5"
             ctx.beginPath();
-            ctx.arc(ship.x+20, ship.y+20, ship.shieldRad, 0, 360);
+            ctx.arc(ship.x+20, ship.y+20, ship.shieldRad, 0, 2 * Math.PI);
             ship.shieldRad += 0.8;
             if (ship.shieldRad > 24) {
                 ship.shieldRad = 18;
@@ -257,7 +257,7 @@ function drawStage1() {
     bullets.forEach(b => {
         ctx.beginPath();
         //console.log(b, b.x, b.y)
-        ctx.arc(b.x, b.y, 2+(b.damage/4), 0, 360);  
+        ctx.arc(b.x, b.y, 2+(b.damage/4), 0, 2 * Math.PI);  
         ctx.strokeStyle = b.color;
         ctx.stroke();
         ctx.closePath();
@@ -353,7 +353,7 @@ function drawMap() {
     mapLocations[constellation].forEach(l => {
         let ind = mapLocations[constellation].indexOf(l);
         ctx.beginPath();
-        ctx.arc(c.width/20*l.x, c.height/20*l.y, c.width/20*0.1, 0, 360);
+        ctx.arc(c.width/20*l.x, c.height/20*l.y, c.width/20*0.1, 0, 2 * Math.PI);
         ctx.strokeStyle = l.color;
         archColor(l);
         ctx.stroke();
@@ -492,6 +492,135 @@ function drawMap() {
         }
     });
 
+    // Degbug alt map control scheme
+    if (ship.mapDirHints) {
+        let b = mapLocations[constellation][curMapSel];
+        for (let i = 0; i < mapLocations[constellation].length; i++) {
+            let e = mapLocations[constellation][i];
+            let a = angle360(b.x,b.y,e.x,e.y);
+            //console.log(a)
+            ctx.font = scaleFont(0.007, "Hyperspace");
+            ctx.fillStyle = '#fbfbfb';
+            ctx.lineDashOffset += 0.01;
+            if (ship.mapDirAdjustTimer > 0) {
+                ship.mapDirAdjustTimer --;
+            }
+            if (
+                a > 120 - ship.mapDirOff &&
+                a < 240 + ship.mapDirOff
+            ) {
+                ctx.fillStyle = '#cfdd09';
+                let l = getNearestLoc({key: "ArrowLeft"})
+                if (i == l) {
+                    ctx.strokeStyle = '#cfdd09';
+                    ctx.setLineDash([10,30]);
+                    let path = new Path2D();
+                    path.moveTo(c.width/20*e.x-5, c.height/20*e.y);
+                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(path);
+                }
+                if (ship.mapDirAdjustTimer) {
+                    ctx.setLineDash([]);
+                    let n1 = calculateNewPoint(b.x, b.y, 120 - ship.mapDirOff, 9999); 
+                    let pathS = new Path2D();
+                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
+                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathS);
+                    let n2 = calculateNewPoint(b.x, b.y, 240 + ship.mapDirOff, 9999); 
+                    let pathF = new Path2D();
+                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
+                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathF);
+                }
+            }
+            if (
+                a > 210 - ship.mapDirOff &&
+                a < 330 + ship.mapDirOff
+            ) {
+                ctx.fillStyle = '#dd2c09';
+                ctx.strokeStyle = '#dd2c09';
+                let l = getNearestLoc({key: "ArrowUp"})
+                if (i == l) {
+                    ctx.setLineDash([10,30]);
+                    let path = new Path2D();
+                    path.moveTo(c.width/20*e.x, c.height/20*e.y-5);
+                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(path);
+                }
+                if (ship.mapDirAdjustTimer) {
+                    ctx.setLineDash([]);
+                    let n1 = calculateNewPoint(b.x, b.y, 210 - ship.mapDirOff, 9999); 
+                    let pathS = new Path2D();
+                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
+                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathS);
+                    let n2 = calculateNewPoint(b.x, b.y, 330 + ship.mapDirOff, 9999); 
+                    let pathF = new Path2D();
+                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
+                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathF);
+                }
+            }
+            if (
+                a > 300 - ship.mapDirOff ||
+                a < 60 + ship.mapDirOff
+            ) {
+                ctx.fillStyle = '#09badd';
+                ctx.strokeStyle = '#09badd';
+                let l = getNearestLoc({key: "ArrowRight"})
+                if (i == l) {
+                    ctx.setLineDash([10,30]);
+                    let path = new Path2D();
+                    path.moveTo(c.width/20*e.x+5, c.height/20*e.y);
+                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(path);
+                }
+                if (ship.mapDirAdjustTimer) {
+                    ctx.setLineDash([]);
+                    let n1 = calculateNewPoint(b.x, b.y, 300 - ship.mapDirOff, 9999); 
+                    let pathS = new Path2D();
+                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
+                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathS);
+                    let n2 = calculateNewPoint(b.x, b.y, 60 + ship.mapDirOff, 9999); 
+                    let pathF = new Path2D();
+                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
+                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathF);
+                }
+            }
+            if (
+                a > 30 - ship.mapDirOff &&
+                a < 150 + ship.mapDirOff
+            ) {
+                ctx.fillStyle = '#dd09b6';
+                ctx.strokeStyle = '#dd09b6';
+                let l = getNearestLoc({key: "ArrowDown"})
+                if (i == l) {
+                    ctx.setLineDash([10,30]);
+                    let path = new Path2D();
+                    path.moveTo(c.width/20*e.x, c.height/20*e.y+5);
+                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(path);
+                }
+                if (ship.mapDirAdjustTimer) {
+                    ctx.setLineDash([]);
+                    let n1 = calculateNewPoint(b.x, b.y, 30 - ship.mapDirOff, 9999); 
+                    let pathS = new Path2D();
+                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
+                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathS);
+                    let n2 = calculateNewPoint(b.x, b.y, 150 + ship.mapDirOff, 9999); 
+                    let pathF = new Path2D();
+                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
+                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
+                    ctx.stroke(pathF);
+                }
+            }
+            ctx.setLineDash([]);
+        }
+    }
+
     if (ship.fuelTotal > 0) {
         moveEntity(warper);
     } else {
@@ -515,8 +644,8 @@ function drawMap() {
         }
     
         ctx.beginPath();
-        //ctx.arc(warper.x, warper.y, 3, 0, 360);
-        ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 360);
+        //ctx.arc(warper.x, warper.y, 3, 0, 2 * Math.PI);
+        ctx.arc(c.width/20*warper.x, c.height/20*warper.y, c.width/20*0.1, 0, 2 * Math.PI);
         
         ctx.strokeStyle = warper.color;
         ctx.lineWidth = defaultLineWidth + 2;
@@ -547,64 +676,6 @@ function drawMap() {
                 ship.x = c.width/2;
                 ship.y = c.height/2;
                 newAstroidField();
-            }
-        }
-    }
-
-    // Degbug alt map control scheme
-    if (debug) {
-        let b = mapLocations[constellation][curMapSel];
-        for (let i = 0; i < mapLocations[constellation].length; i++) {
-            let e = mapLocations[constellation][i];
-            if (e.x < b.x) {
-                ctx.strokeStyle = '#e7fb0a';
-                ctx.lineWidth = defaultLineWidth + 8;
-                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
-                ctx.font = scaleFont(0.04, "Hyperspace");
-                ctx.fillStyle = '#f9f004';
-                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
-                let path = new Path2D();
-                path.moveTo(c.width/20*e.x, c.height/20*e.y);
-                path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                ctx.stroke(path);
-
-            }
-            if (e.x > b.x) {
-                ctx.strokeStyle = '#4cdd09';
-                ctx.lineWidth = defaultLineWidth + 6;
-                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
-                ctx.font = scaleFont(0.035, "Hyperspace");
-                ctx.fillStyle = '#4cdd09';
-                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((e.x-b.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
-                let path = new Path2D();
-                path.moveTo(c.width/20*e.x, c.height/20*e.y);
-                path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                ctx.stroke(path);
-            }
-            if (e.y < b.y) {
-                ctx.strokeStyle = '#0909dd';
-                ctx.lineWidth = defaultLineWidth + 4;
-                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
-                ctx.font = scaleFont(0.02, "Hyperspace");
-                ctx.fillStyle = '#0909dd';
-                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y + ((b.y-e.y)/2)));
-                let path = new Path2D();
-                path.moveTo(c.width/20*e.x, c.height/20*e.y);
-                path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                ctx.stroke(path);
-            }
-            if (e.y > b.y) {
-                ctx.strokeStyle = '#dd1709';
-                ctx.lineWidth = defaultLineWidth + 2;
-                ctx.strokeRect(c.width/20*e.x, c.height/20*e.y, 15,  15);
-                ctx.lineWidth = defaultLineWidth;
-                ctx.font = scaleFont(0.025, "Hyperspace");
-                ctx.fillStyle = '#dd1709';
-                ctx.fillText(distance2D(b,e).toFixed(2), c.width/20*(e.x + ((b.x-e.x)/2)), c.height/20*(e.y - ((e.y-b.y)/2)));
-                let path = new Path2D();
-                path.moveTo(c.width/20*e.x, c.height/20*e.y);
-                path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                ctx.stroke(path);
             }
         }
     }
@@ -895,10 +966,12 @@ function drawWarp() {
             let ind = mapLocations[constellation].indexOf(l);
             ctx.beginPath();
             ctx.arc(
-                ((c.width/20*l.x)/2.5) + (c.width/1.8), 
-                (c.height/20*l.y)/2.5 + (c.height/8), 
-                c.width/30*0.1, 
-                0, 360);
+                ((c.width/20*l.x)/2.5) + (c.width/1.8),
+                (c.height/20*l.y)/2.5 + (c.height/8),
+                c.width/30*0.1,
+                0,
+                2 * Math.PI
+            );
             /*if (l.visited) {
                 ctx.strokeStyle = "#ffffff";
             } else {
@@ -1028,7 +1101,7 @@ function drawBG() {
         for (let i = 0; i < loc.bg.length - 1; i ++) {
             let r = 2;
             ctx.beginPath();
-            ctx.arc(c.width*(loc.bg[i][0]/100), c.height*(loc.bg[i][1]/100), loc.bg[i][3], 0, 360);
+            ctx.arc(c.width*(loc.bg[i][0]/100), c.height*(loc.bg[i][1]/100), loc.bg[i][3], 0, 2 * Math.PI);
             ctx.fillStyle = loc.bg[i][2];
             ctx.fill();
             ctx.closePath();
