@@ -1701,61 +1701,36 @@ function speak(text, queue = true, voice = 0) {
 }
 
 function getNearestLoc(e) {
-    // 120 degree cardnal checks
-    let c = mapLocations[constellation][curMapSel]; // current
+    // 90 degree cardnal checks
+    const c = mapLocations[constellation][curMapSel]; // current
+    const dr = ["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"];
+    let ind = dr.indexOf(e.key);
+    const q = [135, 225, 315, 45];
+    let f = (ind == 3) ? q[0] : q[ind+1];
+    let t = curMapSel;
     let closestDistance = 9999;
-    let s; // angle start
-    let f; // angle end
-    let t = curMapSel; 
 
     for (let i = 0; i < mapLocations[constellation].length; i++) {
         let d = mapLocations[constellation][i]; // dest
         let a = angle360(c.x, c.y, d.x, d.y);
-        // shift the angle 45 deg to make calculations easier
-        // console.log(a > s, a < f, a, s , f, d.name, closestDistance);
+        
         let r = false;
-        switch (e.key) {
-            case "ArrowLeft":
-                if (
-                    a > 120 - ship.mapDirOff &&
-                    a < 240 + ship.mapDirOff
-                ) {
-                    r = true;
-                }
-                break;
-            case "ArrowUp":
-                if (
-                    a > 210 - ship.mapDirOff &&
-                    a < 330 + ship.mapDirOff
-                ) {
-                    r = true;
-                }
-                break;
-            case "ArrowRight":
-                // use or here for angles over 360
-                console.log()
-                if (
-                    a > 300 - ship.mapDirOff ||
-                    a < 60 + ship.mapDirOff
-                ) {
-                    r = true;
-                }
-                break;
-            case "ArrowDown":
-                if (
-                    a > 30 - ship.mapDirOff &&
-                    a < 150 + ship.mapDirOff
-                ) {
-                    r = true;
-                }
-                break;
-            default:
-                r = false;
-        }
-        if (
-            curMapSel != i &&
-            r
+        if (ind == 2) {
+            // requires OR
+            if (
+                a > q[2] - ship.mapDirOff ||
+                a < q[3] + ship.mapDirOff
+            ) {
+                r = true;
+            }
+        } else if (
+            a > q[ind] - ship.mapDirOff &&
+            a < f + ship.mapDirOff
         ) {
+            r = true;
+        }
+
+        if (r && curMapSel != i) {
             let dist = distance2D(c, d);
             if (dist != 0 && dist < closestDistance) {
                 closestDistance = dist;
@@ -1767,7 +1742,6 @@ function getNearestLoc(e) {
     // Check 180 degrees as a backup if noting was found in 90
     let r = false;
     if (t == curMapSel) {
-
         for (let i = 0; i < mapLocations[constellation].length; i++) {
             let d = mapLocations[constellation][i]; // dest
             switch (e.key) {
@@ -1794,8 +1768,10 @@ function getNearestLoc(e) {
                 default:
             }
 
-            if (curMapSel != i && r) {
-                let dist = distance2D(c, d);
+            if (r && curMapSel != i) {
+                let dist = Math.abs(distance2D(c, d));
+                // to do: const 0, not working to loc 0 from loc 1
+                //console.log(d.name, i, curMapSel, dist, a)
                 if (dist < closestDistance) {
                     closestDistance = dist;
                     t = i;

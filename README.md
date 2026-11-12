@@ -43,7 +43,7 @@ Controls:
 
 "r / t" - adjust ship rotation speed
 
-"y / u" - adjust cardnal direction angle width on local map
+"y / u" - Dec/Inc the directional priority angle for map movement. Note: when adjusting this setting on the map screen, color coded guide lines will briefly display the directional angles. If no location is found within this angle for a given direction, it falls back to the closest location within 180 degrees.
 
 "UpArrow" - accelerate
 

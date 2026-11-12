@@ -492,133 +492,65 @@ function drawMap() {
         }
     });
 
-    // Degbug alt map control scheme
+    // alt map control scheme visual info
     if (ship.mapDirHints) {
+        const col = ['#cfdd09','#dd2c09','#09badd','#dd09b6'];
         let b = mapLocations[constellation][curMapSel];
-        for (let i = 0; i < mapLocations[constellation].length; i++) {
-            let e = mapLocations[constellation][i];
-            let a = angle360(b.x,b.y,e.x,e.y);
-            //console.log(a)
-            ctx.font = scaleFont(0.007, "Hyperspace");
-            ctx.fillStyle = '#fbfbfb';
-            ctx.lineDashOffset += 0.01;
-            if (ship.mapDirAdjustTimer > 0) {
-                ship.mapDirAdjustTimer --;
-            }
-            if (
-                a > 120 - ship.mapDirOff &&
-                a < 240 + ship.mapDirOff
-            ) {
-                ctx.fillStyle = '#cfdd09';
-                let l = getNearestLoc({key: "ArrowLeft"})
-                if (i == l) {
-                    ctx.strokeStyle = '#cfdd09';
-                    ctx.setLineDash([10,30]);
-                    let path = new Path2D();
-                    path.moveTo(c.width/20*e.x-5, c.height/20*e.y);
-                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(path);
-                }
-                if (ship.mapDirAdjustTimer) {
-                    ctx.setLineDash([]);
-                    let n1 = calculateNewPoint(b.x, b.y, 120 - ship.mapDirOff, 9999); 
-                    let pathS = new Path2D();
-                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
-                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathS);
-                    let n2 = calculateNewPoint(b.x, b.y, 240 + ship.mapDirOff, 9999); 
-                    let pathF = new Path2D();
-                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
-                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathF);
-                }
-            }
-            if (
-                a > 210 - ship.mapDirOff &&
-                a < 330 + ship.mapDirOff
-            ) {
-                ctx.fillStyle = '#dd2c09';
-                ctx.strokeStyle = '#dd2c09';
-                let l = getNearestLoc({key: "ArrowUp"})
-                if (i == l) {
-                    ctx.setLineDash([10,30]);
-                    let path = new Path2D();
-                    path.moveTo(c.width/20*e.x, c.height/20*e.y-5);
-                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(path);
-                }
-                if (ship.mapDirAdjustTimer) {
-                    ctx.setLineDash([]);
-                    let n1 = calculateNewPoint(b.x, b.y, 210 - ship.mapDirOff, 9999); 
-                    let pathS = new Path2D();
-                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
-                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathS);
-                    let n2 = calculateNewPoint(b.x, b.y, 330 + ship.mapDirOff, 9999); 
-                    let pathF = new Path2D();
-                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
-                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathF);
-                }
-            }
-            if (
-                a > 300 - ship.mapDirOff ||
-                a < 60 + ship.mapDirOff
-            ) {
-                ctx.fillStyle = '#09badd';
-                ctx.strokeStyle = '#09badd';
-                let l = getNearestLoc({key: "ArrowRight"})
-                if (i == l) {
-                    ctx.setLineDash([10,30]);
-                    let path = new Path2D();
-                    path.moveTo(c.width/20*e.x+5, c.height/20*e.y);
-                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(path);
-                }
-                if (ship.mapDirAdjustTimer) {
-                    ctx.setLineDash([]);
-                    let n1 = calculateNewPoint(b.x, b.y, 300 - ship.mapDirOff, 9999); 
-                    let pathS = new Path2D();
-                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
-                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathS);
-                    let n2 = calculateNewPoint(b.x, b.y, 60 + ship.mapDirOff, 9999); 
-                    let pathF = new Path2D();
-                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
-                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathF);
-                }
-            }
-            if (
-                a > 30 - ship.mapDirOff &&
-                a < 150 + ship.mapDirOff
-            ) {
-                ctx.fillStyle = '#dd09b6';
-                ctx.strokeStyle = '#dd09b6';
-                let l = getNearestLoc({key: "ArrowDown"})
-                if (i == l) {
-                    ctx.setLineDash([10,30]);
-                    let path = new Path2D();
-                    path.moveTo(c.width/20*e.x, c.height/20*e.y+5);
-                    path.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(path);
-                }
-                if (ship.mapDirAdjustTimer) {
-                    ctx.setLineDash([]);
-                    let n1 = calculateNewPoint(b.x, b.y, 30 - ship.mapDirOff, 9999); 
-                    let pathS = new Path2D();
-                    pathS.moveTo(c.width/20*n1.x, c.height/20*n1.y);
-                    pathS.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathS);
-                    let n2 = calculateNewPoint(b.x, b.y, 150 + ship.mapDirOff, 9999); 
-                    let pathF = new Path2D();
-                    pathF.moveTo(c.width/20*n2.x, c.height/20*n2.y);
-                    pathF.lineTo(c.width/20*b.x, c.height/20*b.y);
-                    ctx.stroke(pathF);
-                }
-            }
-            ctx.setLineDash([]);
+        const q = [135, 225, 315, 45];
+
+        // show dir angles debug
+        if (ship.mapDirAdjustTimer > 0) {
+            ship.mapDirAdjustTimer --;
         }
+        if (ship.mapDirAdjustTimer) {
+            ctx.save();
+
+            const cl = new Path2D();
+            cl.rect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
+            ctx.clip(cl);
+
+            // Left,Up,Right,Down
+            for (let i = 0; i < 4; i++) {
+                ctx.strokeStyle = col[i];
+
+                // start angle
+                let s = calculateNewPoint(b.x, b.y, q[i] - ship.mapDirOff, 9999); 
+                let path = new Path2D();
+                path.moveTo(c.width/20*s.x, c.height/20*s.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+
+                // finish angle
+                let t = (i == 3) ? q[0] : q[i+1];
+                let f = calculateNewPoint(b.x, b.y, t + ship.mapDirOff, 9999); 
+                path.moveTo(c.width/20*f.x, c.height/20*f.y);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+
+                ctx.stroke(path);
+            }
+            ctx.restore();
+        }
+
+        // Draw dashed direction destion display
+        const dr = ["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"];
+        const xO = [-5, 0, 5, 0];
+        const yO = [0, -5, 0, 5];
+        ctx.font = scaleFont(0.007, "Hyperspace");
+        ctx.fillStyle = '#fbfbfb';
+        ctx.lineDashOffset += 0.2;
+    
+        for (let i = 0; i < 0; i++) {
+            let t = (i == 3) ? q[0] : q[i+1];
+            let l = getNearestLoc({key: dr[i]});
+            ctx.fillStyle = col[i];
+            ctx.strokeStyle = col[i];
+            ctx.setLineDash([10,30]);
+            let e = mapLocations[constellation][l];
+            let path = new Path2D();
+            path.moveTo((c.width/20*e.x)+xO[i], (c.height/20*e.y)+yO[i]);
+            path.lineTo(c.width/20*b.x, c.height/20*b.y);
+            ctx.stroke(path);
+        }
+        ctx.setLineDash([]);
     }
 
     if (ship.fuelTotal > 0) {
@@ -628,7 +560,6 @@ function drawMap() {
         ctx.fillStyle = '#FFFFFF';
         drawStringFX(ctx, "OUT OF FUEL - GAME OVER",c.width/20*3, c.width/20*6, c.width/20 * 0.6);
         if (ship.gameOverCounter > 0) {
-            //drawStringFX(ctx, `  ${ship.gameOverCounter}`,c.width/20*7, c.width/20*8, c.width/20 * 0.7);
             ship.gameOverCounter --;
         } else {
             drawStringFX(ctx, `PRESS KEY TO RESTART`,c.width/20*3.5, c.width/20*8, c.width/20 * 0.7);
@@ -827,7 +758,7 @@ function drawUpgrade() {
                 ctx.fillText(ship.lzrLvl, c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
             } else {
                 ctx.fillStyle = '#f90202';
-                ctx.fillText("ERR", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
+                ctx.fillText("UNAVAIL.", c.width/20*10.5, c.height/20*7+(c.height/20*1.2*i));
             }
         } else {
             // curr upgrade level
