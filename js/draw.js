@@ -498,7 +498,7 @@ function drawMap() {
         let b = mapLocations[constellation][curMapSel];
         const q = [135, 225, 315, 45];
 
-        // show dir angles debug
+        // show dir angles
         if (ship.mapDirAdjustTimer > 0) {
             ship.mapDirAdjustTimer --;
         }
@@ -509,7 +509,16 @@ function drawMap() {
             cl.rect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
             ctx.clip(cl);
 
-            // Left,Up,Right,Down
+            // dash out effect
+            let k1 = 100;
+            let k2;
+            if (ship.mapDirAdjustTimer < 100) {
+                k1 = ship.mapDirAdjustTimer;
+                k2 = 100 - k1;
+            }
+            ctx.setLineDash([k1,k2]);
+
+            // Do: Left,Up,Right,Down
             for (let i = 0; i < 4; i++) {
                 ctx.strokeStyle = col[i];
 
@@ -527,6 +536,7 @@ function drawMap() {
 
                 ctx.stroke(path);
             }
+            ctx.setLineDash([]);
             ctx.restore();
         }
 
@@ -538,7 +548,7 @@ function drawMap() {
         ctx.fillStyle = '#fbfbfb';
         ctx.lineDashOffset += 0.2;
     
-        for (let i = 0; i < 0; i++) {
+        for (let i = 0; i < 4; i++) {
             let t = (i == 3) ? q[0] : q[i+1];
             let l = getNearestLoc({key: dr[i]});
             ctx.fillStyle = col[i];
