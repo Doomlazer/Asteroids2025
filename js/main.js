@@ -744,16 +744,25 @@ function kDown(e) {
         if (!warping) {
 
             // change destination if arrow key
-            curMapSel = getNearestLoc(e); 
+            let t = getNearestLoc(e); 
+            if (t != -1) {
+                curMapSel = t;
+            }
 
             // direction angle width adjust
             if (e.key == 'y') {
-                ship.mapDirOff -= 1;
-                ship.mapDirAdjustTimer = 1000;
+                ship.mapDirOff -= 1;``
+                if (ship.mapDirOff < -45) {
+                    ship.mapDirOff = -45;
+                }
+                ship.mapDirAdjustTimer = 300;
             }
             if (e.key == 'u') {
                 ship.mapDirOff += 1;
-                ship.mapDirAdjustTimer= 1000;
+                if (ship.mapDirOff > 45) {
+                    ship.mapDirOff = 45
+                }
+                ship.mapDirAdjustTimer= 300;
             }
             
             // space to goto map destination
@@ -1707,7 +1716,7 @@ function getNearestLoc(e) {
     let ind = dr.indexOf(e.key);
     const q = [135, 225, 315, 45];
     let f = (ind == 3) ? q[0] : q[ind+1];
-    let t = curMapSel;
+    let t = -1;
     let closestDistance = 9999;
 
     for (let i = 0; i < mapLocations[constellation].length; i++) {
@@ -1740,41 +1749,45 @@ function getNearestLoc(e) {
     }
     
     // Check 180 degrees as a backup if noting was found in 90
-    let r = false;
-    if (t == curMapSel) {
+    if (t == -1) {
         for (let i = 0; i < mapLocations[constellation].length; i++) {
-            let d = mapLocations[constellation][i]; // dest
-            switch (e.key) {
-                case "ArrowLeft":
-                    if (c.x > d.x) {
-                        r = true;
-                    }
-                    break;
-                case "ArrowUp":
-                    if (c.y > d.y) {
-                        r = true;
-                    }
-                    break;
-                case "ArrowRight":
-                    if (c.x < d.x) {
-                        r = true;
-                    }
-                    break;
-                case "ArrowDown":
-                    if (c.y < d.y) {
-                        r = true;
-                    }
-                    break;
-                default:
-            }
+            let r = false;
+            if (curMapSel != i) {
+                let d = mapLocations[constellation][i]; // dest
+                switch (e.key) {
+                    case "ArrowLeft":
+                        if (c.x > d.x) {
+                            r = true;
+                        }
+                        break;
+                    case "ArrowUp":
+                        if (c.y > d.y) {
+                            r = true;
+                        }
+                        break;
+                    case "ArrowRight":
+                        if (c.x < d.x) {
+                            r = true;
+                        }
+                        break;
+                    case "ArrowDown":
+                        if (c.y < d.y) {
+                            r = true;
+                        }
+                        break;
+                    default:
+                        r = false;
+                }
 
-            if (r && curMapSel != i) {
-                let dist = Math.abs(distance2D(c, d));
-                // to do: const 0, not working to loc 0 from loc 1
-                //console.log(d.name, i, curMapSel, dist, a)
-                if (dist < closestDistance) {
-                    closestDistance = dist;
-                    t = i;
+                if (r) {
+                    let dist = Math.abs(distance2D(c, d));
+                    // to do: const 0, not working to loc 0 from loc 1
+                    //console.log(d.name, i, curMapSel, dist, a)
+                    if (dist < closestDistance) {
+                        console.log(d.name, i, curMapSel, dist, a)
+                        closestDistance = dist;
+                        t = i;
+                    }
                 }
             }
         }

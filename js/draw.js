@@ -348,7 +348,7 @@ function drawMap() {
     ctx.strokeStyle = '#FFFFFF';
     ctx.strokeRect(c.width/20*0.5, c.height/20*2, c.width/20*19, c.height/20*17.5);
     ctx.strokeRect(c.width/20*1, c.height/20*2.5, c.width/20*18, c.height/20*12.5);
-    
+
     // draw locations
     mapLocations[constellation].forEach(l => {
         let ind = mapLocations[constellation].indexOf(l);
@@ -366,7 +366,7 @@ function drawMap() {
             ctx.fillStyle = "#999999";
         }
         ctx.fillText(l.name, c.width/20*l.x, c.height/20*l.y+(c.height/20*0.6));
-        
+
         // mission markers
         ctx.font = scaleFont(0.012, "Hyperspace");
         for (let i = 0; i < missions.length; i++) {
@@ -551,14 +551,16 @@ function drawMap() {
         for (let i = 0; i < 4; i++) {
             let t = (i == 3) ? q[0] : q[i+1];
             let l = getNearestLoc({key: dr[i]});
-            ctx.fillStyle = col[i];
-            ctx.strokeStyle = col[i];
-            ctx.setLineDash([10,30]);
-            let e = mapLocations[constellation][l];
-            let path = new Path2D();
-            path.moveTo((c.width/20*e.x)+xO[i], (c.height/20*e.y)+yO[i]);
-            path.lineTo(c.width/20*b.x, c.height/20*b.y);
-            ctx.stroke(path);
+            if (l != -1) {
+                ctx.fillStyle = col[i];
+                ctx.strokeStyle = col[i];
+                ctx.setLineDash([10,30]);
+                let e = mapLocations[constellation][l];
+                let path = new Path2D();
+                path.moveTo((c.width/20*e.x)+xO[i], (c.height/20*e.y)+yO[i]);
+                path.lineTo(c.width/20*b.x, c.height/20*b.y);
+                ctx.stroke(path);
+            }  
         }
         ctx.setLineDash([]);
     }
