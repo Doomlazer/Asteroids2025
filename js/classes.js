@@ -195,8 +195,8 @@ class mobile {
         this.timesFired = 0;
         this.int = karma*2;
         this.maxSpeed = 1 + getRandomInt(3);
-        this.maxBullets = getRandomInt(20);
-        this.baseDamage = getRandomInt(10);
+        this.maxBullets = getRandomInt(25);
+        this.baseDamage = getRandomInt(25);
         this.bulletRate = getRandomInt(400) + 1; // delay before next bullet
         this.bulletTimer = getRandomInt(this.bulletRate); // cool down remaining before firing next bullet
         this.bulletLife = 20 + getRandomInt(200); // how far bullets travel before disapearing
@@ -204,7 +204,9 @@ class mobile {
         if (this.shotJitter < 0) {
             this.shotJitter = 0;
         }
-        this.color = '#FFFFFF'
+        let str = `rgb(${(100+(this.baseDamage*4))},${(100+(this.bulletRate/4))},${(100+(this.maxBullets/4))})`;
+        console.log(str)
+        this.color = str;
         this.lzrCool = 25;
         // star shaped
         this.path = new Path2D();
@@ -426,6 +428,12 @@ class DamageNumber {
     }
 }
 
+function plusMinus(a) {
+    let r = getRandomInt(a);
+    r = r -(a/2);
+    return r;
+}
+
 class Asteroid {
     constructor(large = true, x, y) {
         this.rot = getRandomInt(360);
@@ -448,6 +456,7 @@ class Asteroid {
                     this.x = c.width;
                 }
             }
+            /*/ old
             this.path = new Path2D();
             this.path.moveTo(0, -30);
             this.path.lineTo(20, -20);
@@ -461,6 +470,21 @@ class Asteroid {
             this.path.lineTo(-30, -5)
             this.path.lineTo(-22, -20)
             this.path.lineTo(0, -30);
+            */
+           this.path = new Path2D();
+            this.path.moveTo(0, -30);
+            this.path.lineTo(20+plusMinus(10), -20+plusMinus(10));
+            this.path.lineTo(30+plusMinus(10), 0+plusMinus(10));
+            this.path.lineTo(22+plusMinus(10), 10+plusMinus(10));
+            this.path.lineTo(18+plusMinus(10), 25+plusMinus(10));
+            this.path.lineTo(5+plusMinus(10), 33+plusMinus(10));
+            this.path.lineTo(-15+plusMinus(10), 25+plusMinus(10));
+            this.path.lineTo(-25+plusMinus(10), 15+plusMinus(10));
+            this.path.lineTo(-20+plusMinus(10), 5+plusMinus(10));
+            this.path.lineTo(-30+plusMinus(10), -5+plusMinus(10))
+            this.path.lineTo(-22+plusMinus(10), -20+plusMinus(10))
+            this.path.lineTo(0, -30);
+
             this.hbOffset1 = 15;
             this.hbOffset2 = 50;
             this.health = getRandomInt(10)+(10* constellation);
@@ -470,26 +494,24 @@ class Asteroid {
             this.x = x;
             this.y = y;
             this.path = new Path2D();
-            this.path.moveTo(0, -20);
-            this.path.lineTo(15, -15);
-            this.path.lineTo(20, 0);
-            this.path.lineTo(12, 5);
-            this.path.lineTo(8, 15);
-            this.path.lineTo(5, 20);
-            this.path.lineTo(-5, 10);
-            this.path.lineTo(-10, 10);
-            this.path.lineTo(-10, 5);
-            this.path.lineTo(-15, -5)
-            this.path.lineTo(-12, -10)
-            this.path.lineTo(0, -20);
+            this.path.moveTo(0, -15);
+            this.path.lineTo(10+plusMinus(8), -10+plusMinus(8));
+            this.path.lineTo(15+plusMinus(8), 0+plusMinus(8));
+            this.path.lineTo(10+plusMinus(8), 10+plusMinus(8));
+            this.path.lineTo(0+plusMinus(8), 15+plusMinus(8));
+            this.path.lineTo(-10+plusMinus(8), 10+plusMinus(8));
+            this.path.lineTo(-15+plusMinus(8), 0+plusMinus(8));
+            this.path.lineTo(-10+plusMinus(8), -10+plusMinus(8));
+            this.path.lineTo(0, -15);
             this.hbOffset1 = 25;
             this.hbOffset2 = 30;
             this.health = getRandomInt(5)+(5*constellation);
             this.large = false;
         }
         this.large = large;
-        this.spin = getRandomInt(360);
-        this.speed = getRandomInt(3)+0.2;
+        this.spin = 0.01//getRandomInt(100)/100;
+        console.log(this.spin);
+        this.speed = getRandomInt(4)+0.2;
         this.color = '#FFFFFF';
         this.clockwise = getRandomInt(2);
         this.lzrCool = 25;

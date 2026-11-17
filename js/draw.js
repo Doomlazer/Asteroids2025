@@ -1108,7 +1108,7 @@ function drawAsteroids() {
                 ctx.stroke(); // Render the line
                 ctx.lineWidth = defaultLineWidth;
                 if (e.lzrCool <= 0) {
-                    let dam = getRandomInt(ship.lzrLvl*(ship.baseDamage/2))+1;
+                    let dam = getRandomInt(ship.lzrLvl*(ship.baseDamage/2))+3;
                     e.health -= dam;
                     damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                     e.lzrCool = 25;
@@ -1438,6 +1438,9 @@ function drawGauges() {
 
     ctx.font = scaleFont(0.02, "Hyperspace");
     ctx.fillStyle = '#000000';
+    if (ship.fuelTotal < 0) {
+        ship.fuelTotal = 0;
+    }
     ctx.fillText(`${Math.floor(ship.fuelTotal)}/${ship.maxFuel}`, (c.width/20*13.2)-2, (c.height/20*1.45)-2);
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(`${Math.floor(ship.fuelTotal)}/${ship.maxFuel}`, c.width/20*13.2, c.height/20*1.45);
