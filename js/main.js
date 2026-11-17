@@ -215,9 +215,9 @@ function step(timeStamp) {
         // asteroid movement
         asteroids.forEach(roid => {
             if (roid.clockwise == 1) {
-                roid.spin = (roid.spin -= 1) % 360;
+                roid.spin = (roid.spin -= roid.rotSpeed) % 360;
             } else {
-                roid.spin = (roid.spin += 1) % 360;
+                roid.spin = (roid.spin += roid.rotSpeed) % 360;
             }
             moveEntity(roid);
         });
@@ -1390,7 +1390,7 @@ function moveShip() {
         asteroids.forEach(roid => {
             // ship & asteroid collision
             if (collision(ship, roid)) {
-                console.log(!roid.large && ship.shield)
+                //console.log(!roid.large && ship.shield)
                 if (!roid.large && ship.shield) {
                     ship.shield = false;
                     roid.health = 0;

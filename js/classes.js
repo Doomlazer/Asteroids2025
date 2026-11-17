@@ -509,9 +509,9 @@ class Asteroid {
             this.large = false;
         }
         this.large = large;
-        this.spin = 0.01//getRandomInt(100)/100;
-        console.log(this.spin);
+        this.spin = getRandomInt(100)/100;
         this.speed = getRandomInt(4)+0.2;
+        this.rotSpeed = this.speed+(getRandomInt(100)/100);
         this.color = '#FFFFFF';
         this.clockwise = getRandomInt(2);
         this.lzrCool = 25;
