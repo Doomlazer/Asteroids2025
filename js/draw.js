@@ -1170,9 +1170,50 @@ function drawMobiles() {
         actx.rotate(e.spin * Math.PI / 180);
         actx.strokeStyle = e.color;
         actx.stroke(e.path);
+        if (e.type == "enemy") {
+            e.eyeCounter++;
+            if (e.eyeCounter % 8 == 0) {
+                if (e.eyeDir) {
+                    e.eyeOff ++;
+                    if (e.eyeOff > 10) {
+                        e.eyeDir = false;
+                        e.eyeOff = 10;
+                    }
+                } else {
+                    e.eyeOff --;
+                    if (e.eyeOff < 0) {
+                        e.eyeDir = true;
+                        e.eyeOff = 0;
+                    }
+                }
+            }
+            for (let i = 0; i < 11; i++) {
+                let str;
+                let r;
+                if (i == e.eyeOff) {
+                    str = `rgb(${(255)},0,0)`;
+                    r = 10
+                } else if (i > e.eyeOff && !e.eyeDir) {
+                    str = `rgb(${(255-((i-e.eyeOff)*30))},0,0)`;
+                    r = 10-(i-e.eyeOff);
+                } else if (i < e.eyeOff && e.eyeDir) {
+                    str = `rgb(${(255-((e.eyeOff-i)*30))},0,0)`;
+                    r = 10-(e.eyeOff-i);
+                } else {
+                    str = "#000000";
+                    r = 0;
+                }
+                //let str = '`rgb(${(255)},0,0)`'
+                //console.log(str)
+                ctx.closePath();
+                ctx.strokeStyle = str;
+                ctx.strokeRect(e.x+19+(i*4), e.y+26,2,r);
+            }
+        }
         //console.log(e, e.x,e.y)
         ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
         actx.rotate(-e.spin * Math.PI / 180);
+
         if (showHitbox && debug) {
             drawHitbox(e);
         }

@@ -316,7 +316,7 @@ function step(timeStamp) {
                             ship.velY = 0;
                             deadBullets.push(b);
                             speak("Ship destroyed");
-                            msgTimer = 1000;
+                            msgTimer = 300;
                             msgTimerMsg = "Ship destroyed";
                             let x1 = ship.x + ship.hbOffset2;
                             let y1 = ship.y + ship.hbOffset2;
@@ -1048,13 +1048,13 @@ function kDown(e) {
     if (e.key == 'r') {
         ship.rotSpeed -= 0.25;
         speak(`Rotation Speed is now ${ship.rotSpeed}`, false, 5);
-        msgTimer = 250;
+        msgTimer = 300;
         msgTimerMsg = `Rotation Speed is now ${ship.rotSpeed}`;
     }
     if (e.key == 't') {
         ship.rotSpeed += 0.25;
         speak(`Rotation Speed is now ${ship.rotSpeed}`, false, 5);
-        msgTimer = 250;
+        msgTimer = 300;
         msgTimerMsg = `Rotation Speed is now ${ship.rotSpeed}`;
     }
 
@@ -1082,14 +1082,14 @@ function kDown(e) {
     if (e.key == 'w') {
         if (ship.curMission > 0) {
             ship.curMission --;
-            msgTimer = 500;
+            msgTimer = 600;
             msgTimerMsg = `Mission ${ship.curMission+1} of ${missions.length}`;
         }
     }
     if (e.key == 'e') {
         if (ship.curMission < missions.length - 1) {
             ship.curMission ++;
-            msgTimer = 500;
+            msgTimer = 600;
             msgTimerMsg = `Mission ${ship.curMission+1} of ${missions.length}`;
         }
     }
@@ -1403,7 +1403,7 @@ function moveShip() {
                     ship.velX = 0;
                     ship.velY = 0;
                     speak("Ship destroyed");
-                    msgTimer = 1000;
+                    msgTimer = 300;
                     msgTimerMsg = "Ship destroyed";
                     let r = ship.fuelTotal;
                     let x1 = ship.x + ship.hbOffset1 + (ship.hbOffset2/2);

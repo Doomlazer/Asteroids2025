@@ -166,8 +166,8 @@ class Ship {
 }
 
 class mobile {
-    constructor(x = 0, y = 0) {
-        this.type = "enemy";
+    constructor(x = 0, y = 0, type = "enemy") {
+        this.type = type;
         this.rot = getRandomInt(360);
         if (x == 0 && y == 0) {
             if (getRandomInt(2) == 1) {
@@ -190,10 +190,13 @@ class mobile {
             this.y = 50//y;
         }
         this.speed = 1;
+        this.eyeOff = getRandomInt(11);
+        this.eyeDir = false;
+        this.eyeCounter = 0;
         this.acceleration = 0.05;
         this.breakSpeed = 0.05;
         this.timesFired = 0;
-        this.int = karma*2;
+        this.int = karma*2; // higher karma increases enemy accuracy
         this.maxSpeed = 1 + getRandomInt(3);
         this.maxBullets = getRandomInt(25);
         this.baseDamage = getRandomInt(25);
@@ -205,23 +208,43 @@ class mobile {
             this.shotJitter = 0;
         }
         let str = `rgb(${(100+(this.baseDamage*4))},${(100+(this.bulletRate/4))},${(100+(this.maxBullets/4))})`;
-        console.log(str)
+        //console.log(str)
         this.color = str;
         this.lzrCool = 25;
         // star shaped
-        this.path = new Path2D();
-        this.path.moveTo(0, -20);
-        this.path.lineTo(7, -7);
-        this.path.lineTo(20, 0);
-        this.path.lineTo(7, 7);
-        this.path.lineTo(0, 20);
-        this.path.lineTo(-7, 7);
-        this.path.lineTo(-20, 0);
-        this.path.lineTo(-7, -7);
-        this.path.lineTo(0, -20);
-        this.hbOffset1 = 20;
-        this.hbOffset2 = 40;
-        this.health = getRandomInt(9)+(5*constellation);
+        if (this.type == "mine") {
+            this.path = new Path2D();
+            this.path.moveTo(0, -20);
+            this.path.lineTo(7, -7);
+            this.path.lineTo(20, 0);
+            this.path.lineTo(7, 7);
+            this.path.lineTo(0, 20);
+            this.path.lineTo(-7, 7);
+            this.path.lineTo(-20, 0);
+            this.path.lineTo(-7, -7);
+            this.path.lineTo(0, -20);
+            this.hbOffset1 = 20;
+            this.hbOffset2 = 40;
+            this.health = getRandomInt(9)+(5*constellation);
+        } else if (this.type == "enemy") {
+            this.path = new Path2D();
+            this.path.moveTo(0, -20);
+            this.path.lineTo(20, -17);
+            this.path.lineTo(20, 17);
+            this.path.lineTo(23, 20);
+            this.path.lineTo(10, 20);
+            this.path.lineTo(10, 0);
+            this.path.lineTo(-10, 0);
+            this.path.lineTo(-10, 20);
+            this.path.lineTo(-23, 20);
+            this.path.lineTo(-20, 17);
+            this.path.lineTo(-20, -17);
+            this.path.lineTo(0, -20);
+            this.hbOffset1 = 20;
+            this.hbOffset2 = 40;
+            this.health = getRandomInt(9)+(5*constellation);
+        }
+        
         this.dead = 0;
         //console.log("x,y: ",this.x,this.y)
     }
