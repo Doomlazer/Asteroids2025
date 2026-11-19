@@ -157,9 +157,7 @@ function drawStage1() {
             ship.upgrades[r] ++;
             doUpgrade(r, ship.upgrades[r]);
             speak(`Paint job Completed.`);
-            if (getRandomInt(3) == 1) {
-                ship.shield = true;
-            }
+            ship.shield = true;
         }
         //console.log(loc)
         ctx.strokeStyle = loc.paintColor
@@ -170,7 +168,6 @@ function drawStage1() {
         ctx.fillText(`Paint JOB`, loc.paintX-30,loc.paintY-20);
         ctx.fillText(loc.paintCost, loc.paintX,loc.paintY+50);
         ctx.lineWidth = defaultLineWidth;
-        
     }
 
     drawAsteroids();
@@ -1131,9 +1128,46 @@ function drawAsteroids() {
 
 function drawMobiles() {
     enemies.forEach(e => {
-        moveEntity(e);
+        if (e.type == "mine") {
+            let d = distance2D(
+                {"x":e.x+e.hbOffset2,"y":e.y+e.hbOffset2},
+                {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}
+            );
+            e.spin += 120/d;
+            if (120/d > e.mineThresh && !ship.dead) {
+                if (ship.shield) {
+                    ship.shield = false;
+                } else {
+                    ship.dead = true;
+                    ship.deadCounter = 120;
+                    ship.speed = 0;
+                    ship.velX = 0;
+                    ship.velY = 0;
+                }
+                deadEnemies.push(e);
+                let r = getRandomInt(5) + 5;
+                let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
+                let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
+                for (let i = 0; i < r; i++) {
+                    debrisArray.push(new Debri(x1, y1, 'e1'));
+                }
+                enemies = enemies.filter(e => !deadEnemies.includes(e));
+                deadEnemies = [];
+                setAudioSource(7);
+            }
+            if (d < e.mineRange && !ship.dead) {
+                let a = ship.hbOffset2/2;
+                e.rot = angle360(e.x+e.hbOffset2, e.y+e.hbOffset2, ship.x+ship.hbOffset2, ship.y+ship.hbOffset2);
+                if (e.speed < e.maxSpeed) {
+                    e.speed += 0.1;
+                }
+                moveEntity(e);
+            }
+        } else {
+            moveEntity(e);
+        }
         e.bulletTimer --;
-        if (e.bulletTimer <= 0) {
+        if (e.bulletTimer <= 0 && e.type != "mine") {
             if (e.timesFired % 5 == 0) {
                 e.bulletTimer = getRandomInt(400);
             } else {
@@ -1164,11 +1198,13 @@ function drawMobiles() {
             }
         }
         if (getRandomInt(20) == 1) {
-            e.rot += getRandomInt(30) - 15
+            // changde enemy direction
+            e.rot += getRandomInt(30) - 15;
         }
+        
+        actx.strokeStyle = e.color;
         actx.clearRect(-40,-40,80,80);
         actx.rotate(e.spin * Math.PI / 180);
-        actx.strokeStyle = e.color;
         actx.stroke(e.path);
         if (e.type == "enemy") {
             e.eyeCounter++;
@@ -1207,12 +1243,20 @@ function drawMobiles() {
                 //console.log(str)
                 ctx.closePath();
                 ctx.strokeStyle = str;
-                ctx.strokeRect(e.x+19+(i*4), e.y+26,2,r);
+                ctx.strokeRect(e.x+25+(i*3), e.y+40,2,r);
             }
         }
         //console.log(e, e.x,e.y)
         ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
         actx.rotate(-e.spin * Math.PI / 180);
+        if (e.type == "mine") {
+            actx.clearRect(-40,-40,80,80);
+            actx.rotate(-e.spin * Math.PI / 180);
+            actx.stroke(e.path);
+            ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
+            actx.rotate(e.spin * Math.PI / 180);
+        }
+        
 
         if (showHitbox && debug) {
             drawHitbox(e);
@@ -1233,7 +1277,7 @@ function drawMobiles() {
                     e.health -= dam;
                     damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                     e.lzrCool = 25;
-                    console.log(e.health)
+                    //console.log(e.health)
                     if (e.health <= 0) {
                         // updated missions
                         killEnemyShip(e);

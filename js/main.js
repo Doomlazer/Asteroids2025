@@ -355,8 +355,16 @@ function step(timeStamp) {
                             e.health -= damage;
                             damageNumbers.push(new DamageNumber(damage, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
                             if (e.health <= 0) {
-                                // updated missions
-                                killEnemyShip(e);
+                                if (e.type == "mine") {
+                                    deadEnemies.push(e);
+                                    enemies = enemies.filter(e => !deadEnemies.includes(e));
+                                    deadEnemies = [];
+                                    setAudioSource(6);
+                                    ship.money += 50;
+                                } else {
+                                    // updated missions
+                                    killEnemyShip(e);
+                                }
                             }
                         }
                     });
@@ -509,7 +517,8 @@ function killEnemyShip(e) {
     ship.money += getRandomInt(1000*constellation) + 800;
 
     setAudioSource(4);
-    if (enemies.length <= 1) {
+    let noMines = enemies.filter(e => e.type == "mine");
+    if (noMines.length <= 1) {
         // set timer for new mobile
         respawnTimer = 300 + getRandomInt(600);
         if (getRandomInt(5) == 1) {
@@ -1512,14 +1521,23 @@ function newAstroidField() {
     ship.velX = 0;
     ship.velY = 0;
     //resources = []; // needed? 
-    let r = getRandomInt(9) + 3;
-    for (let i=0; i<r; i++) {
-        asteroids.push(new Asteroid());
-    }
 
+    let r;
     if (mapLocations[constellation][curMapLoc].isHostile) {
         let e = new mobile();
         enemies.push(e); // 0,0 = radom x,y along width height
+        // if hostile also throw down a rand number of mines
+        let t = (getRandomInt(3)+1)*((constellation/6)+1);
+        for (let i = 0; i < t; i++) {
+            let e = new mobile(0,0,"mine");
+            enemies.push(e)
+        }
+        r = getRandomInt(5) + 1;
+    } else {
+        r = getRandomInt(15) + 1;
+    }
+    for (let i=0; i<r; i++) {
+        asteroids.push(new Asteroid());
     }
 }
 
@@ -1806,7 +1824,7 @@ function getNearestLoc(e) {
                     // to do: const 0, not working to loc 0 from loc 1
                     //console.log(d.name, i, curMapSel, dist, a)
                     if (dist < closestDistance) {
-                        console.log(d.name, i, curMapSel, dist, a)
+                        //console.log(d.name, i, curMapSel, dist, a)
                         closestDistance = dist;
                         t = i;
                     }

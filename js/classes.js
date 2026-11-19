@@ -169,20 +169,27 @@ class mobile {
     constructor(x = 0, y = 0, type = "enemy") {
         this.type = type;
         this.rot = getRandomInt(360);
+        this.spin = 0;
+        this.mineRange = 200;
         if (x == 0 && y == 0) {
-            if (getRandomInt(2) == 1) {
-                if (getRandomInt(2) == 1) {
-                    this.x = -3;
-                } else {
-                    this.x = c.width + 3;
-                }
+            if (type == "mine") {
+                this.x = getRandomInt(c.width);
                 this.y = getRandomInt(c.height);
             } else {
-                this.x = getRandomInt(c.width);
                 if (getRandomInt(2) == 1) {
-                    this.y = -3;
+                    if (getRandomInt(2) == 1) {
+                        this.x = -3;
+                    } else {
+                        this.x = c.width + 3;
+                    }
+                    this.y = getRandomInt(c.height);
                 } else {
-                    this.y = c.height + 3;
+                    this.x = getRandomInt(c.width);
+                    if (getRandomInt(2) == 1) {
+                        this.y = -3;
+                    } else {
+                        this.y = c.height + 3;
+                    }
                 }
             }
         } else {
@@ -197,7 +204,7 @@ class mobile {
         this.breakSpeed = 0.05;
         this.timesFired = 0;
         this.int = karma*2; // higher karma increases enemy accuracy
-        this.maxSpeed = 1 + getRandomInt(3);
+        this.maxSpeed = 1 + getRandomInt(4);
         this.maxBullets = getRandomInt(25);
         this.baseDamage = getRandomInt(25);
         this.bulletRate = getRandomInt(400) + 1; // delay before next bullet
@@ -209,37 +216,44 @@ class mobile {
         }
         let str = `rgb(${(100+(this.baseDamage*4))},${(100+(this.bulletRate/4))},${(100+(this.maxBullets/4))})`;
         //console.log(str)
-        this.color = str;
+        if (type == "mine") {
+            this.color = '#999999';
+        } else {
+            this.color = str;
+        }
         this.lzrCool = 25;
         // star shaped
+        let f = constellation+3;
         if (this.type == "mine") {
             this.path = new Path2D();
             this.path.moveTo(0, -20);
-            this.path.lineTo(7, -7);
-            this.path.lineTo(20, 0);
-            this.path.lineTo(7, 7);
-            this.path.lineTo(0, 20);
-            this.path.lineTo(-7, 7);
-            this.path.lineTo(-20, 0);
-            this.path.lineTo(-7, -7);
+            this.path.lineTo(7+plusMinus(f), -7+plusMinus(f));
+            this.path.lineTo(20+plusMinus(f), 0+plusMinus(f));
+            this.path.lineTo(7+plusMinus(f), 7+plusMinus(f));
+            this.path.lineTo(0+plusMinus(f), 20+plusMinus(f));
+            this.path.lineTo(-7+plusMinus(f), 7+plusMinus(f));
+            this.path.lineTo(-20+plusMinus(f), 0+plusMinus(f));
+            this.path.lineTo(-7+plusMinus(f), -7+plusMinus(f));
             this.path.lineTo(0, -20);
             this.hbOffset1 = 20;
             this.hbOffset2 = 40;
-            this.health = getRandomInt(9)+(5*constellation);
+            this.health = getRandomInt(4)+(5*constellation);
+            this.mineThresh = getRandomInt(40) + 10
         } else if (this.type == "enemy") {
             this.path = new Path2D();
-            this.path.moveTo(0, -20);
-            this.path.lineTo(20, -17);
-            this.path.lineTo(20, 17);
-            this.path.lineTo(23, 20);
-            this.path.lineTo(10, 20);
-            this.path.lineTo(10, 0);
-            this.path.lineTo(-10, 0);
-            this.path.lineTo(-10, 20);
-            this.path.lineTo(-23, 20);
-            this.path.lineTo(-20, 17);
+            this.path.moveTo(0, 20);
+            this.path.lineTo(-20+plusMinus(5), 17+plusMinus(5));
             this.path.lineTo(-20, -17);
-            this.path.lineTo(0, -20);
+            this.path.lineTo(-20+plusMinus(5), -20);
+            this.path.lineTo(-10, -20+plusMinus(10));
+            this.path.lineTo(-10, -10+plusMinus(10));
+            this.path.lineTo(-5, -10+plusMinus(20));
+            this.path.lineTo(5, -10+plusMinus(20));
+            this.path.lineTo(10, -10+plusMinus(10));
+            this.path.lineTo(10, -20+plusMinus(10));
+            this.path.lineTo(20+plusMinus(5), -20);
+            this.path.lineTo(20+plusMinus(5), 17+plusMinus(5));
+            this.path.lineTo(0, 20);
             this.hbOffset1 = 20;
             this.hbOffset2 = 40;
             this.health = getRandomInt(9)+(5*constellation);
