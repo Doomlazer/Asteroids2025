@@ -96,6 +96,7 @@ class Ship {
         this.nearestDirs = [-1,-1,-1,-1];
         this.rot = 0;
         this.rotSpeed = 3;
+        this.newLocDelay = 0;
         this.mapControlCycle = false;
         this.x = x;
         this.y = y;
@@ -476,6 +477,7 @@ class Asteroid {
         this.rot = getRandomInt(360);
         if (large) {
             // large 
+            this.coolDown = 0;
             if (getRandomInt(2) == 1) {
                 // start along x axis
                 this.x = getRandomInt(c.width);
@@ -528,6 +530,7 @@ class Asteroid {
             this.large = true;
         } else {
             // small
+            this.coolDown = 120;
             this.x = x;
             this.y = y;
             this.path = new Path2D();

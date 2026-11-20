@@ -175,6 +175,10 @@ function drawStage1() {
 
 
     
+    // mine delay, mostly
+    if (ship.newLocDelay > 0) {
+        ship.newLocDelay --;
+    }
     // draw ship
     if (!ship.dead && lives > 0) {
         sctx.strokeStyle = ship.color;
@@ -217,6 +221,7 @@ function drawStage1() {
                 ship.x = c.width/2;
                 ship.y = c.height/2;
                 ship.dead = false;
+                ship.newLocDelay;
                 if (ship.fuelTotal > 50) {
                     ship.fuelTotal = 50;
                 }
@@ -1133,7 +1138,7 @@ function drawMobiles() {
                 {"x":e.x+e.hbOffset2,"y":e.y+e.hbOffset2},
                 {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}
             );
-            e.spin += 120/d;
+            e.spin += 240/d;
             if (120/d > e.mineThresh && !ship.dead) {
                 if (ship.shield) {
                     ship.shield = false;
@@ -1155,11 +1160,15 @@ function drawMobiles() {
                 deadEnemies = [];
                 setAudioSource(7);
             }
-            if (d < e.mineRange && !ship.dead) {
+            if (
+                d < e.mineRange &&
+                !ship.dead &&
+                ship.newLocDelay == 0
+            ) {
                 let a = ship.hbOffset2/2;
                 e.rot = angle360(e.x+e.hbOffset2, e.y+e.hbOffset2, ship.x+ship.hbOffset2, ship.y+ship.hbOffset2);
                 if (e.speed < e.maxSpeed) {
-                    e.speed += 0.1;
+                    e.speed += 0.02;
                 }
                 moveEntity(e);
             }
@@ -1243,7 +1252,7 @@ function drawMobiles() {
                 //console.log(str)
                 ctx.closePath();
                 ctx.strokeStyle = str;
-                ctx.strokeRect(e.x+25+(i*3), e.y+40,2,r);
+                ctx.strokeRect(e.x+25+(i*3), e.y+43,2,r);
             }
         }
         //console.log(e, e.x,e.y)

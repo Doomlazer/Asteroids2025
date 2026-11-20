@@ -237,11 +237,12 @@ function step(timeStamp) {
                     deadResources.push(r);
                     if (ship.storageTotal + r.radius > ship.maxStorage) {
                         // waste part of resources that don't fit the maxStorage
-                        ship.storage[r.resource] += ship.maxStorage - ship.storageTotal;
-                        ship.storageTotal += ship.maxStorage - ship.storageTotal;
+                        let a = Math.round(ship.maxStorage - ship.storageTotal);
+                        ship.storage[r.resource] += a;
+                        ship.storageTotal += a;
                     } else {
-                        ship.storage[r.resource] += r.radius;
-                        ship.storageTotal += r.radius;
+                        ship.storage[r.resource] += Math.round(r.radius);
+                        ship.storageTotal += Math.round(r.radius);
                     }
                     if (msgTimer <= 0) {
                         msgTimer = 300;
@@ -475,7 +476,9 @@ function killRoid(roid) {
     // small little if large
     if (roid.large) {
         score += 250;
-        setAudioSource(2);
+        if (roid.health > 0) {
+            setAudioSource(2);
+        }
         let r = getRandomInt(2) + 2;
         for (let i=0; i<r; i++) {
             asteroids.push(new Asteroid(false, roid.x, roid.y));
@@ -1260,7 +1263,7 @@ function doUpgrade(sel, lvl) {
             break;
         case 4:
             // bullet rate
-            ship.bulletRate -= 5;
+            ship.bulletRate -= 2;
             if (ship.bulletRate < 1) {
                 ship.bulletRate = 1;
             }
@@ -1401,6 +1404,7 @@ function moveShip() {
             if (collision(ship, roid)) {
                 //console.log(!roid.large && ship.shield)
                 if (!roid.large && ship.shield) {
+                    // survive collision with small roids at expense of shield
                     ship.shield = false;
                     roid.health = 0;
                     killRoid(roid);
@@ -1441,9 +1445,13 @@ function moveShip() {
                     setAudioSource(4);
                     if (enemies.length <= 1) {
                         // set timer for new mobile
-                        ship.money += 50;
+                        //ship.money += 50;
                         respawnTimer = 50 + getRandomInt(200);
 
+                    }
+                    if (e.type == "mine") {
+                        roid.health = 0;
+                        killRoid(roid);
                     }
                     deadEnemies.push(e);
                     let r = getRandomInt(5) + 5;
@@ -1456,6 +1464,36 @@ function moveShip() {
                     deadEnemies = [];
                 }
             });
+            // collide with other asteroids
+            if (roid.coolDown > 0) {
+                roid.coolDown --;
+            }
+            asteroids.forEach(roid2 => {
+                if (
+                    roid !== roid2 &&
+                    collision(roid, roid2) &&
+                    roid.coolDown == 0
+                ) {
+                    if (roid.large && roid2.large) {
+                        killRoid(roid);
+                        killRoid(roid2);
+                        roid.health = 0;
+                        roid2.health = 0;
+                    } else {
+                        if (!roid.large) {
+                            killRoid(roid);
+                            roid.health = 0;
+                        }
+                        if (!roid2.large) {
+                            killRoid(roid2);
+                            roid2.health = 0;
+                        }
+                    }
+                    
+                }
+            });
+            asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+            deadAsteroids = [];
         });
     }
 }
@@ -1520,6 +1558,7 @@ function newAstroidField() {
     bullets = [];
     ship.velX = 0;
     ship.velY = 0;
+    ship.newLocDelay = 120;
     //resources = []; // needed? 
 
     let r;
@@ -1532,7 +1571,7 @@ function newAstroidField() {
             let e = new mobile(0,0,"mine");
             enemies.push(e)
         }
-        r = getRandomInt(5) + 1;
+        r = getRandomInt(7) + 1;
     } else {
         r = getRandomInt(15) + 1;
     }
