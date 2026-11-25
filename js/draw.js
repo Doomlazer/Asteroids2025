@@ -221,7 +221,7 @@ function drawStage1() {
         }
         if (ship.shield) {
             ctx.lineWidth = defaultLineWidth;
-            ctx.strokeStyle = "#0d40f5"
+            ctx.strokeStyle = "#0dc7f5"
             ctx.beginPath();
             ctx.arc(ship.x+20, ship.y+20, ship.shieldRad, 0, 2 * Math.PI);
             ship.shieldRad += 0.8;
@@ -1227,7 +1227,7 @@ function drawMobiles() {
             }
             moveEntity(e);
     
-            ctx.strokeStyle = '#FFFFFF';
+            ctx.strokeStyle = '#0062FF';
             for (let i = 0; i < e.childSegments.length-1; i++) {
                 if (i % e.tailSpacing == 0) {
                     let s = e.childSegments;
@@ -1238,12 +1238,7 @@ function drawMobiles() {
                 }
             }
 
-            //actx.clearRect(-40,-40,80,80);
-            //if (distance2D(s[1],e) < 55) {
-                actx.strokeStyle = '#ff9d00';
-            //} else {
-            //    actx.strokeStyle = '#FF0000';
-            //}
+            actx.strokeStyle = '#ff9d00';
             actx.lineWidth = defaultLineWidth + 1;
             actx.clearRect(-40,-40,80,80);
             actx.rotate(-e.spin * Math.PI / 180);

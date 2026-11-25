@@ -519,13 +519,20 @@ function killRoid(roid) {
         // small score
         score += 100;
         setAudioSource(3);
-        if (mapLocations[constellation][curMapLoc].type != "boss") {
+        let c1 = roid.hbOffset1+(roid.hbOffset2/2);
+        if (mapLocations[constellation][curMapLoc].type == "boss") {
+            for (let i = 0; i < 4; i++) {
+                let deb = new Debri(roid.x+c1, roid.y+c1);
+                deb.color = roid.color;
+                debrisArray.push(deb);
+            }
+        } else {
             let r = getRandomInt(2) + 1;
             for (let i=0; i<r; i++) {
                 resources.push(new Resource(
                     mapLocations[constellation][curMapLoc].resource,
-                    roid.x+roid.hbOffset1+(roid.hbOffset2/2),
-                    roid.y+roid.hbOffset1+(roid.hbOffset2/2)
+                    roid.x+c1,
+                    roid.y+c1
                 ));
             }
         }
@@ -1509,32 +1516,43 @@ function moveShip() {
                     e.spin += 240/distance2D(e, roid);
                     if (e.type == 'worm') {
                         // suck into maw
-                        let c1 = roid.x+roid.hbOffset1+(roid.hbOffset2/2);
-                        let c2 = e.x+e.hbOffset1+(e.hbOffset2/2);
+                        let c1 = roid.hbOffset1+(roid.hbOffset2/2);
+                        let c2 = e.hbOffset1+(e.hbOffset2/2);
                         roid.rot = angle360(roid.x+c1, roid.y+c1, e.x+c2, e.y+c2);
                         let d = distance2D({x:e.x+c2, y:e.y+c2},{x:roid.x+c1, y:roid.y+c1});
                         if (
-                            c1 > c2-4 &&
-                            c1 < c2+4 &&
-                            c1 > c2-4 &&
-                            c1 < c2+4
+                            roid.x+c1 > e.x+c2-4 &&
+                            roid.x+c1 < e.x+c2+4 &&
+                            roid.y+c1 > e.y+c2-4 &&
+                            roid.y+c1 < e.y+c2+4
                         ) {
                             e.chasing = false;
+                            let dr;
                             if (roid.large) {
+                                dr = 6;
                                 e.tailNumOfSeg += 3;
                             } else {
+                                dr = 3;
                                 e.tailNumOfSeg += 1;
                             }
+                            // poop mines when eating roids
                             if (e.childSegments.length > 0) {
                                 let s = e.childSegments[e.childSegments.length-1];
                                 enemies.push(new mobile(s.x-40,s.y-40,"mine"));
                             }
+                            for (let i = 0; i < dr; i++) {
+                                let deb = new Debri(roid.x+c1, roid.y+c1, "none");
+                                deb.color = roid.color;
+                                debrisArray.push(deb);
+                            }
                             deadAsteroids.push(roid);
                             asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
                             deadAsteroids = [];
+                            
                             setAudioSource(4);
                             let r = getRandomInt(3)
                             for (let i=0; i<r; i++) {
+                                // keep adding asteriods
                                 asteroids.push(new Asteroid());
                             }
                         }
@@ -1683,7 +1701,7 @@ function newBossArea() {
 function newAstroidField() {
     if (
         mapLocations[constellation][curMapLoc].type == "boss" &&
-        !mapLocations[constellation][curMapLoc].killedBoss
+        !mapLocations[constellation][curMapLoc].bossKilled
     ) {
         newBossArea();
         return;
