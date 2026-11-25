@@ -172,6 +172,7 @@ class mobile {
         this.rot = getRandomInt(360);
         this.spin = 0;
         this.mineRange = 200;
+        this.closestDist = 99999;
         if (x == 0 && y == 0) {
             if (type == "mine" || type == "worm") {
                 this.x = getRandomInt(c.width);
@@ -223,7 +224,6 @@ class mobile {
             this.color = str;
         }
         this.lzrCool = 25;
-        // star shaped
         let f = constellation+3;
         if (this.type == "mine") {
             this.path = new Path2D();

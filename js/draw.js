@@ -114,18 +114,20 @@ function drawStage1() {
     drawBG();
 
     // check if boss area and if bosses killed
+    console.log()
     if (
         mapLocations[constellation][curMapLoc].type == 'boss' &&
-        !mapLocations[constellation][curMapLoc].killedBoss
+        !mapLocations[constellation][curMapLoc].bossKilled
     ) {
         let numOfBosses = 0;
         for (let i = 0; i < enemies.length; i++) {
-            if (enemies[i].type == 'boss') {
+            
+            if (constellation == 0 && enemies[i].type == 'worm') {
                 numOfBosses ++;
             }
         }
         if (numOfBosses == 0) {
-            mapLocations[constellation][curMapLoc].killedBoss = true;
+            mapLocations[constellation][curMapLoc].bossKilled = true;
         }
     }
 
@@ -478,21 +480,42 @@ function drawMap() {
                 } else if (l.type == 'upgrade') {
                     for (let i = 0; i < l.locationUpgrades.length; i++) {
                         ctx.fillText(possibleUpgrades[l.locationUpgrades[i]], c.width/20*13, c.height/20*16+(c.height/20*i));
-                        // curr upgrade level
-                        ctx.fillText(ship.upgrades[l.locationUpgrades[i]], c.width/20*17.5, c.height/20*16+(c.height/20*i));
-                        // upgrade price
+                        
                         let depot = mapLocations[constellation][2];
-                        let lev = ship.upgrades[depot.locationUpgrades[i]];
-                        ctx.fillText((lev * lev * 100)+200, c.width/20*18.25, c.height/20*16+(c.height/20*i));
+                        if (possibleUpgrades[l.locationUpgrades[i]] == "LZR UPGRADE") {
+                            if (ship.lzrEquip) {
+                                // curr upgrade level
+                                ctx.fillText(ship.lzrLvl, c.width/20*17.5, c.height/20*16+(c.height/20*i));
+                                // upgrade price
+                                ctx.fillText((3000*ship.lzrLvl)+200, c.width/20*18.25, c.height/20*16+(c.height/20*i));
+                            } else {
+                                ctx.fillText("UNAVAIL.", c.width/20*17.5, c.height/20*16+(c.height/20*i));
+                            }
+                        } else {
+                            // curr upgrade level
+                            ctx.fillText(ship.upgrades[l.locationUpgrades[i]], c.width/20*17.5, c.height/20*16+(c.height/20*i));
+                            // upgrade price
+                            let lev = ship.upgrades[depot.locationUpgrades[i]];
+                            ctx.fillText((lev * lev * 100)+200, c.width/20*18.25, c.height/20*16+(c.height/20*i));
+                        }
+                        
                     }
                 } else if (l.type == 'fuel') {
                     ctx.fillText("FUEL PRICE: " + l.fuelPrice, c.width/20*11, c.height/20*16);
                 } else if (l.type == 'warp') {
                     ctx.fillText(constellationNames[l.warpDestinations[0]], c.width/20*14, c.height/20*16);
                     ctx.fillText(constellationNames[l.warpDestinations[1]], c.width/20*14, c.height/20*17);
+                } else if (l.type == 'boss') {
+                    ctx.fillText("COMPLETED: ", c.width/20*3, c.height/20*19);
+                    ctx.fillText(l.bossKilled, c.width/20*6, c.height/20*19);
                 }
+            } else if (l.type == 'boss') {
+                    ctx.fillText("COMPLETED: ", c.width/20*3, c.height/20*19);
+                    ctx.fillText(l.bossKilled, c.width/20*6, c.height/20*19);
             } else {
-                ctx.fillText("???", c.width/20*13.5, c.height/20*16);
+                if (l.type != 'boss') {
+                    ctx.fillText("???", c.width/20*13.5, c.height/20*16);
+                }
             };
 
             // selection rect
@@ -1339,18 +1362,20 @@ function drawMobiles() {
 
         // check if in laser range
         if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead && e.type != "worm") {
-            if (distance2D({"x":e.x+e.hbOffset2*1.4,"y":e.y+e.hbOffset2*1.4}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl)) {
+            let c1 = e.hbOffset1+(e.hbOffset2/2);
+            let c2 = ship.hbOffset1+(ship.hbOffset2/2)
+            if (distance2D({"x":e.x+c1,"y":e.y+c1}, {"x":ship.x+c2,"y":ship.y+c2}) < ship.lzrDistance + (15*ship.lzrLvl)) {
                 ctx.strokeStyle = "#FF0000";
                 ctx.lineWidth = Math.min(ship.lzrLvl, 5);
                 ctx.beginPath(); 
-                ctx.moveTo(ship.x+ship.hbOffset2, ship.y+ship.hbOffset2); 
-                ctx.lineTo(e.x + (e.hbOffset2*1.4), e.y+ (e.hbOffset2*1.4)); 
+                ctx.moveTo(ship.x+c2, ship.y+c2); 
+                ctx.lineTo(e.x + c1, e.y + c1); 
                 ctx.stroke(); // Render the line
                 ctx.lineWidth = defaultLineWidth;
                 if (e.lzrCool <= 0) {
                     let dam = getRandomInt(ship.lzrLvl+1)+1;
                     e.health -= dam;
-                    damageNumbers.push(new DamageNumber(dam, e.x+e.hbOffset1+(e.hbOffset2/2), e.y+e.hbOffset1+(e.hbOffset2/2)));
+                    damageNumbers.push(new DamageNumber(dam, e.x+c1, e.y+c1));
                     e.lzrCool = 25;
                     //console.log(e.health)
                     if (e.health <= 0) {

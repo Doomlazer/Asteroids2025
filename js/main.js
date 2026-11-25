@@ -187,6 +187,12 @@ function step(timeStamp) {
     }
     const elapsed = timeStamp - start;
 
+
+    // reset closest for enemy decision making
+    for (let i = 0; i < enemies.length; i++) {
+        enemies[i].closestDist = 99999;
+    }
+
     // damageNumber movement
     damageNumbers.forEach(n => {
         n.y --;
@@ -513,10 +519,15 @@ function killRoid(roid) {
         // small score
         score += 100;
         setAudioSource(3);
-        let r = getRandomInt(2) + 1;
-        for (let i=0; i<r; i++) {
-            resources.push(new Resource(mapLocations[constellation][curMapLoc].resource,
-                roid.x+roid.hbOffset1+(roid.hbOffset2/2), roid.y+roid.hbOffset1+(roid.hbOffset2/2)));
+        if (mapLocations[constellation][curMapLoc].type != "boss") {
+            let r = getRandomInt(2) + 1;
+            for (let i=0; i<r; i++) {
+                resources.push(new Resource(
+                    mapLocations[constellation][curMapLoc].resource,
+                    roid.x+roid.hbOffset1+(roid.hbOffset2/2),
+                    roid.y+roid.hbOffset1+(roid.hbOffset2/2)
+                ));
+            }
         }
     }
 }
@@ -1471,7 +1482,8 @@ function moveShip() {
                     let c1 = roid.hbOffset1+(roid.hbOffset2/2);
                     let c2 = e.hbOffset1+(e.hbOffset2/2);
                     let d = distance2D({x:e.x+c2, y:e.y+c2},{x:roid.x+c1, y:roid.y+c1});
-                    if (d < e.senseDist) {
+                    if (d < e.closestDist && d < e.senseDist) {
+                        e.closestDist = d;
                         //console.log("distance",d)
                         e.chasing = true;
                         if (e.speed < e.maxSpeed) {
@@ -1551,6 +1563,7 @@ function moveShip() {
                 asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
                 deadAsteroids = [];
             });
+
             // collide with other asteroids
             if (roid.coolDown > 0) {
                 roid.coolDown --;
@@ -1633,7 +1646,14 @@ function genMapLocations() {
             } else if (i == 7) {
                 t = 'fuel';
             } else if (i == 9) {
-                t = 'boss';
+                // constellations switch
+                switch (j) {
+                    case 0:
+                        t = 'boss';
+                        break;
+                    default:
+                        t = 'sector';
+                }
             }
             mapLocations[j].push(new MapLocation(t,i*2, j, c));
             c++;
