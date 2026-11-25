@@ -358,14 +358,40 @@ function step(timeStamp) {
                             if (e.health <= 0) {
                                 if (e.type == "mine") {
                                     deadEnemies.push(e);
-                                    enemies = enemies.filter(e => !deadEnemies.includes(e));
-                                    deadEnemies = [];
                                     setAudioSource(6);
                                     ship.money += 50;
+                                } else if (e.type == 'worm') {
+                                    setAudioSource(6);
+                                    // remove last segement
+                                    for (let i = 0; i < e.tailSpacing; i++) {
+                                        e.childSegments.pop();
+                                    }
+                                    if (e.tailNumOfSeg > 0) {
+                                        let s = e.childSegments[e.childSegments.length-1];
+                                        if (e.tailNumOfSeg > 2) {
+                                            bullets.push(
+                                                new Bullet(e, angle(
+                                                s.x,
+                                                s.y,
+                                                ship.x + (ship.hbOffset2/2),
+                                                ship.y + (ship.hbOffset2/2)),
+                                                s.x,
+                                                s.y, 2, false, 25, e.type)
+                                            );
+                                        }
+                                    
+                                        e.health = getRandomInt(15);
+                                        e.tailNumOfSeg --;
+                                    } else {
+                                        deadEnemies.push(e);
+                                        ship.money += 3000;
+                                    } 
                                 } else {
                                     // updated missions
                                     killEnemyShip(e);
                                 }
+                                enemies = enemies.filter(e => !deadEnemies.includes(e));
+                                deadEnemies = [];
                             }
                         }
                     });
@@ -479,7 +505,7 @@ function killRoid(roid) {
         if (roid.health > 0) {
             setAudioSource(2);
         }
-        let r = getRandomInt(2) + 2;
+        let r = getRandomInt(3) + 2;
         for (let i=0; i<r; i++) {
             asteroids.push(new Asteroid(false, roid.x, roid.y));
         }
@@ -1441,28 +1467,89 @@ function moveShip() {
             }
             // enemy & asteroid collision
             enemies.forEach(e => {
-                if (collision(e, roid)) {
-                    setAudioSource(4);
-                    if (enemies.length <= 1) {
-                        // set timer for new mobile
-                        //ship.money += 50;
-                        respawnTimer = 50 + getRandomInt(200);
-
+                if (e.type == 'worm') {
+                    let c1 = roid.hbOffset1+(roid.hbOffset2/2);
+                    let c2 = e.hbOffset1+(e.hbOffset2/2);
+                    let d = distance2D({x:e.x+c2, y:e.y+c2},{x:roid.x+c1, y:roid.y+c1});
+                    if (d < e.senseDist) {
+                        //console.log("distance",d)
+                        e.chasing = true;
+                        if (e.speed < e.maxSpeed) {
+                            e.speed += e.acceleration;
+                        }
+                        e.rot = angle360(e.x+c2, e.y+c2, roid.x+c1, roid.y+c1);
+                        e.spin += 240/d;
+                    } else if (!e.chasing) {
+                        if (e.speed > e.normalSpeed) {
+                            e.speed -= e.acceleration;
+                            if (e.speed < e.normalSpeed) {
+                                e.speed = e.normalSpeed;
+                            }
+                        } else if (e.speed < e.normalSpeed) {
+                            e.speed += e.acceleration;
+                            if (e.speed > e.normalSpeed) {
+                                e.speed = e.normalSpeed;
+                            }
+                        }
                     }
-                    if (e.type == "mine") {
-                        roid.health = 0;
-                        killRoid(roid);
-                    }
-                    deadEnemies.push(e);
-                    let r = getRandomInt(5) + 5;
-                    let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
-                    let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
-                    for (let i = 0; i < r; i++) {
-                        debrisArray.push(new Debri(x1, y1, 'e1'));
-                    }
-                    enemies = enemies.filter(e => !deadEnemies.includes(e));
-                    deadEnemies = [];
                 }
+                if (collision(roid,e)) {
+                    e.spin += 240/distance2D(e, roid);
+                    if (e.type == 'worm') {
+                        // suck into maw
+                        let c1 = roid.x+roid.hbOffset1+(roid.hbOffset2/2);
+                        let c2 = e.x+e.hbOffset1+(e.hbOffset2/2);
+                        roid.rot = angle360(roid.x+c1, roid.y+c1, e.x+c2, e.y+c2);
+                        let d = distance2D({x:e.x+c2, y:e.y+c2},{x:roid.x+c1, y:roid.y+c1});
+                        if (
+                            c1 > c2-4 &&
+                            c1 < c2+4 &&
+                            c1 > c2-4 &&
+                            c1 < c2+4
+                        ) {
+                            e.chasing = false;
+                            if (roid.large) {
+                                e.tailNumOfSeg += 3;
+                            } else {
+                                e.tailNumOfSeg += 1;
+                            }
+                            if (e.childSegments.length > 0) {
+                                let s = e.childSegments[e.childSegments.length-1];
+                                enemies.push(new mobile(s.x-40,s.y-40,"mine"));
+                            }
+                            deadAsteroids.push(roid);
+                            asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+                            deadAsteroids = [];
+                            setAudioSource(4);
+                            let r = getRandomInt(3)
+                            for (let i=0; i<r; i++) {
+                                asteroids.push(new Asteroid());
+                            }
+                        }
+                    } else {
+                        setAudioSource(4);
+                        if (enemies.length <= 1) {
+                            // set timer for new mobile
+                            //ship.money += 50;
+                            respawnTimer = 50 + getRandomInt(200);
+                        }
+                        if (e.type == "mine") {
+                            roid.health = 0;
+                            killRoid(roid);
+                        }
+                        deadEnemies.push(e);
+                        let r = getRandomInt(5) + 5;
+                        let x1 = e.x + e.hbOffset1 + (e.hbOffset2/2);
+                        let y1 = e.y + e.hbOffset1 + (e.hbOffset2/2);
+                        for (let i = 0; i < r; i++) {
+                            debrisArray.push(new Debri(x1, y1, 'e1'));
+                        }
+                        enemies = enemies.filter(e => !deadEnemies.includes(e));
+                        deadEnemies = [];
+                    }
+                }
+                asteroids = asteroids.filter(r => !deadAsteroids.includes(r));
+                deadAsteroids = [];
             });
             // collide with other asteroids
             if (roid.coolDown > 0) {
@@ -1516,7 +1603,7 @@ function changePrices(loc) {
 
 function collision(e, t) {
     // only calculate if close enough to hit
-    if (distance2D(e, t) <= e.hbOffset2 + t.hbOffset2 * 2) {
+    if (distance2D(e, t) <= e.hbOffset2 + (t.hbOffset2 * 2)+e.hbOffset1+t.hbOffset1) {
         let p = [e.x + e.hbOffset1, e.y + e.hbOffset1, 
                 e.x + e.hbOffset1, e.y + e.hbOffset1 + e.hbOffset2,
                 e.x + e.hbOffset1 + e.hbOffset2, e.y + e.hbOffset1,
@@ -1545,6 +1632,8 @@ function genMapLocations() {
                 t = 'trade';
             } else if (i == 7) {
                 t = 'fuel';
+            } else if (i == 9) {
+                t = 'boss';
             }
             mapLocations[j].push(new MapLocation(t,i*2, j, c));
             c++;
@@ -1552,7 +1641,33 @@ function genMapLocations() {
     }
 }
 
+function newBossArea() {
+    asteroids = [];
+    enemies = [];
+    bullets = [];
+    ship.velX = 0;
+    ship.velY = 0;
+    ship.newLocDelay = 120;
+
+    for (let i=0; i<8; i++) {
+        asteroids.push(new Asteroid(false, getRandomInt(getWidth()),getRandomInt(getHeight())));
+    }
+    // add more bosses in other constellations
+    if (true){//constellation == 0) {
+        enemies.push(new mobile(getWidth()/4, getHeight()/2, "worm"))
+        enemies.push(new mobile((getWidth()/4)*3, getHeight()/2, "worm"))
+    }
+
+}
+
 function newAstroidField() {
+    if (
+        mapLocations[constellation][curMapLoc].type == "boss" &&
+        !mapLocations[constellation][curMapLoc].killedBoss
+    ) {
+        newBossArea();
+        return;
+    }
     asteroids = [];
     enemies = [];
     bullets = [];
@@ -1561,6 +1676,8 @@ function newAstroidField() {
     ship.newLocDelay = 120;
     //resources = []; // needed? 
 
+    //enemies.push(new mobile(300, 300, "worm"))
+    //enemies.push(new mobile(1600, 1600, "worm"))
     let r;
     if (mapLocations[constellation][curMapLoc].isHostile) {
         let e = new mobile();

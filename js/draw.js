@@ -113,6 +113,22 @@ function drawStage1() {
     clearCanvas();
     drawBG();
 
+    // check if boss area and if bosses killed
+    if (
+        mapLocations[constellation][curMapLoc].type == 'boss' &&
+        !mapLocations[constellation][curMapLoc].killedBoss
+    ) {
+        let numOfBosses = 0;
+        for (let i = 0; i < enemies.length; i++) {
+            if (enemies[i].type == 'boss') {
+                numOfBosses ++;
+            }
+        }
+        if (numOfBosses == 0) {
+            mapLocations[constellation][curMapLoc].killedBoss = true;
+        }
+    }
+
     // Paint UPGRADE locations
     let loc = mapLocations[constellation][curMapLoc];
     if (loc.hasPaint) {
@@ -1172,11 +1188,55 @@ function drawMobiles() {
                 }
                 moveEntity(e);
             }
+        } else if (e.type == "worm") {
+            if (asteroids.length < 4) {
+                asteroids.push(new Asteroid());
+            }
+            let c1 = e.hbOffset1+(e.hbOffset2/2);
+            let c2 = ship.hbOffset1+(ship.hbOffset2/2);
+            let d = distance2D({x:e.x+c2, y:e.y+c2},{x:ship.x+c1, y:ship.y+c1});
+            e.spin += 240/d;
+
+            // update tail possitions
+            e.childSegments.unshift({"x":e.x+c1,"y":e.y+c1});
+            if (e.childSegments.length > e.tailSpacing * e.tailNumOfSeg) {
+                e.childSegments.pop();
+            }
+            moveEntity(e);
+    
+            ctx.strokeStyle = '#FFFFFF';
+            for (let i = 0; i < e.childSegments.length-1; i++) {
+                if (i % e.tailSpacing == 0) {
+                    let s = e.childSegments;
+                    ctx.beginPath();
+                    ctx.arc(s[i].x, s[i].y, 38-Math.max(2, (38/(s.length-1))*i), 0, 2 * Math.PI);
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+            }
+
+            //actx.clearRect(-40,-40,80,80);
+            //if (distance2D(s[1],e) < 55) {
+                actx.strokeStyle = '#ff9d00';
+            //} else {
+            //    actx.strokeStyle = '#FF0000';
+            //}
+            actx.lineWidth = defaultLineWidth + 1;
+            actx.clearRect(-40,-40,80,80);
+            actx.rotate(-e.spin * Math.PI / 180);
+            actx.stroke(e.path);
+            ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
+            actx.rotate(e.spin * Math.PI / 180);
+            actx.lineWidth = defaultLineWidth;
         } else {
             moveEntity(e);
         }
         e.bulletTimer --;
-        if (e.bulletTimer <= 0 && e.type != "mine") {
+        if (
+            e.bulletTimer <= 0 &&
+            e.type != "mine" &&
+            e.type != "worm"
+        ) {
             if (e.timesFired % 5 == 0) {
                 e.bulletTimer = getRandomInt(400);
             } else {
@@ -1210,11 +1270,16 @@ function drawMobiles() {
             // changde enemy direction
             e.rot += getRandomInt(30) - 15;
         }
-        
+        if (getRandomInt(5) == 1 && e.type == "worm") {
+            e.rot += getRandomInt(30) - 15;
+        }
         actx.strokeStyle = e.color;
         actx.clearRect(-40,-40,80,80);
         actx.rotate(e.spin * Math.PI / 180);
-        actx.stroke(e.path);
+        if (e.type != "worm") {
+            actx.stroke(e.path);
+        }
+        
         if (e.type == "enemy") {
             e.eyeCounter++;
             if (e.eyeCounter % 8 == 0) {
@@ -1258,6 +1323,7 @@ function drawMobiles() {
         //console.log(e, e.x,e.y)
         ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
         actx.rotate(-e.spin * Math.PI / 180);
+        
         if (e.type == "mine") {
             actx.clearRect(-40,-40,80,80);
             actx.rotate(-e.spin * Math.PI / 180);
@@ -1265,14 +1331,14 @@ function drawMobiles() {
             ctx.drawImage(a, 0,0,80,80, e.x, e.y,80,80);
             actx.rotate(e.spin * Math.PI / 180);
         }
-        
+
 
         if (showHitbox && debug) {
             drawHitbox(e);
         }
 
         // check if in laser range
-        if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead) {
+        if (ship.lzrEquip && ship.lzrLvl > 3 && !ship.dead && e.type != "worm") {
             if (distance2D({"x":e.x+e.hbOffset2*1.4,"y":e.y+e.hbOffset2*1.4}, {"x":ship.x+ship.hbOffset2,"y":ship.y+ship.hbOffset2}) < ship.lzrDistance + (15*ship.lzrLvl)) {
                 ctx.strokeStyle = "#FF0000";
                 ctx.lineWidth = Math.min(ship.lzrLvl, 5);
@@ -1305,6 +1371,11 @@ function drawMobiles() {
 function drawHitbox(e) {
     ctx.strokeStyle = '#FF0000';
     ctx.strokeRect(e.x+e.hbOffset1, e.y+e.hbOffset1, e.hbOffset2, e.hbOffset2);
+
+    ctx.strokeStyle = '#00ccff';
+    let c1 = e.hbOffset1+(e.hbOffset2/2)
+    ctx.strokeRect(e.x+c1, e.y+c1, 2, 2);
+
 }
 
 function drawGauges() {

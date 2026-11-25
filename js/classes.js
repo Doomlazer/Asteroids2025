@@ -173,7 +173,7 @@ class mobile {
         this.spin = 0;
         this.mineRange = 200;
         if (x == 0 && y == 0) {
-            if (type == "mine") {
+            if (type == "mine" || type == "worm") {
                 this.x = getRandomInt(c.width);
                 this.y = getRandomInt(c.height);
             } else {
@@ -194,8 +194,8 @@ class mobile {
                 }
             }
         } else {
-            this.x = 100//x;
-            this.y = 50//y;
+            this.x = x;
+            this.y = y;
         }
         this.speed = 1;
         this.eyeOff = getRandomInt(11);
@@ -258,6 +258,25 @@ class mobile {
             this.hbOffset1 = 20;
             this.hbOffset2 = 40;
             this.health = getRandomInt(9)+(5*constellation);
+        } else if (this.type == "worm") {
+            this.path = new Path2D();
+            this.path.arc(0, 0, 30, 0, 2 * Math.PI);
+            this.path.moveTo(-25, -25);
+            this.path.lineTo(25, -25);
+            this.path.lineTo(25, 25);
+            this.path.lineTo(-25, 25);
+            this.path.lineTo(-25, -25);
+            this.hbOffset1 = 0;
+            this.hbOffset2 = 80;
+            this.health = 15; //randomized on segment damage
+            this.tailSpacing = 20;
+            this.tailNumOfSeg = 1;
+            this.childSegments = [];
+            this.maxSpeed = 1.5;
+            this.normalSpeed = 1;
+            this.acceleration = 0.02;
+            this.chasing = false;
+            this.senseDist = 200;
         }
         
         this.dead = 0;
@@ -366,6 +385,12 @@ class MapLocation {
             let availWarpArray = [1,11, 0,2, 1,3, 2,4, 3,5, 4,6, 5,7, 6,8, 7,9, 8,10, 9,11, 10,0];
             this.warpDestinations.push(availWarpArray[constNumber*2]);
             this.warpDestinations.push(availWarpArray[(constNumber*2)+1]);
+        } else if (type == "boss") {
+            this.isHostile = true;
+            this.bossKilled = false;
+            this.name = "Snake Den";
+            let r = getRandomInt(3) + 1;
+            this.resources.push(getRandomInt(resourceNames.length-1));
         }
     }
 }
@@ -432,17 +457,23 @@ class StarFieldStar {
 }
 
 class Bullet {
-    constructor(e, angle, x, y, speed = 5, fromShip = true) {
+    constructor(e, angle, x, y, speed = 5, fromShip = true, dam = -1, type = "noneGiven") {
         this.fromShip = fromShip;
         this.angle = angle;
         this.x = x;
         this.y = y;
         this.life = e.bulletLife;
+
         this.damage = getRandomInt(e.baseDamage/2) + e.baseDamage;
+        if (dam != -1) {
+            this.damage = dam;
+        }
         if (bulletColorsEnabled) {
             this.color = bulletColors[colorCycle];
             // rainbow bullets
             colorCycle = (colorCycle += 1) % 8;
+        } else if (type == "worm") {
+            this.color = '#ff9d00';
         } else {
             if (fromShip) {
                 this.color = ship.bulletColor; 
@@ -482,17 +513,17 @@ class Asteroid {
                 // start along x axis
                 this.x = getRandomInt(c.width);
                 if (getRandomInt(2) == 1) {
-                    this.y = 0;
+                    this.y = 0-40;
                 } else {
-                    this.y = c.height;
+                    this.y = c.height+40;
                 }
             } else {
                 // y axis
                 this.y = getRandomInt(c.height);
                 if (getRandomInt(2) == 1) {
-                    this.x = 0;
+                    this.x = -40;
                 } else {
-                    this.x = c.width;
+                    this.x = c.width+40;
                 }
             }
             /*/ old
