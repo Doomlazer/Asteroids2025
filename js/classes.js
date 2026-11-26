@@ -276,7 +276,7 @@ class mobile {
             this.normalSpeed = 1;
             this.acceleration = 0.02;
             this.chasing = false;
-            this.senseDist = 200;
+            this.senseDist = 200+getRandomInt(200);
         }
         
         this.dead = 0;
