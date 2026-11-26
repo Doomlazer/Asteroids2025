@@ -1538,7 +1538,9 @@ function moveShip() {
                             // poop mines when eating roids
                             if (e.childSegments.length > 0) {
                                 let s = e.childSegments[e.childSegments.length-1];
-                                enemies.push(new mobile(s.x-40,s.y-40,"mine"));
+                                let m = new mobile(s.x-40,s.y-40,"mine");
+                                m.color = '#ff9d00';
+                                enemies.push(m);
                             }
                             for (let i = 0; i < dr; i++) {
                                 let deb = new Debri(roid.x+c1, roid.y+c1, "none");
