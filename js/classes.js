@@ -270,7 +270,7 @@ class mobile {
             this.hbOffset2 = 80;
             this.health = 15; //randomized on segment damage
             this.tailSpacing = 20;
-            this.tailNumOfSeg = 1;
+            this.tailNumOfSeg = 5;
             this.childSegments = [];
             this.maxSpeed = 1.5;
             this.normalSpeed = 1;
@@ -509,6 +509,7 @@ class Asteroid {
         if (large) {
             // large 
             this.coolDown = 0;
+            /*
             if (getRandomInt(2) == 1) {
                 // start along x axis
                 this.x = getRandomInt(c.width);
@@ -525,7 +526,9 @@ class Asteroid {
                 } else {
                     this.x = c.width+40;
                 }
-            }
+            }*/
+            this.x = getRandomInt(c.width);
+            this.y = getRandomInt(c.height);
             /*/ old
             this.path = new Path2D();
             this.path.moveTo(0, -30);
