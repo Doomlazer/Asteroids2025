@@ -504,31 +504,33 @@ function plusMinus(a) {
 }
 
 class Asteroid {
-    constructor(large = true, x, y) {
+    constructor(large = true, x, y, sides = true) {
         this.rot = getRandomInt(360);
         if (large) {
             // large 
             this.coolDown = 0;
-            /*
-            if (getRandomInt(2) == 1) {
-                // start along x axis
-                this.x = getRandomInt(c.width);
+            if (sides) {
                 if (getRandomInt(2) == 1) {
-                    this.y = 0-40;
+                    // start along x axis
+                    this.x = getRandomInt(c.width);
+                    if (getRandomInt(2) == 1) {
+                        this.y = 0-40;
+                    } else {
+                        this.y = c.height+40;
+                    }
                 } else {
-                    this.y = c.height+40;
+                    // y axis
+                    this.y = getRandomInt(c.height);
+                    if (getRandomInt(2) == 1) {
+                        this.x = -40;
+                    } else {
+                        this.x = c.width+40;
+                    }
                 }
             } else {
-                // y axis
+                this.x = getRandomInt(c.width);
                 this.y = getRandomInt(c.height);
-                if (getRandomInt(2) == 1) {
-                    this.x = -40;
-                } else {
-                    this.x = c.width+40;
-                }
-            }*/
-            this.x = getRandomInt(c.width);
-            this.y = getRandomInt(c.height);
+            }
             /*/ old
             this.path = new Path2D();
             this.path.moveTo(0, -30);

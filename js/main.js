@@ -102,7 +102,7 @@ let bgmTimer = 0;
 let karma = 3;
 let msgTimer = 0;
 let msgTimerMsg;
-let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2", "extraShip"];
+let sfx = ["fire", "saucerBig", "bangLarge", "bangMedium", "bangSmall", "beat1", "beat2", "extraShip", "hiscore"];
 let possibleUpgrades = ["FUEL TANK", "MAX SHIP SPEED", "SHIP ACCELERATION", "MAX BULLETS", "BULLET RATE",
                         "MAX STORAGE", "COLLECTION DISTANCE", "SHIP DECELERATION", "BULLET DAMAGE", "BULLET DISTANCE", "SHIELD", "LZR UPGRADE"];
 let debug = false;
@@ -1690,7 +1690,7 @@ function newBossArea() {
     ship.newLocDelay = 120;
 
     for (let i=0; i<8; i++) {
-        asteroids.push(new Asteroid(false, getRandomInt(getWidth()),getRandomInt(getHeight())));
+        asteroids.push(new Asteroid(false, getRandomInt(getWidth()),getRandomInt(getHeight()), false));
     }
     // add more bosses in other constellations
     if (true){//constellation == 0) {
@@ -1733,7 +1733,7 @@ function newAstroidField() {
         r = getRandomInt(15) + 1;
     }
     for (let i=0; i<r; i++) {
-        asteroids.push(new Asteroid());
+        asteroids.push(new Asteroid(true,0,0,false));
     }
 }
 

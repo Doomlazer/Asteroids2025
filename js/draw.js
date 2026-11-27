@@ -128,6 +128,7 @@ function drawStage1() {
         }
         if (numOfBosses == 0) {
             mapLocations[constellation][curMapLoc].bossKilled = true;
+            setAudioSource(8);
         }
     }
 
